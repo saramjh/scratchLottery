@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      text-decoration: none;
+      list-style: none;
+
+      /* 폰트 */
+      font-family: Arial, Helvetica, sans-serif;
+      font-weight: 400;
+      font-style: normal;
+    }
+
+    html,
+    body {
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .wrapper {
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      /* Viewport height */
+    }
+
+    main {
+      height: 100vh;
+    }
+
+    header {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px 0px;
+
+    }
+
+    sup {
+      font-family: "Dongle", sans-serif;
+      color: #4a4848;
+      font-size: 1rem;
+      font-weight: 100;
+    }
+
+    .lottery {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      align-items: center;
+      background-color: #333;
+      padding: 20px 10px;
+      height: 350px;
+    }
+
+    .btnGroup button {
+      font-size: 1rem;
+      padding: 5px 10px;
+      border-radius: 10px;
+      box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+    }
+
+    #greyCover {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      border-radius: 20px;
+      z-index: 10;
+    }
+
+    .grid {
+      position: absolute;
+      top: 50%;
+      /* 세로 중앙 */
+      left: 50%;
+      /* 가로 중앙 */
+      transform: translate(-50%, -50%);
+      /* 중앙으로 이동 */
+      transition: all 0.3s ease;
+      /* 전환 효과 */
+      font-family: "Dongle", sans-serif;
+      display: grid;
+      justify-content: center;
+      align-items: center;
+      grid-auto-flow: column;
+      grid-template-rows: 1fr 1fr 1fr;
+      gap: 5px;
+      border-radius: 20px;
+      pointer-events: none;
+      max-width: 400px;
+      max-height: 200px;
+      width: 100%;
+      height: 100%;
+      padding: 10px 20px;
+      background-color: #787878;
+      padding-left: 70px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+    }
+
+    .grid-cell {
+      font-family: "Dongle", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 1.5em;
+      width: 44px;
+      height: 55px;
+      padding: 2px 0 0 8px;
+      pointer-events: none;
+      user-select: none;
+      /* 크롬, 파이어폭스 등에서 텍스트 선택 방지 */
+      -webkit-user-select: none;
+      /* 사파리 */
+      -moz-user-select: none;
+      /* 파이어폭스 */
+      background-color: #8f8f8f;
+      background-size: cover;
+      border-radius: 5%;
+      box-shadow: inset 2px 4px 3px rgba(0, 0, 0, 0.2);
+      background: linear-gradient(155deg,
+          rgb(147, 147, 147),
+          rgb(147, 147, 147),
+          rgb(147, 147, 147),
+          rgb(198, 198, 198),
+          rgb(147, 147, 147),
+          rgb(147, 147, 147),
+          rgb(147, 147, 147))
+    }
+
+    .chosen {
+      font-family: "Dongle", sans-serif;
+      background-color: darkgoldenrod;
+      background: linear-gradient(155deg,
+          rgb(184, 142, 102),
+          rgb(142, 108, 77),
+          rgb(197, 174, 117),
+          rgb(255, 255, 255),
+          rgb(184, 142, 102),
+          rgb(146, 112, 81),
+          rgb(184, 142, 102));
+      box-shadow: inset 2px 4px 3px rgba(0, 0, 0, 0.2);
+      border: 1px solid rgba(0, 0, 0, 0.5);
+    }
+
+    .chosen p {
+      font-size: 1.5em;
+      font-family: "Dongle", sans-serif;
+      color: goldenrod;
+      text-shadow:
+        -2px -2px 5px rgba(68, 42, 21, 0.8),
+        2px -2px 5px rgba(68, 42, 21, 0.8),
+        -2px 2px 5px rgba(68, 42, 21, 0.8),
+        2px 2px 5px rgba(68, 42, 21, 0.8);
+      /* 테두리 효과 */
+      padding: 0 0 0 0;
+    }
+
+    .chosen p sup {
+      color: #4a4848;
+      text-shadow: none;
+    }
+
+    #probabilityInput {
+      width: 100%;
+      padding: 2px;
+    }
+
+    #jackpotModal {
+      display: none;
+      justify-content: center;
+      align-items: center;
+      position: fixed;
+      /* 화면에 고정된 위치 */
+      top: 19%;
+      /* 세로 중앙 위치 */
+      left: 50%;
+      /* 가로 중앙 위치 */
+      transform: translate(-50%, -50%);
+      /* 중앙으로 이동 */
+      transition: all 0.3s ease;
+      /* 전환 효과 */
+      z-index: 1000;
+      /* 다른 요소 위에 표시 */
+      background-color: white;
+      /* 배경색 (선택사항) */
+      padding: 10px;
+      /* 패딩 (선택사항) */
+      border-radius: 8px;
+      /* 모서리 둥글기 (선택사항) */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      /* 그림자 (선택사항) */
+      padding: 1em 2em;
+    }
+
+    .modal-content {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      line-height: 2em;
+      ;
+
+    }
+
+    .modal-content h2 {
+      font-family: "Jua", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+
+    }
+
+    .modal-content .close {
+      width: 100%;
+      cursor: pointer;
+      text-align: center;
+      background-color: aliceblue;
+      box-shadow: inset -1px -1px 4px rgba(0, 0, 0, 0.2);
+      color: #333;
+      margin: 5px 0;
+      border-radius: 5px;
+    }
+
+    .lotteryInfo {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .probability-setting {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: auto;
+    }
+
+    .probability-setting label {
+      background-color: #e0b847;
+      padding: 5px 10px;
+      margin: 10px 20px;
+      border-radius: 5px;
+      font-size: 2rem;
+      text-align: center;
+      width: 100%;
+      box-shadow: inset -1px -4px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .probability-setting input {
+      font-size: 1.5em;
+      text-align: center;
+      width: 100%;
+    }
+
+    .probability-setting input::after {
+      content: '%';
+      /* 표시할 단위 */
+      position: absolute;
+      right: 10px;
+      /* 입력 필드의 오른쪽 여백 */
+      top: 50%;
+      /* 세로 중앙 정렬 */
+      transform: translateY(-50%);
+      /* 중앙 정렬 */
+      pointer-events: none;
+      /* 클릭 이벤트 방지 */
+      color: #999;
+      /* 단위 색상 */
+    }
+
+    .probability-setting button {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: 100%;
+    }
+
+    .prize-tier table {
+      background-color: #d3d3d3;
+      text-align: right;
+      padding: 10px;
+      border-radius: 10px;
+      border: 1px solid #444;
+      margin: 30px 0;
+    }
+
+    .prize-tier table th {
+      text-align: center;
+      font-size: 1rem;
+      background-color: #8f8f8f;
+      padding: 5px 10px;
+    }
+
+    #jackpotMessage span {
+      font-family: "Jua", sans-serif;
+      font-weight: 300;
+      background-color: #e0b847;
+      color: #fff;
+      font-size: 1rem;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+
+    #lotteryBalance {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: auto;
+    }
+
+    #recordDisplay {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      width: auto;
+      margin: 10px 0;
+      height: auto;
+    }
+
+    #recordDisplay div {
+      width: 500px;
+      background-color: #e2e2e2;
+      padding: 3px 5px;
+      margin-bottom: 2px;
+    }
+
+    footer {
+      position: fixed;
+      bottom: 0;
+      right: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: #dcdcdc;
+      border-top: 1px solid #e0e0e0;
+      text-align: center;
+      font-size: 1rem;
+      width: 50px;
+      height: 50px;
+      margin: 15px;
+      border-radius: 100%;
+      transition: all 0.3s ease;
+      overflow: hidden;
+    }
+
+
+    .footer-content {
+      text-align: center;
+      display: block;
+      bottom: 60px;
+      /* 푸터 위에 추가 콘텐츠를 표시할 위치 */
+      background-color: #dcdcdc;
+      padding: 10px;
+      width: 200px;
+      /* 콘텐츠 영역의 너비 */
+      text-align: center;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .footer-text {
+      display: none;
+    }
+
+    footer:hover {
+      width: 300px;
+      /* 마우스 오버 시 푸터의 너비 확장 */
+      border-radius: 25px;
+      /* 사각형으로 변환 */
+    }
+
+    footer:hover .footer-content {
+      display: none;
+      padding: 10px;
+      /* 마우스 오버 시 콘텐츠와 텍스트 표시 */
+    }
+
+    footer:hover .footer-text {
+      display: block;
+      padding: 10px;
+      /* 마우스 오버 시 콘텐츠와 텍스트 표시 */
+    }
+
+    @media (max-width: 500px) {
+      td {
+        font-size: 0.9rem;
+      }
+
+      .modal {
+        width: 85%;
+      }
+
+      #jackpotMessage span {
+        font-family: "Jua", sans-serif;
+        font-weight: 100;
+        background-color: #e0b847;
+        color: #fff;
+        font-size: 1.2rem;
+        padding: 2px 5px;
+        border-radius: 5px;
+      }
+
+      #recordDisplay {
+        font-size: 0.8rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      #recordDisplay div {
+        width: 95%;
+        background-color: #e2e2e2;
+        padding: 3px 5px;
+        margin-bottom: 2px;
+      }
+    }
+  </style>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Dongle&family=Jua&family=Noto+Sans+KR:wght@100..900&display=swap"
+    rel="stylesheet">
+</head>
+
+<body>
+  <div class="wrapper">
+    <header>스크래치 복권 체험 프로그램</header>
+    <main>
+      <section class="lottery">
+        <div class="grid">
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+          <div class="grid-cell"></div>
+        </div>
+        <canvas id="greyCover"></canvas>
+        <div class="btnGroup">
+          <button id="scratch">복권 긁기</button>
+          <button id="nextLottery">다음 복권</button>
+          <button id="resetLottery">초 기 화</button>
+        </div>
+
+      </section>
+      <section class="lotteryInfo">
+        <div class="probability-setting">
+          <label for="probabilityInput">당첨 확률 설정</label>
+          <input type="number" id="probabilityInput" value="20" min="0" max="100" placeholder="%">
+          <button id="applyProbability">확률 적용</button>
+        </div>
+        <div class="prize-tier">
+          <!-- 당첨 확률표가 여기에 표시됩니다. -->
+        </div>
+      </section>
+      <section id="lotteryBalance">
+
+      </section>
+      <section id="recordDisplay">
+
+      </section>
+    </main>
+    <footer>
+      <div class="footer-content">
+        <p>&copy;</p>
+      </div>
+      <div class="footer-text"><a>
+          <p>&copy; 2024 saramjh reserved.</p>
+        </a></div>
+    </footer>
+  </div>
+  <!-- 모달 HTML -->
+  <div id="jackpotModal" class="modal">
+    <div class="modal-content">
+      <h2>당첨 결과</h2>
+      <p id="jackpotMessage"></p>
+      <span class="close">&times;</span>
+    </div>
+  </div>
+  <script src="script.js"></script>
+</body>
+
+</html>
