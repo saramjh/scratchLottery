@@ -2,9 +2,22 @@
 <html lang="en">
 
 <head>
+  <!-- Google Tag Manager -->
+  <script>(function (w, d, s, l, i) {
+      w[l] = w[l] || []; w[l].push({
+        'gtm.start':
+          new Date().getTime(), event: 'gtm.js'
+      }); var f = d.getElementsByTagName(s)[0],
+        j = d.createElement(s), dl = l != 'dataLayer' ? '&l=' + l : ''; j.async = true; j.src =
+          'https://www.googletagmanager.com/gtm.js?id=' + i + dl; f.parentNode.insertBefore(j, f);
+    })(window, document, 'script', 'dataLayer', 'GTM-MDH5GSNT');</script>
+  <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Document</title>
+  <meta name="description" content="스크래치 복권 체험 프로그램으로, 당첨 확률을 설정하고 복권을 긁어보세요.">
+  <meta name="keywords" content="스크래치 복권, 복권 체험, 당첨 확률, 복권 프로그램">
+  <meta name="author" content="Saramjh">
+  <title>스크래치 복권 체험 프로그램</title>
 
   <style>
     * {
@@ -54,10 +67,11 @@
     }
 
     .lottery {
+      color: #fff;
       position: relative;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: space-between;
       align-items: center;
       background-color: #333;
       padding: 20px 10px;
@@ -440,10 +454,18 @@
 </head>
 
 <body>
+  <!-- Google Tag Manager (noscript) -->
+  <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MDH5GSNT" height="0" width="0"
+      style="display:none;visibility:hidden"></iframe></noscript>
+  <!-- End Google Tag Manager (noscript) -->
   <div class="wrapper">
-    <header>스크래치 복권 체험 프로그램</header>
+    <header>
+      <h1>스크래치 복권 체험 프로그램</h1>
+    </header>
     <main>
+
       <section class="lottery">
+        <h2>복권 긁기</h2>
         <div class="grid">
           <div class="grid-cell"></div>
           <div class="grid-cell"></div>
@@ -456,7 +478,7 @@
           <div class="grid-cell"></div>
           <div class="grid-cell"></div>
         </div>
-        <canvas id="greyCover"></canvas>
+        <canvas id="greyCover" alt="복권 화면을 가리는 커버"></canvas>
         <div class="btnGroup">
           <button id="scratch">복권 긁기</button>
           <button id="nextLottery">다음 복권</button>
@@ -466,7 +488,9 @@
       </section>
       <section class="lotteryInfo">
         <div class="probability-setting">
-          <label for="probabilityInput">당첨 확률 설정</label>
+          <label for="probabilityInput">
+            <h2>당첨 확률 설정</h2>
+          </label>
           <input type="number" id="probabilityInput" value="20" min="0" max="100" placeholder="%">
           <button id="applyProbability">확률 적용</button>
         </div>
