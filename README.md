@@ -3,7 +3,7 @@
 
 이 프로젝트는 사용자가 복권을 긁어 당첨 여부를 확인할 수 있는 스크래치 복권 체험 프로그램입니다. 사용자는 복권을 긁으며 당첨 결과를 확인할 수 있으며, 확률을 설정하여 복권의 당첨 확률을 조정할 수 있습니다.
 
-[복권체험 프로그램 바로가기]([link](https://saramjh.github.io/scratchLottery/))
+<a href="https://saramjh.github.io/scratchLottery/">복권체험 프로그램 바로가기</a>
 
 참조사이트 링크: <https://velog.io/@aromahyang/%EB%8F%99%EC%A0%84-%EA%B8%81%EA%B8%B0-%EC%95%A0%EB%8B%88%EB%A9%94%EC%9D%B4%EC%85%98"/>
 스크래치 기능 구현을 참고하였습니다.
