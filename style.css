@@ -95,6 +95,7 @@ main {
 	width: auto;
 	background-color: black;
 	z-index: 1;
+	border-radius: 0 0 5px 5px;
 }
 
 header {
@@ -380,10 +381,11 @@ sup {
 	justify-content: center;
 	align-items: center;
 	width: 450px;
-	margin: 10px 0;
+	margin: 10px 0px 0;
 	background-color: #0e850e;
 	border-radius: 0 0 5px 5px;
 	padding: 5px;
+	border-radius: 0 0 5px 5px;
 }
 
 #recordDisplay h3 {
@@ -400,6 +402,7 @@ sup {
 	background-color: #e2e2e2;
 	padding: 3px 5px;
 	margin-bottom: 2px;
+	border-radius: 0 0 5px 5px;
 }
 
 footer {
@@ -464,6 +467,7 @@ footer:hover .footer-text {
 
 	main {
 		width: 100%;
+		border-radius: 0 0 5px 5px;
 	}
 
 	.lottery {
@@ -494,6 +498,7 @@ footer:hover .footer-text {
 		display: flex;
 		flex-direction: column;
 		justify-content: space-between;
+		width: 100%;
 	}
 
 	#recordDisplay div {
@@ -501,5 +506,6 @@ footer:hover .footer-text {
 		background-color: #e2e2e2;
 		margin-bottom: 2px;
 		font-size: 0.9rem;
+		border-radius: 0 0 5px 5px;
 	}
 }
