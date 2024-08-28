@@ -133,7 +133,7 @@ $canvas.addEventListener("mouseup", handleDrawingEnd)
 
 /* 스크래치 커버 만들기 끝 */
 function calculatePrizeProbabilities(P1) {
-	const remainingProbability = 1 - parseFloat(P1) / 100 // 나머지 확률
+	const remainingProbability = 1 - parseFloat(P1) // 나머지 확률
 	const fibonacci = [1, 2, 3, 5, 8, 13, 21, 34] // 1단계를 제외한 피보나치수열
 	const T = fibonacci.reduce((sum, f) => sum + f, 0) // 피보나치 수열의 총합
 
