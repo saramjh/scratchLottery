@@ -518,7 +518,7 @@ function displayLotteryRecord() {
 	}
 
 	// 기록을 HTML로 변환하여 표시
-	const recordHtml = lotteryRecord.map((record) => `<div>${record.time}: ${record.result}</div>`).join("")
+	const recordHtml = lotteryRecord.map((record) => `<div>${record.time}- ${record.result}</div>`).join("")
 
 	recordDisplay.innerHTML = `<h3>당첨 내역</h3>${recordHtml}`
 }
