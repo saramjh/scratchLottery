@@ -4,8 +4,6 @@ const modal = document.getElementById("jackpotModal")
 const closeModal = document.querySelector(".modal .close")
 const jackpotMessage = document.getElementById("jackpotMessage")
 /* 스크래치 커버 만들기 시작 */
-const ERASE_RADIUS = 30
-const ERASE_DISTANCE = ERASE_RADIUS / 2 // 지워진 영역(투명한 원) 간 임의 간격
 
 const $canvas = document.getElementById("greyCover")
 const context = $canvas.getContext("2d")
@@ -13,15 +11,17 @@ const WIDTH = 400
 const HEIGHT = 200
 const dpr = window.devicePixelRatio
 
+const ERASE_RADIUS = 30
+const ERASE_DISTANCE = ERASE_RADIUS / 2
+
 const col = Math.ceil(WIDTH / (ERASE_RADIUS * 2 + ERASE_DISTANCE))
 const row = Math.ceil(HEIGHT / (ERASE_RADIUS * 2 + ERASE_DISTANCE))
-// 자동으로 결과를 보여줄 임계치 설정
-let thresholdOfEraseCount = 0
-let erasedList = [] // 지워진 위치를 저장할 리스트 선언
 
-thresholdOfEraseCount = col * row
-
-isPrizeAwarded = false
+let thresholdOfEraseCount = col * row
+let erasedList = []
+let isDrawing = false
+let isRevealed = false
+let isPrizeAwarded = false
 
 const initCanvas = () => {
 	$canvas.style.width = `${WIDTH}px`
@@ -30,7 +30,6 @@ const initCanvas = () => {
 	$canvas.height = HEIGHT * dpr
 	context.scale(dpr, dpr)
 
-	// 회색 배경으로 덮기
 	context.strokeStyle = "#999"
 	context.fillStyle = "#999"
 	context.beginPath()
@@ -38,19 +37,6 @@ const initCanvas = () => {
 	context.stroke()
 	context.fill()
 
-	// 투명한 원이 최대로 그려질 경우를 캔버스에 표현
-	for (let i = 0; i < col; i++) {
-		for (let j = 0; j < row; j++) {
-			context.save()
-			context.beginPath()
-			context.arc(ERASE_RADIUS + i * (ERASE_RADIUS * 2 + ERASE_DISTANCE), ERASE_RADIUS + j * (ERASE_RADIUS * 2 + ERASE_DISTANCE), ERASE_RADIUS, 0, 2 * Math.PI, false)
-			context.fill()
-			context.closePath()
-			context.restore()
-		}
-	}
-
-	// 안내 문구 추가
 	context.font = "20px neodgm"
 	context.fillStyle = "#000"
 	context.textAlign = "center"
@@ -61,8 +47,6 @@ const initCanvas = () => {
 initCanvas()
 
 const { top: canvasTop, left: canvasLeft } = $canvas.getBoundingClientRect()
-let isDrawing = false
-let isRevealed = false
 
 const drawTransparentCircle = (x, y) => {
 	context.save()
@@ -84,52 +68,55 @@ const drawTransparentCircle = (x, y) => {
 	}
 }
 
-const handleDrawingStart = () => {
-	if (!isDrawing) {
-		isDrawing = true
-	}
+const handleDrawingStart = (event) => {
+	isDrawing = true
+	const { offsetX, offsetY } = getMouseOrTouchPosition(event)
+	drawTransparentCircle(offsetX, offsetY)
 }
 
 const handleDrawing = (event) => {
-	if (isDrawing) {
-		const { offsetX, offsetY } = event
-		context.save()
-		context.globalCompositeOperation = "destination-out"
-		context.beginPath()
-		context.arc(offsetX, offsetY, ERASE_RADIUS, 0, 2 * Math.PI, false)
-		context.fill()
-		context.closePath()
-		context.restore()
+	if (!isDrawing) return
+	const { offsetX, offsetY } = getMouseOrTouchPosition(event)
+	drawTransparentCircle(offsetX, offsetY)
 
-		if (erasedList.length < thresholdOfEraseCount) {
-			drawTransparentCircle(offsetX, offsetY)
-		} else {
-			if (!isRevealed && !isPrizeAwarded) {
-				context.clearRect(0, 0, WIDTH, HEIGHT)
-				isRevealed = true
-				isPrizeAwarded = true
-				// 모달 표시
-				showJackpotModal(jackpotLevel)
-				closeModal.focus()
-				// 긁기 비용 추가
-				totalCost += 1000 // 한 번 긁기 당 1000원 비용 추가
-
-				// 현재 총 비용과 당첨금액을 표시하는 함수 호출
-				updateDisplay()
-			}
+	if (erasedList.length >= thresholdOfEraseCount) {
+		if (!isRevealed && !isPrizeAwarded) {
+			context.clearRect(0, 0, WIDTH, HEIGHT)
+			isRevealed = true
+			isPrizeAwarded = true
+			showJackpotModal(jackpotLevel)
+			totalCost += 1000
+			updateDisplay()
 		}
 	}
 }
 
 const handleDrawingEnd = () => {
-	if (isDrawing) {
-		isDrawing = false
-	}
+	isDrawing = false
 }
 
+const getMouseOrTouchPosition = (event) => {
+	let offsetX, offsetY
+	if (event.touches) {
+		const touch = event.touches[0]
+		offsetX = touch.pageX - canvasLeft
+		offsetY = touch.pageY - canvasTop
+	} else {
+		offsetX = event.offsetX
+		offsetY = event.offsetY
+	}
+	return { offsetX, offsetY }
+}
+
+// 마우스 이벤트 추가
 $canvas.addEventListener("mousedown", handleDrawingStart)
 $canvas.addEventListener("mousemove", handleDrawing)
 $canvas.addEventListener("mouseup", handleDrawingEnd)
+
+// 터치 이벤트 추가
+$canvas.addEventListener("touchstart", handleDrawingStart)
+$canvas.addEventListener("touchmove", handleDrawing)
+$canvas.addEventListener("touchend", handleDrawingEnd)
 
 /* 스크래치 커버 만들기 끝 */
 function calculatePrizeProbabilities(P1) {
@@ -197,20 +184,42 @@ let jackpot = [
 
 // 가장 높은 등수 추출
 function findLowestRankWithJackpotOne(jackpot) {
-	// jackpot 키의 값이 1인 객체를 필터링
+	// jackpot 값이 1인 객체들만 필터링
 	const filteredPrizes = jackpot.filter((prize) => prize.jackpot === 1)
-
-	// 필터링된 결과가 없으면 null 반환
+	console.log(filteredPrizes)
+	// jackpot 값이 1인 객체가 하나도 없으면 null 반환
 	if (filteredPrizes.length === 0) {
 		return null
 	}
 
-	// rank가 가장 작은 객체 찾기
-	const lowestRankPrize = filteredPrizes.reduce((min, prize) => {
-		return prize.rank < min.rank ? prize : min
-	})
+	// rank 8인 객체만 jackpot 값이 1인 경우
+	const rank8Prize = filteredPrizes.find((prize) => prize.rank === 8)
+	if (filteredPrizes.length === 1 && rank8Prize) {
+		return rank8Prize
+	}
 
-	return lowestRankPrize // 최종 결과 반환
+	// rank가 연속적으로 증가하는지 확인하는 함수
+	const isConsecutiveRanks = (prizes) => {
+		const sortedPrizes = prizes.slice().sort((a, b) => a.rank - b.rank)
+		for (let i = 1; i < sortedPrizes.length; i++) {
+			if (sortedPrizes[i].rank !== sortedPrizes[i - 1].rank + 1) {
+				return false
+			}
+		}
+		return true
+	}
+
+	// rank가 8인 객체를 포함하고, 모든 rank가 연속적으로 증가하는지 확인
+	if (rank8Prize && isConsecutiveRanks(filteredPrizes)) {
+		// 가장 낮은 rank 값을 가진 객체 찾기
+		const lowestRankPrize = filteredPrizes.reduce((min, prize) => {
+			return prize.rank < min.rank ? prize : min
+		})
+		return lowestRankPrize
+	}
+
+	// 위 조건에 맞지 않는 경우 null 반환
+	return null
 }
 
 const numSup = { 1: "일", 2: "이", 3: "삼", 4: "사", 5: "오", 6: "육", 7: "칠", 8: "팔", 9: "구", 0: "영" }
