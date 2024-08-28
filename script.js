@@ -312,7 +312,7 @@ function displayPrizeProbabilities(prizeThresholds) {
 }
 
 // 등수별 당첨확률계산
-calculatePrizeProbabilities(0.2) // 20% 당첨확률 입력 초기값
+calculatePrizeProbabilities(0.000002) // 20% 당첨확률 입력 초기값
 
 // 각 당첨확률을 적용하여 각 등수별 추첨하여 jackpot에 기록
 getRandomPrize(prizeThresholds)
@@ -350,17 +350,6 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 	isRevealed = false
 	isDrawing = false // 복권 긁기 상태 초기화
 	isPrizeAwarded = false
-
-	// 새 복권을 위한 새로운 당첨번호 생성
-	getRandomPrize(prizeThresholds)
-
-	jackpotLevel = findLowestRankWithJackpotOne(jackpot)
-	populateGridCells(jackpotLevel)
-
-	// 화면 업데이트
-	updateDisplay()
-	// 당첨율표 표시
-	displayPrizeProbabilities(prizeThresholds)
 
 	closeJackpotModal()
 })
@@ -495,7 +484,14 @@ document.getElementById("nextLottery").onclick = () => {
 let lotteryRecord = []
 
 function updateLotteryRecord(jackpotLevel) {
-	const currentTime = new Date().toLocaleString() // 현재 시각
+	const currentTime = new Date() // 현재 시각
+	const month = String(currentTime.getMonth() + 1).padStart(2, "0") // 월 (0부터 시작하므로 +1 필요)
+	const day = String(currentTime.getDate()).padStart(2, "0") // 일
+	const hours = String(currentTime.getHours()).padStart(2, "0") // 시 (24시간 형식)
+	const minutes = String(currentTime.getMinutes()).padStart(2, "0") // 분
+	const seconds = String(currentTime.getSeconds()).padStart(2, "0") // 초
+
+	const formattedTime = `${month}.${day} ${hours}:${minutes}:${seconds}`
 
 	let result
 	if (jackpotLevel) {
@@ -505,7 +501,7 @@ function updateLotteryRecord(jackpotLevel) {
 	}
 
 	// 기록을 lotteryRecord 배열에 추가
-	lotteryRecord.push({ time: currentTime, result: result })
+	lotteryRecord.push({ time: formattedTime, result: result })
 
 	// 기록을 화면에 표시
 	displayLotteryRecord()
