@@ -72,6 +72,8 @@ const handleDrawingStart = (event) => {
 	isDrawing = true
 	const { offsetX, offsetY } = getMouseOrTouchPosition(event)
 	drawTransparentCircle(offsetX, offsetY)
+	// 터치가 시작될 때 스크롤 비활성화
+	document.body.style.overflow = "hidden"
 }
 
 const handleDrawing = (event) => {
@@ -93,6 +95,8 @@ const handleDrawing = (event) => {
 
 const handleDrawingEnd = () => {
 	isDrawing = false
+	// 터치가 끝나면 스크롤 활성화
+	document.body.style.overflow = "auto"
 }
 
 const getMouseOrTouchPosition = (event) => {
