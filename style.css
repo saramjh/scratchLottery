@@ -1,0 +1,503 @@
+@font-face {
+	font-family: "neodgm"; /* 폰트 이름 */
+	src: url("font/neodgm.woff2") format("woff2"); /* 폰트 파일 경로 */
+	font-weight: normal; /* 폰트 두께 */
+	font-style: normal; /* 폰트 스타일 */
+}
+
+* {
+	margin: 0;
+	padding: 0;
+	box-sizing: border-box;
+	text-decoration: none;
+	list-style: none;
+
+	/* 폰트 */
+	font-family: "neodgm", sans-serif;
+	font-weight: 400;
+	font-style: normal;
+}
+a {
+	text-decoration: none;
+	color: #000;
+}
+html,
+body {
+	height: 100%;
+	width: 100%;
+	background: linear-gradient(rgb(64, 78, 94) 75%, #000000);
+	overflow-x: hidden;
+}
+
+@-webkit-keyframes STAR {
+	0% {
+		background: powderblue;
+		height: 1px;
+		width: 1px;
+		box-shadow: 0px 0px 10px white;
+	}
+	10% {
+		background: #b0e5de;
+	}
+	20% {
+		background: #b0e5cc;
+	}
+	30% {
+		background: #cce5b0;
+	}
+	40% {
+		background: #dae5b0;
+	}
+	50% {
+		background: #e5ddb0;
+		width: 4px;
+		height: 4px;
+		box-shadow: 0px 0px 10px #d3bd3d;
+	}
+	100% {
+		width: 1px;
+		height: 1px;
+		background: powderblue;
+		box-shadow: 0px 0px 10px white;
+	}
+}
+
+.star {
+	height: 1px;
+	width: 1px;
+	border-radius: 5px;
+	box-shadow: 0px 0px 10px white;
+	background: powderblue;
+	position: absolute;
+	z-index: 0; /* 별이 배경보다 위에 위치 */
+}
+
+.star.pulse {
+	-webkit-animation: STAR 2s infinite; /* Safari 4+ */
+}
+
+.wrapper {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	min-height: 100vh;
+	width: 100%;
+	z-index: 1;
+	/* Viewport height */
+}
+
+main {
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-start;
+	align-items: center;
+	width: auto;
+	background-color: black;
+}
+
+header {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 20px 0px;
+	width: auto;
+	background-color: black;
+	min-width: 451px;
+}
+
+header h1 {
+	background: linear-gradient(95deg, rgb(177, 16, 16) 5%, rgb(103, 6, 6));
+	box-shadow: inset 0 0 0 1px rgb(3, 78, 29);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	color: white;
+	font-size: 24px; /* 텍스트 크기 */
+	padding: 15px 30px;
+	border-radius: 5px;
+}
+
+sup {
+	color: #4a4848;
+	font-size: 0.6rem;
+	font-weight: 100;
+}
+
+.lottery {
+	color: #fff;
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	justify-content: space-between;
+	align-items: center;
+	background-color: #333;
+	padding: 20px 10px;
+	height: 320px;
+	width: 100%;
+}
+
+.btnGroup button {
+	font-size: 1rem;
+	padding: 5px 10px;
+	border-radius: 10px;
+	box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+}
+
+#greyCover {
+	position: absolute;
+	top: 50%;
+	left: 50%;
+	transform: translate(-50%, -50%);
+	border-radius: 20px;
+	z-index: 1000; /* z-index를 낮게 설정 */
+}
+
+.grid {
+	position: absolute;
+	top: 50%;
+	/* 세로 중앙 */
+	left: 50%;
+	/* 가로 중앙 */
+	transform: translate(-50%, -50%);
+	/* 중앙으로 이동 */
+	transition: all 0.3s ease;
+	/* 전환 효과 */
+	display: grid;
+	justify-content: center;
+	align-items: center;
+	grid-auto-flow: column;
+	grid-template-rows: 1fr 1fr 1fr;
+	gap: 5px;
+	border-radius: 20px;
+	pointer-events: none;
+	max-width: 400px;
+	max-height: 200px;
+	width: 100%;
+	height: 100%;
+	padding: 10px 20px;
+	background-color: #787878;
+	padding-left: 70px;
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
+	z-index: 10;
+}
+
+.grid-cell {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 1.5em;
+	width: 44px;
+	height: 55px;
+	padding: 2px 0 0 8px;
+	pointer-events: none;
+	user-select: none;
+	/* 크롬, 파이어폭스 등에서 텍스트 선택 방지 */
+	-webkit-user-select: none;
+	/* 사파리 */
+	-moz-user-select: none;
+	/* 파이어폭스 */
+	background-color: #8f8f8f;
+	color: #2e2c2c;
+	background-size: cover;
+	border-radius: 5%;
+	box-shadow: inset 2px 4px 3px rgba(0, 0, 0, 0.2);
+	background: linear-gradient(155deg, rgb(147, 147, 147), rgb(147, 147, 147), rgb(147, 147, 147), rgb(198, 198, 198), rgb(147, 147, 147), rgb(147, 147, 147), rgb(147, 147, 147));
+}
+
+.chosen {
+	background-color: darkgoldenrod;
+	background: linear-gradient(155deg, rgb(184, 142, 102), rgb(142, 108, 77), rgb(197, 174, 117), rgb(255, 255, 255), rgb(184, 142, 102), rgb(146, 112, 81), rgb(184, 142, 102));
+	box-shadow: inset 2px 4px 3px rgba(0, 0, 0, 0.2);
+	border: 1px solid rgba(0, 0, 0, 0.5);
+}
+
+.chosen span {
+	font-size: 1em;
+
+	color: rgb(254, 195, 58);
+	text-shadow: -2px -2px 3px rgba(69, 58, 49, 0.1), 2px -2px 5px rgba(68, 42, 21, 0.8), -2px 2px 5px rgba(68, 42, 21, 0.8), 2px 2px 5px rgba(68, 42, 21, 0.8);
+	/* 테두리 효과 */
+	padding: 0 0 0 0;
+}
+
+.chosen span sup {
+	color: #725334;
+	text-shadow: none;
+}
+
+#probabilityInput {
+	width: 100%;
+	padding: 2px;
+}
+
+#jackpotModal {
+	display: none;
+	justify-content: center;
+	align-items: center;
+	position: fixed;
+	/* 화면에 고정된 위치 */
+	top: 30%;
+	/* 세로 중앙 위치 */
+	left: 50%;
+	/* 가로 중앙 위치 */
+	transform: translate(-50%, -50%);
+	/* 중앙으로 이동 */
+	transition: all 0.3s ease;
+	/* 전환 효과 */
+	z-index: 1000;
+	/* 다른 요소 위에 표시 */
+	background-color: rgb(51, 50, 50);
+	color: #fff;
+	/* 배경색 (선택사항) */
+	padding: 10px;
+	/* 패딩 (선택사항) */
+	border-radius: 8px;
+	/* 모서리 둥글기 (선택사항) */
+	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+	/* 그림자 (선택사항) */
+	padding: 1em 2em;
+	border: 1px solid #fff;
+}
+
+.modal-content {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	line-height: 2em;
+}
+
+.modal-content h2 {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	text-align: center;
+	border: 1px solid #fff;
+	width: 100%;
+	padding: 5px 20px;
+	border-radius: 5px;
+}
+
+.modal-content .close {
+	width: 100%;
+	cursor: pointer;
+	text-align: center;
+	background: linear-gradient(189deg, rgb(184, 142, 102), rgb(142, 108, 77), rgb(197, 174, 117), rgb(255, 255, 255), rgb(146, 112, 81), rgb(184, 142, 102));
+	box-shadow: inset -1px -1px 3px rgba(0, 0, 0, 1);
+	color: #524f4f;
+	font-size: 1rem;
+	font-weight: 800;
+	margin: 5px 0;
+	border-radius: 5px;
+}
+
+.lotteryInfo {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+}
+
+.probability-setting {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: auto;
+}
+
+.probability-setting label {
+	background-color: #e0b847;
+	padding: 5px 10px;
+	margin: 20px 20px 5px;
+	border-radius: 10px 10px 0 0;
+	font-size: 2rem;
+	text-align: center;
+	width: 100%;
+	box-shadow: inset -1px -4px 2px rgba(0, 0, 0, 0.2);
+}
+
+.probability-setting input {
+	font-size: 1.5em;
+	text-align: center;
+	width: 100%;
+}
+
+.probability-setting input::after {
+	content: "%";
+	/* 표시할 단위 */
+	position: absolute;
+	right: 10px;
+	/* 입력 필드의 오른쪽 여백 */
+	top: 50%;
+	/* 세로 중앙 정렬 */
+	transform: translateY(-50%);
+	/* 중앙 정렬 */
+	pointer-events: none;
+	/* 클릭 이벤트 방지 */
+	color: #999;
+	/* 단위 색상 */
+}
+
+.probability-setting button {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	font-size: 1.2rem;
+	margin-top: 5px;
+	padding: 5px 0px;
+	border-radius: 0 0 10px 10px;
+}
+
+.prize-tier table {
+	background-color: #d3d3d3;
+	text-align: right;
+	padding: 10px;
+	border-radius: 10px;
+	border: 1px solid #444;
+	margin: 30px 0;
+}
+
+.prize-tier table th {
+	text-align: center;
+	font-size: 1rem;
+	background-color: #8f8f8f;
+	padding: 5px 10px;
+}
+
+#jackpotMessage span {
+	background-color: #e0b847;
+	color: #ac0d0d;
+	font-size: 1rem;
+	padding: 5px 15px;
+	border-radius: 5px;
+	width: 100%;
+}
+
+#lotteryBalance {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: auto;
+	color: #fff;
+}
+
+#recordDisplay {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 450px;
+	margin: 10px 0;
+	background-color: #0e850e;
+	border-radius: 0 0 5px 5px;
+	padding: 5px;
+}
+
+#recordDisplay h3 {
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	align-items: center;
+	width: 100%;
+	margin: 10px 20px;
+}
+
+#recordDisplay div {
+	width: 450px;
+	background-color: #e2e2e2;
+	padding: 3px 5px;
+	margin-bottom: 2px;
+}
+
+footer {
+	position: fixed;
+	bottom: 0;
+	right: 0;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	background-color: #dcdcdc;
+	text-align: center;
+	font-size: 1rem;
+	width: 50px;
+	height: 50px;
+	margin: 15px;
+	border-radius: 100%;
+	transition: all 0.3s ease;
+	overflow: hidden;
+}
+
+.footer-content {
+	text-align: center;
+	display: block;
+	bottom: 60px;
+	/* 푸터 위에 추가 콘텐츠를 표시할 위치 */
+	background-color: #dcdcdc;
+	width: 200px;
+	/* 콘텐츠 영역의 너비 */
+	text-align: center;
+	padding: 20px;
+	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.footer-text {
+	display: none;
+}
+
+footer:hover {
+	width: 300px;
+	/* 마우스 오버 시 푸터의 너비 확장 */
+	border-radius: 25px;
+	/* 사각형으로 변환 */
+}
+
+footer:hover .footer-content {
+	display: none;
+	padding: 10px;
+	/* 마우스 오버 시 콘텐츠와 텍스트 표시 */
+}
+
+footer:hover .footer-text {
+	display: block;
+	padding: 10px;
+	/* 마우스 오버 시 콘텐츠와 텍스트 표시 */
+}
+
+@media (max-width: 500px) {
+	td {
+		font-size: 0.9rem;
+	}
+
+	.modal {
+		width: 85%;
+	}
+
+	#jackpotMessage span {
+		background-color: #e0b847;
+		color: #fff;
+		font-size: 1.2rem;
+		padding: 2px 5px;
+		border-radius: 5px;
+	}
+
+	#recordDisplay {
+		font-size: 0.8rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: space-between;
+	}
+
+	#recordDisplay div {
+		width: 95%;
+		background-color: #e2e2e2;
+		padding: 3px 5px;
+		margin-bottom: 2px;
+	}
+}

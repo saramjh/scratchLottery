@@ -21,6 +21,8 @@ let erasedList = [] // 지워진 위치를 저장할 리스트 선언
 
 thresholdOfEraseCount = col * row
 
+isPrizeAwarded = false
+
 const initCanvas = () => {
 	$canvas.style.width = `${WIDTH}px`
 	$canvas.style.height = `${HEIGHT}px`
@@ -49,7 +51,7 @@ const initCanvas = () => {
 	}
 
 	// 안내 문구 추가
-	context.font = "20px sans-serif"
+	context.font = "20px neodgm"
 	context.fillStyle = "#000"
 	context.textAlign = "center"
 	context.textBaseline = "middle"
@@ -102,9 +104,10 @@ const handleDrawing = (event) => {
 		if (erasedList.length < thresholdOfEraseCount) {
 			drawTransparentCircle(offsetX, offsetY)
 		} else {
-			if (!isRevealed) {
+			if (!isRevealed && !isPrizeAwarded) {
 				context.clearRect(0, 0, WIDTH, HEIGHT)
 				isRevealed = true
+				isPrizeAwarded = true
 				// 모달 표시
 				showJackpotModal(jackpotLevel)
 				closeModal.focus()
@@ -327,7 +330,7 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 	// 사용자 입력값을 calculatePrizeProbabilities 함수에 전달
 	const p1 = parseFloat(probabilityInput) / 100
 	if (isNaN(p1) || p1 <= 0 || p1 >= 1) {
-		alert("올바른 확률 값을 입력하세요. (0과 100 사이의 값)")
+		alert("올바른 확률 값을 입력하세요. (0과 99 사이의 값)")
 		return
 	}
 
@@ -346,6 +349,7 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 	erasedList = []
 	isRevealed = false
 	isDrawing = false // 복권 긁기 상태 초기화
+	isPrizeAwarded = false
 
 	// 새 복권을 위한 새로운 당첨번호 생성
 	getRandomPrize(prizeThresholds)
@@ -364,13 +368,14 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 // 모달을 표시하고 내용을 업데이트하는 함수
 function showJackpotModal(jackpotLevel) {
 	if (jackpotLevel) {
-		jackpotMessage.innerHTML = `축하합니다! ${jackpotLevel.rank}등 당첨!<br>
+		jackpotMessage.innerHTML = `축하합니다!<br>${jackpotLevel.rank}등 당첨!<br>
 					<span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>`
 		totalPrize += jackpotLevel.rewardMoney
 	} else {
-		jackpotMessage.textContent = "아쉽게도 당첨되지 않았습니다."
+		jackpotMessage.textContent = "꽝!"
 	}
 
+	isRevealed = true
 	modal.style.display = "flex"
 
 	// 당첨 내역 업데이트
@@ -399,11 +404,12 @@ window.addEventListener("click", (event) => {
 // 복권 긁기 버튼
 const $scratchButton = document.getElementById("scratch")
 $scratchButton.addEventListener("click", () => {
-	if (!isDrawing) {
+	if (!isDrawing && !isPrizeAwarded) {
 		// 긁기 시작
 		isDrawing = true
 		context.clearRect(0, 0, WIDTH, HEIGHT)
 		isRevealed = true
+		isPrizeAwarded = true
 		// 모달 표시
 		showJackpotModal(jackpotLevel)
 		// 긁기 비용 추가
@@ -470,6 +476,7 @@ document.getElementById("nextLottery").onclick = () => {
 		erasedList = []
 		isRevealed = false
 		isDrawing = false // 복권 긁기 상태 초기화
+		isPrizeAwarded = false
 
 		// 새 복권을 위한 새로운 당첨번호 생성
 		getRandomPrize(prizeThresholds)
