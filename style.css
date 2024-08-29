@@ -402,7 +402,7 @@ sup {
 	background-color: #e2e2e2;
 	padding: 3px 5px;
 	margin-bottom: 2px;
-	border-radius: 0 0 5px 5px;
+	border-radius: 0.2rem;
 }
 
 footer {
@@ -502,10 +502,10 @@ footer:hover .footer-text {
 	}
 
 	#recordDisplay div {
-		width: 95%;
+		width: 98%;
 		background-color: #e2e2e2;
-		margin-bottom: 2px;
+		margin: 0 0 2px 0;
 		font-size: 0.9rem;
-		border-radius: 0 0 5px 5px;
+		border-radius: 0.2rem;
 	}
 }

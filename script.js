@@ -369,12 +369,14 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 
 // 모달을 표시하고 내용을 업데이트하는 함수
 function showJackpotModal(jackpotLevel) {
+	const totalProfit = totalPrize - totalCost // 총 손익 계산
 	if (jackpotLevel) {
 		jackpotMessage.innerHTML = `축하합니다!<br>${jackpotLevel.rank}등 당첨!<br>
-					<span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>`
+					<span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>
+					<br> 총 손익: ₩ ${totalProfit.toLocaleString()}`
 		totalPrize += jackpotLevel.rewardMoney
 	} else {
-		jackpotMessage.textContent = "꽝!"
+		jackpotMessage.innerHTML = `꽝!<br> 총 손익: ₩${totalProfit.toLocaleString()}`
 	}
 
 	isRevealed = true
