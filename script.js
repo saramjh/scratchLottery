@@ -86,9 +86,9 @@ const handleDrawing = (event) => {
 			context.clearRect(0, 0, WIDTH, HEIGHT)
 			isRevealed = true
 			isPrizeAwarded = true
+			totalCost += 1000
 			updateDisplay()
 			showJackpotModal(jackpotLevel)
-			totalCost += 1000
 		}
 	}
 }
@@ -454,12 +454,12 @@ $scratchButton.addEventListener("click", () => {
 		context.clearRect(0, 0, WIDTH, HEIGHT)
 		isRevealed = true
 		isPrizeAwarded = true
+		totalCost += 1000 // 한 번 긁기 당 1000원 비용 추가
 		// 현재 총 비용과 당첨금액을 표시하는 함수 호출
 		updateDisplay()
 		// 모달 표시
 		showJackpotModal(jackpotLevel)
 		// 긁기 비용 추가
-		totalCost += 1000 // 한 번 긁기 당 1000원 비용 추가
 	}
 })
 
@@ -473,12 +473,17 @@ document.getElementById("resetLottery").addEventListener("click", () => {
 	totalAttempts = 0 // 총 시도 횟수 초기화
 	erasedList = []
 
-	let totalCost = 0 // 총 비용
-	let totalPrize = 0 // 총 당첨금
+	totalCost = 0 // 총 비용
+	totalPrize = 0 // 총 당첨금
 
 	isRevealed = false
 	isDrawing = false // 복권 긁기 상태 초기화
 	isPrizeAwarded = false
+	updateDisplay()
+
+	document.getElementById("costDisplay").textContent = "총 비용: ₩ 0"
+	document.getElementById("prizeDisplay").textContent = "총 당첨금액: ₩ 0"
+	document.getElementById("profitDisplay").textContent = "총 손익: ₩ 0"
 
 	document.getElementById("recordDisplay").innerHTML = `<h3>당첨 내역</h3>`
 	// 새로운 확률로 당첨 확률 계산
@@ -487,7 +492,6 @@ document.getElementById("resetLottery").addEventListener("click", () => {
 	getRandomPrize(prizeThresholds)
 
 	jackpotLevel = findLowestRankWithJackpotOne(jackpot)
-	updateDisplay()
 	populateGridCells(jackpotLevel)
 	displayPrizeProbabilities(prizeThresholds)
 

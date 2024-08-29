@@ -383,9 +383,18 @@ sup {
 	width: 450px;
 	margin: 10px 0px 0;
 	background-color: #0e850e;
-	border-radius: 0 0 5px 5px;
 	padding: 5px;
 	border-radius: 0 0 5px 5px;
+}
+
+.balanceTitle {
+	font-size: 1.2rem;
+	margin: 0 0 10px 0px;
+	background-color: #8f8f8f;
+	padding: 2px 10px;
+	border-radius: 5px;
+	border-bottom: 4px solid rgba(255, 255, 255, 0.5);
+	border-right: 2px solid rgba(255, 255, 255, 0.2);
 }
 
 #recordDisplay h3 {
