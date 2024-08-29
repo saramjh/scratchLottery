@@ -86,9 +86,9 @@ const handleDrawing = (event) => {
 			context.clearRect(0, 0, WIDTH, HEIGHT)
 			isRevealed = true
 			isPrizeAwarded = true
+			updateDisplay()
 			showJackpotModal(jackpotLevel)
 			totalCost += 1000
-			updateDisplay()
 		}
 	}
 }
@@ -366,68 +366,6 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 
 	closeJackpotModal()
 })
-
-// 모달을 표시하고 내용을 업데이트하는 함수
-function showJackpotModal(jackpotLevel) {
-	const totalProfit = totalPrize - totalCost // 총 손익 계산
-	if (jackpotLevel) {
-		jackpotMessage.innerHTML = `축하합니다!<br>${jackpotLevel.rank}등 당첨!<br>
-					<span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>
-					<br> 총 손익: ₩ ${totalProfit.toLocaleString()}`
-		totalPrize += jackpotLevel.rewardMoney
-	} else {
-		jackpotMessage.innerHTML = `꽝!<br> 총 손익: ₩${totalProfit.toLocaleString()}`
-	}
-
-	isRevealed = true
-	modal.style.display = "flex"
-
-	// 당첨 내역 업데이트
-	updateLotteryRecord(jackpotLevel)
-
-	updateDisplay()
-}
-
-// 모달을 닫는 함수
-function closeJackpotModal() {
-	modal.style.display = "none"
-}
-
-// 모달 닫기 버튼 클릭 시 모달 닫기
-closeModal.addEventListener("click", closeJackpotModal)
-
-// 모달 외부 클릭 시 모달 닫기
-window.addEventListener("click", (event) => {
-	if (event.target === modal) {
-		closeJackpotModal()
-	}
-})
-
-// 모달 요소 끝
-
-// 복권 긁기 버튼
-const $scratchButton = document.getElementById("scratch")
-$scratchButton.addEventListener("click", () => {
-	if (!isDrawing && !isPrizeAwarded) {
-		// 긁기 시작
-		isDrawing = true
-		context.clearRect(0, 0, WIDTH, HEIGHT)
-		isRevealed = true
-		isPrizeAwarded = true
-		// 모달 표시
-		showJackpotModal(jackpotLevel)
-		// 긁기 비용 추가
-		totalCost += 1000 // 한 번 긁기 당 1000원 비용 추가
-
-		// 현재 총 비용과 당첨금액을 표시하는 함수 호출
-		updateDisplay()
-	}
-	closeModal.focus()
-})
-
-let totalCost = 0 // 총 비용
-let totalPrize = 0 // 총 당첨금
-
 function updateDisplay() {
 	const costDisplay = document.getElementById("costDisplay")
 	const prizeDisplay = document.getElementById("prizeDisplay")
@@ -464,6 +402,64 @@ function updateDisplay() {
 		profitDisplay.textContent = `총 손익: ₩${totalProfit.toLocaleString()}`
 	}
 }
+
+// 모달을 표시하고 내용을 업데이트하는 함수
+function showJackpotModal(jackpotLevel) {
+	updateDisplay()
+	updateLotteryRecord(jackpotLevel)
+	const totalProfit = totalPrize - totalCost // 총 손익 계산
+	if (jackpotLevel) {
+		jackpotMessage.innerHTML = `축하합니다!<br>${jackpotLevel.rank}등 당첨!<br>
+					<span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>
+					<br> 총 손익: ₩ ${totalProfit.toLocaleString()}`
+		totalPrize += jackpotLevel.rewardMoney
+	} else {
+		jackpotMessage.innerHTML = `꽝!<br> 총 손익: ₩${totalProfit.toLocaleString()}`
+	}
+
+	isRevealed = true
+	modal.style.display = "flex"
+
+	// 당첨 내역 업데이트
+}
+
+// 모달을 닫는 함수
+function closeJackpotModal() {
+	modal.style.display = "none"
+}
+
+// 모달 닫기 버튼 클릭 시 모달 닫기
+closeModal.addEventListener("click", closeJackpotModal)
+
+// 모달 외부 클릭 시 모달 닫기
+window.addEventListener("click", (event) => {
+	if (event.target === modal) {
+		closeJackpotModal()
+	}
+})
+
+// 모달 요소 끝
+
+// 복권 긁기 버튼
+const $scratchButton = document.getElementById("scratch")
+$scratchButton.addEventListener("click", () => {
+	if (!isDrawing && !isPrizeAwarded) {
+		// 긁기 시작
+		isDrawing = true
+		context.clearRect(0, 0, WIDTH, HEIGHT)
+		isRevealed = true
+		isPrizeAwarded = true
+		// 현재 총 비용과 당첨금액을 표시하는 함수 호출
+		updateDisplay()
+		// 모달 표시
+		showJackpotModal(jackpotLevel)
+		// 긁기 비용 추가
+		totalCost += 1000 // 한 번 긁기 당 1000원 비용 추가
+	}
+})
+
+let totalCost = 0 // 총 비용
+let totalPrize = 0 // 총 당첨금
 
 // 리셋 버튼
 document.getElementById("resetLottery").addEventListener("click", () => {
@@ -533,7 +529,7 @@ function displayLotteryRecord() {
 	}
 
 	// 기록을 HTML로 변환하여 표시
-	const recordHtml = lotteryRecord.map((record) => `<div>${record.time}- ${record.result}</div>`).join("")
+	const recordHtml = lotteryRecord.map((record) => `<div>${record.time} - ${record.result}</div>`).join("")
 
 	recordDisplay.innerHTML = `<h3>당첨 내역</h3>${recordHtml}`
 }
