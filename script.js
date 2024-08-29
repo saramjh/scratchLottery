@@ -366,6 +366,7 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 
 	closeJackpotModal()
 })
+
 function updateDisplay() {
 	const costDisplay = document.getElementById("costDisplay")
 	const prizeDisplay = document.getElementById("prizeDisplay")
@@ -403,24 +404,28 @@ function updateDisplay() {
 	}
 }
 
+let totalAttempts = 0 // 총 시도 횟수
+
 // 모달을 표시하고 내용을 업데이트하는 함수
 function showJackpotModal(jackpotLevel) {
+	totalAttempts++ // 시도 횟수 증가
 	updateDisplay()
 	updateLotteryRecord(jackpotLevel)
 	const totalProfit = totalPrize - totalCost // 총 손익 계산
+
 	if (jackpotLevel) {
 		jackpotMessage.innerHTML = `축하합니다!<br>${jackpotLevel.rank}등 당첨!<br>
-					<span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>
-					<br> 총 손익: ₩ ${totalProfit.toLocaleString()}`
+                                    <span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>
+                                    <br> 총 손익: ₩ ${totalProfit.toLocaleString()}<br>
+                                    총 시도 횟수: ${totalAttempts}회`
 		totalPrize += jackpotLevel.rewardMoney
 	} else {
-		jackpotMessage.innerHTML = `꽝!<br> 총 손익: ₩${totalProfit.toLocaleString()}`
+		jackpotMessage.innerHTML = `꽝!<br> 총 손익: ₩${totalProfit.toLocaleString()}<br>
+                                    총 시도 횟수: ${totalAttempts}회`
 	}
 
 	isRevealed = true
 	modal.style.display = "flex"
-
-	// 당첨 내역 업데이트
 }
 
 // 모달을 닫는 함수
@@ -461,10 +466,32 @@ $scratchButton.addEventListener("click", () => {
 let totalCost = 0 // 총 비용
 let totalPrize = 0 // 총 당첨금
 
-// 리셋 버튼
+// 리셋 버튼 이벤트 핸들러
 document.getElementById("resetLottery").addEventListener("click", () => {
+	initCanvas()
 	lotteryRecord = [] // 기록 초기화
-	location.href = location.href
+	totalAttempts = 0 // 총 시도 횟수 초기화
+	erasedList = []
+
+	let totalCost = 0 // 총 비용
+	let totalPrize = 0 // 총 당첨금
+
+	isRevealed = false
+	isDrawing = false // 복권 긁기 상태 초기화
+	isPrizeAwarded = false
+
+	document.getElementById("recordDisplay").innerHTML = `<h3>당첨 내역</h3>`
+	// 새로운 확률로 당첨 확률 계산
+	calculatePrizeProbabilities(p1)
+	// 새 복권을 위한 새로운 당첨번호 생성
+	getRandomPrize(prizeThresholds)
+
+	jackpotLevel = findLowestRankWithJackpotOne(jackpot)
+	updateDisplay()
+	populateGridCells(jackpotLevel)
+	displayPrizeProbabilities(prizeThresholds)
+
+	closeJackpotModal()
 })
 
 document.getElementById("nextLottery").onclick = () => {
