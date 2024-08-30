@@ -1,7 +1,6 @@
 # 스크래치 복권 체험 프로그램
 
-![image](https://github.com/user-attachments/assets/4511846e-db3e-4b70-8732-ff0efb01ab24)
-
+![image](https://github.com/user-attachments/assets/fa23e5bf-2c0a-4f7c-bb54-9e7d54f9d28c)
 
 이 프로젝트는 사용자가 복권을 긁어 당첨 여부를 확인할 수 있는 스크래치 복권 체험 프로그램입니다. 사용자는 복권을 긁으며 당첨 결과를 확인할 수 있으며, 확률을 설정하여 복권의 당첨 확률을 조정할 수 있습니다.
 
