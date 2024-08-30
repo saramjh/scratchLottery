@@ -282,7 +282,7 @@ const initCanvas = () => {
 	context.stroke()
 	context.fill()
 
-	context.font = "1rem neodgm"
+	context.font = "1rem NeoDunggeunmo Pro"
 	context.fillStyle = "#000"
 	context.textAlign = "center"
 	context.textBaseline = "middle"
