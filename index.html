@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 
-<head><!-- Google tag (gtag.js) -->
+<head>
+  <!-- Google tag (gtag.js) -->
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-ERNG0LEKY9"></script>
   <script>
     window.dataLayer = window.dataLayer || [];
     function gtag() { dataLayer.push(arguments); }
     gtag('js', new Date());
-
     gtag('config', 'G-ERNG0LEKY9');
   </script>
   <!-- Google Tag Manager -->
@@ -22,13 +22,14 @@
   <!-- End Google Tag Manager -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="스크래치 복권 체험 프로그램으로, 당첨 확률을 설정하고 복권을 긁어보세요.">
-  <meta name="keywords" content="스크래치 복권, 복권 체험, 당첨 확률, 복권 프로그램">
+  <meta name="description"
+    content="A scratch lottery simulation program. Set the odds of winning and scratch the lottery.">
+  <meta name="keywords" content="scratch lottery, lottery simulation, winning odds, lottery program">
   <meta name="author" content="Saramjh">
-  <title>스크래치 복권 체험 프로그램</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link rel="preconnect"
+  <title>Scratch Lottery Simulation Program</title>
+  <link href="https://fonts.googleapis.com">
+  <link href="https://fonts.gstatic.com" crossorigin>
+  <link
     href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400..700&family=Silkscreen:wght@400;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
@@ -39,14 +40,34 @@
   <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-MDH5GSNT" height="0" width="0"
       style="display:none;visibility:hidden"></iframe></noscript>
   <!-- End Google Tag Manager (noscript) -->
+
+
   <div class="wrapper">
+    <div id="langBtn">
+      <div id="languageSelector">🇺🇸</div>
+    </div>
+    <div id="languageMenu">
+      <a href="#" data-lang="en" alt="US">🇺🇸</a>
+      <a href="#" data-lang="es" alt="Espana">🇪🇸</a>
+      <a href="#" data-lang="zh" alt="China">🇨🇳</a>
+      <a href="#" data-lang="de" alt="Deutsch">🇩🇪</a>
+      <a href="#" data-lang="it" alt="Italy">🇮🇹</a>
+      <a href="#" data-lang="vi" alt="Vietnam">🇻🇳</a>
+      <a href="#" data-lang="ko" alt="Korea">🇰🇷</a>
+      <a href="#" data-lang="ru" alt="Russia">🇷🇺</a>
+      <a href="#" data-lang="ja" alt="Japan">🇯🇵</a>
+      <a href="#" data-lang="fr" alt="France">🇫🇷</a>
+    </div>
     <header>
-      <h1>스크래치 복권 체험 프로그램</h1>
+      <h1 data-translate="header_title">
+        Scratch Lottery Simulation
+      </h1>
+      <p data-translate="header_desc">Test your luck with a scratch-off lottery!</p>
     </header>
     <main>
-
       <section class="lottery">
-        <h2>복권 긁기</h2>
+        <h2 data-translate="scratch_title">Scratch the Lottery</h2>
+        <div id="prizeVTScroll"></div>
         <div class="grid">
           <div class="grid-cell"></div>
           <div class="grid-cell"></div>
@@ -59,33 +80,40 @@
           <div class="grid-cell"></div>
           <div class="grid-cell"></div>
         </div>
-        <canvas id="greyCover" alt="복권 화면을 가리는 커버"></canvas>
+        <canvas id="greyCover" alt="Lottery screen cover"></canvas>
         <div class="btnGroup">
-          <button id="scratch">복권 긁기</button>
-          <button id="nextLottery">다음 복권</button>
-          <button id="resetLottery">초 기 화</button>
+          <button id="scratch" data-translate="scratch_button">Scratch</button>
+          <button id="nextLottery" data-translate="next_lottery_button">Next Lottery</button>
+          <button id="resetLottery" data-translate="reset_button">Reset</button>
         </div>
-
+      </section>
+      <!-- Modal HTML -->
+      <section class="showModal">
+        <div id="jackpotModal" class="modal">
+          <div class="modal-content">
+            <h2 data-translate="jackpot_modal_title">Winning Result</h2>
+            <p id="jackpotMessage"></p>
+            <span class="close">&times;</span>
+          </div>
+        </div>
       </section>
       <section class="lotteryInfo">
         <div class="probability-setting">
           <label for="probabilityInput">
-            <h2>당첨 확률 설정(%)</h2>
+            <h2 data-translate="probability_label">Set Winning Probability (%)</h2>
           </label>
-          <input type="number" id="probabilityInput" value="0.00001" min="0" max="100" placeholder="%">
-          <button id="applyProbability">확률 적용</button>
+          <input type="number" id="probabilityInput" value="0.00002" min="0" max="100" placeholder="%">
+          <button id="applyProbability" data-translate="apply_probability_button">Apply Probability</button>
         </div>
         <div class="prize-tier">
-          <!-- 당첨 확률표가 여기에 표시됩니다. -->
+          <!-- Prize probability table -->
         </div>
       </section>
       <section id="lotteryBalance">
-        <div class="balanceTitle">
-          비용내역
-        </div>
+        <div class="balanceTitle" data-translate="cost_summary_title">Cost Summary</div>
       </section>
       <section id="recordDisplay">
-
+        <!-- Record display -->
       </section>
     </main>
     <footer>
@@ -97,15 +125,7 @@
         </a></div>
     </footer>
   </div>
-  <!-- 모달 HTML -->
-  <div id="jackpotModal" class="modal">
-    <div class="modal-content">
-      <h2>당첨 결과</h2>
-      <p id="jackpotMessage"></p>
-      <span class="close">&times;</span>
-    </div>
-  </div>
-  <script src="script.js" defer></script>
+  <script src="script.js"></script>
   <script src="starlight.js"></script>
 </body>
 
