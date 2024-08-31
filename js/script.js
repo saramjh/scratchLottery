@@ -452,7 +452,6 @@ let jackpot = [
 
 // 가장 높은 등수 추출
 function findLowestRankWithJackpotOne(jackpot) {
-	console.log(jackpot)
 	// jackpot 값이 1인 객체들만 필터링
 	const filteredPrizes = jackpot.filter((prize) => prize.jackpot === 1)
 	// jackpot 값이 1인 객체가 하나도 없으면 null 반환
