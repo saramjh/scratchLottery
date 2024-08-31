@@ -1,13 +1,277 @@
+const translations = {
+	en: {
+		flag: "🇺🇸",
+		header_title: "Scratch Lottery Simulation",
+		header_desc: "Test your luck with a scratch-off lottery!",
+		scratch_title: "Scratch the Lottery",
+		scratch_button: "Scratch",
+		next_lottery_button: "Next Lottery",
+		reset_button: "Reset",
+		probability_label: "Set Winning Probability (%)",
+		apply_probability_button: "Apply Probability",
+		jackpot_modal_title: "Winning Result",
+		cost_summary_title: "Cost Summary",
+		currency_symbol: "$",
+		scratch_here: "Please scratch the lottery!",
+		scratch_label: "Scratch!",
+		winning_message: "Congratulations!",
+		no_luck: "No luck!",
+		lottery_logs: "Lottery Logs",
+	},
+	es: {
+		flag: "🇪🇸",
+		header_title: "Simulación de Lotería Rascada",
+		header_desc: "¡Prueba tu suerte con un rasca y gana!",
+		scratch_title: "Rasca la Lotería",
+		scratch_button: "Rascar",
+		next_lottery_button: "Siguiente Lotería",
+		reset_button: "Restablecer",
+		probability_label: "Establecer Probabilidad de Ganar (%)",
+		apply_probability_button: "Aplicar Probabilidad",
+		jackpot_modal_title: "Resultado de Ganancia",
+		cost_summary_title: "Resumen de Costos",
+		currency_symbol: "€",
+		scratch_here: "¡Por favor raspa la lotería!",
+		scratch_label: "¡Raspa!",
+		winning_message: "¡Felicidades!",
+		no_luck: "¡Sin suerte!",
+		lottery_logs: "Registros de Lotería",
+	},
+	zh: {
+		flag: "🇨🇳",
+		header_title: "刮刮乐模拟",
+		header_desc: "测试你的运气，刮刮乐来啦！",
+		scratch_title: "刮刮乐",
+		scratch_button: "刮刮",
+		next_lottery_button: "下一个彩票",
+		reset_button: "重置",
+		probability_label: "设置中奖概率 (%)",
+		apply_probability_button: "应用概率",
+		jackpot_modal_title: "中奖结果",
+		cost_summary_title: "成本总结",
+		currency_symbol: "¥",
+		scratch_here: "请刮刮彩票！",
+		scratch_label: "刮！",
+		winning_message: "恭喜你!",
+		no_luck: "没有运气！",
+		lottery_logs: "彩票记录",
+	},
+	de: {
+		flag: "🇩🇪",
+		header_title: "Rubbellose Simulation",
+		header_desc: "Teste dein Glück mit einem Rubbellos!",
+		scratch_title: "Rubbel das Los",
+		scratch_button: "Rubbeln",
+		next_lottery_button: "Nächste Lotterie",
+		reset_button: "Zurücksetzen",
+		probability_label: "Gewinnwahrscheinlichkeit (%) einstellen",
+		apply_probability_button: "Wahrscheinlichkeit anwenden",
+		jackpot_modal_title: "Gewinnresultat",
+		cost_summary_title: "Kostenübersicht",
+		currency_symbol: "€",
+		scratch_here: "Bitte rubbeln Sie die Lotterie!",
+		scratch_label: "Rubbel!",
+		winning_message: "Herzlichen Glückwunsch!",
+		no_luck: "Keine Glück!",
+		lottery_logs: "Loterieprotokolle",
+	},
+	it: {
+		flag: "🇮🇹",
+		header_title: "Simulazione Lotteria",
+		header_desc: "Metti alla prova la tua fortuna con un gratta e vinci!",
+		scratch_title: "Gratta la Lotteria",
+		scratch_button: "Gratta",
+		next_lottery_button: "Prossima Lotteria",
+		reset_button: "Ripristina",
+		probability_label: "Imposta Probabilità di Vincita (%)",
+		apply_probability_button: "Applica Probabilità",
+		jackpot_modal_title: "Risultato della Vincita",
+		cost_summary_title: "Riepilogo Costi",
+		currency_symbol: "€",
+		scratch_here: "Per favore gratta la lotteria!",
+		scratch_label: "Gratta!",
+		winning_message: "Congratulazioni!",
+		no_luck: "Nessuna fortuna!",
+		lottery_logs: "Registri della Lotteria",
+	},
+	vi: {
+		flag: "🇻🇳",
+		header_title: "Mô Phỏng Xổ Số",
+		header_desc: "Hãy thử vận may của bạn với xổ số cào!",
+		scratch_title: "Cào Xổ Số",
+		scratch_button: "Cào",
+		next_lottery_button: "Xổ Số Tiếp Theo",
+		reset_button: "Đặt Lại",
+		probability_label: "Đặt Xác Suất Trúng (%)",
+		apply_probability_button: "Áp Dụng Xác Suất",
+		jackpot_modal_title: "Kết Quả Thắng",
+		cost_summary_title: "Tóm Tắt Chi Phí",
+		currency_symbol: "₫",
+		scratch_here: "Vui lòng cào xổ số!",
+		scratch_label: "Cào!",
+		winning_message: "Chúc mừng!",
+		no_luck: "Không có vận may!",
+		lottery_logs: "Nhật ký xổ số",
+	},
+	ko: {
+		flag: "🇰🇷",
+		header_title: "스크래치 복권 시뮬레이션",
+		header_desc: "복권으로 당신의 운을 시험해보세요!",
+		scratch_title: "복권 긁기",
+		scratch_button: "긁기",
+		next_lottery_button: "다음 복권",
+		reset_button: "초기화",
+		probability_label: "당첨 확률 설정 (%)",
+		apply_probability_button: "확률 적용",
+		jackpot_modal_title: "당첨 결과",
+		cost_summary_title: "비용 요약",
+		currency_symbol: "₩",
+		scratch_here: "여기를 긁어보세요!",
+		scratch_label: "복권을 긁어주세요!",
+		winning_message: "축하합니다!",
+		no_luck: "운이 없네요!",
+		lottery_logs: "복권 기록",
+	},
+	ru: {
+		flag: "🇷🇺",
+		header_title: "Симуляция Лотереи",
+		header_desc: "Проверьте свою удачу с карточкой-скретчем!",
+		scratch_title: "Сотри Лотерею",
+		scratch_button: "Стереть",
+		next_lottery_button: "Следующая Лотерея",
+		reset_button: "Сброс",
+		probability_label: "Установите Вероятность Выигрыша (%)",
+		apply_probability_button: "Применить Вероятность",
+		jackpot_modal_title: "Результат Выигрыша",
+		cost_summary_title: "Сводка Стоимости",
+		currency_symbol: "₽",
+		scratch_here: "Пожалуйста, сотри лотерею!",
+		scratch_label: "Сотри!",
+		winning_message: "Поздравляю!",
+		no_luck: "Нет удачи!",
+		lottery_logs: "Журналы Лотереи",
+	},
+	ja: {
+		flag: "🇯🇵",
+		header_title: "スクラッチくじシミュレーション",
+		header_desc: "くじをスクラッチして運試し",
+		scratch_title: "くじをスクラッチ",
+		scratch_button: "スクラッチ",
+		next_lottery_button: "次のくじ",
+		reset_button: "リセット",
+		probability_label: "当選確率 (%) 設定",
+		apply_probability_button: "確率を適用",
+		jackpot_modal_title: "当選結果",
+		cost_summary_title: "コストサマリー",
+		currency_symbol: "¥",
+		scratch_here: "宝くじをスクラッチしてください！",
+		scratch_label: "スクラッチ！",
+		winning_message: "おめでとうございます！",
+		no_luck: "運がありません！",
+		lottery_logs: "宝くじ記録",
+	},
+	fr: {
+		flag: "🇫🇷",
+		header_title: "Simulation de Loterie",
+		header_desc: "Testez votre chance avec un ticket à gratter !",
+		scratch_title: "Gratter la Loterie",
+		scratch_button: "Gratter",
+		next_lottery_button: "Prochaine Loterie",
+		reset_button: "reset",
+		probability_label: "Définir la Probabilité de Gagner (%)",
+		apply_probability_button: "Appliquer la Probabilité",
+		jackpot_modal_title: "Résultat du Jackpot",
+		cost_summary_title: "Résumé des Coûts",
+		currency_symbol: "€",
+		scratch_here: "Veuillez gratter la loterie !",
+		scratch_label: "Gratter!",
+		winning_message: "Félicitations!",
+		no_luck: "Pas de chance!",
+		lottery_logs: "Journaux de Loterie",
+	},
+	th: {
+		flag: "🇹🇭",
+		header_title: "การจำลองหวยขูด",
+		header_desc: "ทดสอบโชคของคุณกับหวยขูด!",
+		scratch_title: "ขูดหวย",
+		scratch_button: "ขูด",
+		next_lottery_button: "หวยถัดไป",
+		reset_button: "รีเซ็ต",
+		probability_label: "ตั้งค่าความน่าจะเป็นการชนะ (%)",
+		apply_probability_button: "ใช้ความน่าจะเป็น",
+		jackpot_modal_title: "ผลลัพธ์การชนะ",
+		cost_summary_title: "สรุปค่าใช้จ่าย",
+		currency_symbol: "฿",
+		scratch_here: "กรุณาขูดหวย!",
+		scratch_label: "ขูด!",
+		winning_message: "ยินดีด้วย!",
+		no_luck: "โชคไม่ดี!",
+		lottery_logs: "บันทึกหวย",
+	},
+}
+
+let lang = "en" // 초기 언어 설정
+let currencySymbol = translations[lang].currency_symbol || "$" // 초기 통화 기호 설정
+let scratch_here = translations[lang].scratch_here || "Scratch here!" // 초기 긁기 메시지 설정
+let scratch_label = translations[lang].scratch_label || "Scratch!" // 초기 복권 안내 문
+let winning_message = translations[lang].winning_message || "Congratulations!" // 초기 복권 안내 문
+let no_luck = translations[lang].no_luck || "No luck!" // 초기 꽝 안내 문
+let lottery_logs = translations[lang].lottery_logs || "Lottery logs"
+let flag = translations[lang].flag || "us" // 초기 ���� 설정
+
+document.getElementById("languageSelector").addEventListener("click", () => {
+	document.getElementById("languageMenu").style.display = "flex"
+	document.getElementById("langBtn").style.display = "none"
+})
+
+document.querySelectorAll("#languageMenu a").forEach((link) => {
+	link.addEventListener("click", (e) => {
+		e.preventDefault()
+		const selectedLang = e.target.getAttribute("data-lang")
+		changeLanguage(selectedLang)
+	})
+})
+
+function changeLanguage(selectedLang) {
+	// 언어를 변경하고 UI를 업데이트하는 부분
+	const elements = document.querySelectorAll("[data-translate]")
+	elements.forEach((element) => {
+		const key = element.getAttribute("data-translate")
+		element.textContent = translations[selectedLang][key] || key
+	})
+
+	// 변경된 언어에 따른 통화 기호와 긁기 메시지 업데이트
+	lang = selectedLang
+	currencySymbol = translations[selectedLang].currency_symbol || "$"
+	scratch_here = translations[selectedLang].scratch_here || "Scratch here!"
+	scratch_label = translations[selectedLang].scratch_label || "Scratch!" // 초기 복권 안내 문
+	winning_message = translations[selectedLang].winning_message || "Congratulations!" // 초기 복권 안내 문
+	no_luck = translations[selectedLang].no_luck || "No luck!" // 초기 꽝 안내 문
+	lottery_logs = translations[selectedLang].lottery_logs || "Lottery logs"
+	flag = translations[selectedLang].flag
+	resetLottery()
+	displayLotteryRecord()
+	updateDisplay()
+	// 캔버스 초기화 (캔버스에 표시되는 문구도 언어에 따라 변경되도록)
+	initCanvas()
+
+	document.getElementById("languageSelector").innerText = flag
+	// 언어 메뉴 숨김
+	document.getElementById("languageMenu").style.display = "none"
+	document.getElementById("langBtn").style.display = "flex"
+}
+
 // 모달 요소
 // 모달 관련 요소 선택
 const modal = document.getElementById("jackpotModal")
 const closeModal = document.querySelector(".modal .close")
 const jackpotMessage = document.getElementById("jackpotMessage")
+const prizeVTScroll = document.getElementById("prizeVTScroll")
 /* 스크래치 커버 만들기 시작 */
-
+let p1 = "0.0000122850123" // user-setting probability
 const $canvas = document.getElementById("greyCover")
 const context = $canvas.getContext("2d")
-const WIDTH = 400
+const WIDTH = 320
 const HEIGHT = 200
 const dpr = window.devicePixelRatio
 
@@ -37,11 +301,11 @@ const initCanvas = () => {
 	context.stroke()
 	context.fill()
 
-	context.font = "20px neodgm"
+	context.font = "1rem NeoDunggeunmo Pro"
 	context.fillStyle = "#000"
 	context.textAlign = "center"
 	context.textBaseline = "middle"
-	context.fillText("여기를 긁어보세요", WIDTH / 2, HEIGHT / 2)
+	context.fillText(`${scratch_here}`, WIDTH / 2, HEIGHT / 2)
 }
 
 initCanvas()
@@ -186,47 +450,38 @@ let jackpot = [
 	{ rank: 8, num: 2, rewardMoney: 500, jackpot: 0 }, // 8등 39.26% 확률
 ]
 
-// 가장 높은 등수 추출
 function findLowestRankWithJackpotOne(jackpot) {
 	// jackpot 값이 1인 객체들만 필터링
 	const filteredPrizes = jackpot.filter((prize) => prize.jackpot === 1)
-	console.log(filteredPrizes)
-	// jackpot 값이 1인 객체가 하나도 없으면 null 반환
+	console.log(JSON.stringify(filteredPrizes))
+	// jackpot 값이 1인 객체가 없으면 null 반환
 	if (filteredPrizes.length === 0) {
 		return null
 	}
 
-	// rank 8인 객체만 jackpot 값이 1인 경우
-	const rank8Prize = filteredPrizes.find((prize) => prize.rank === 8)
-	if (filteredPrizes.length === 1 && rank8Prize) {
-		return rank8Prize
+	// jackpot 값이 1인 객체의 수에 따라 rank를 결정
+	const rankMapping = {
+		1: 8,
+		2: 7,
+		3: 6,
+		4: 5,
+		5: 4,
+		6: 3,
+		7: 2,
+		8: 1,
 	}
 
-	// rank가 연속적으로 증가하는지 확인하는 함수
-	const isConsecutiveRanks = (prizes) => {
-		const sortedPrizes = prizes.slice().sort((a, b) => a.rank - b.rank)
-		for (let i = 1; i < sortedPrizes.length; i++) {
-			if (sortedPrizes[i].rank !== sortedPrizes[i - 1].rank + 1) {
-				return false
-			}
-		}
-		return true
-	}
+	const rank = filteredPrizes.length
+	const lowestRank = rankMapping[rank]
 
-	// rank가 8인 객체를 포함하고, 모든 rank가 연속적으로 증가하는지 확인
-	if (rank8Prize && isConsecutiveRanks(filteredPrizes)) {
-		// 가장 낮은 rank 값을 가진 객체 찾기
-		const lowestRankPrize = filteredPrizes.reduce((min, prize) => {
-			return prize.rank < min.rank ? prize : min
-		})
-		return lowestRankPrize
-	}
+	// 해당하는 rank의 객체 반환
+	const lowestRankPrize = jackpot.find((prize) => prize.rank === lowestRank)
 
-	// 위 조건에 맞지 않는 경우 null 반환
-	return null
+	console.log(JSON.stringify(lowestRankPrize))
+	return lowestRankPrize
 }
 
-const numSup = { 1: "일", 2: "이", 3: "삼", 4: "사", 5: "오", 6: "육", 7: "칠", 8: "팔", 9: "구", 0: "영" }
+const numSup = { 1: "I", 2: "II", 3: "III", 4: "IV", 5: "V", 6: "VI", 7: "VII", 8: "VIII", 9: "IX", 0: "Ø" }
 
 function populateGridCells(jackpotLevel) {
 	const gridCells = document.querySelectorAll(".grid-cell") // 10개의 그리드셀을 선택
@@ -286,11 +541,11 @@ function displayPrizeProbabilities(prizeThresholds) {
 	const thead = document.createElement("thead")
 	const headerRow = document.createElement("tr")
 	const rankHeader = document.createElement("th")
-	rankHeader.textContent = "등수"
+	rankHeader.textContent = "Prize"
 	const probabilityHeader = document.createElement("th")
-	probabilityHeader.textContent = "당첨확률"
+	probabilityHeader.textContent = "Probability"
 	const rewardHeader = document.createElement("th")
-	rewardHeader.textContent = "당첨금"
+	rewardHeader.innerHTML = "Reward"
 
 	headerRow.appendChild(rankHeader)
 	headerRow.appendChild(probabilityHeader)
@@ -306,13 +561,16 @@ function displayPrizeProbabilities(prizeThresholds) {
 		const row = document.createElement("tr")
 
 		const rankCell = document.createElement("td")
-		rankCell.textContent = `${tier.rank}등`
+		rankCell.textContent = `${tier.rank}`
 
 		const probabilityCell = document.createElement("td")
-		probabilityCell.textContent = `${tier.threshold * 100}%`
+		const probability = tier.threshold * 100
+		const formattedProbability = probability % 1 === 0 ? probability.toFixed(0) : probability.toString().split(".")[1]?.length > 10 ? probability.toFixed(10) : probability
+
+		probabilityCell.textContent = `${formattedProbability}%`
 
 		const rewardCell = document.createElement("td")
-		rewardCell.textContent = `₩ ${tier.rewardMoney.toLocaleString()}` // 금액을 천 단위로 구분하여 표시
+		rewardCell.innerHTML = `${currencySymbol} ${tier.rewardMoney.toLocaleString()}` // 금액을 천 단위로 구분하여 표시
 
 		row.appendChild(rankCell)
 		row.appendChild(probabilityCell)
@@ -325,25 +583,23 @@ function displayPrizeProbabilities(prizeThresholds) {
 }
 
 // 등수별 당첨확률계산
-calculatePrizeProbabilities(0.000002) // 20% 당첨확률 입력 초기값
-
+calculatePrizeProbabilities(p1) // 20% 당첨확률 입력 초기값
 // 각 당첨확률을 적용하여 각 등수별 추첨하여 jackpot에 기록
 getRandomPrize(prizeThresholds)
-
 // 가장 높은 등수 추출
 let jackpotLevel = findLowestRankWithJackpotOne(jackpot)
 // 예시: jackpotLevel을 얻고 그리드셀에 숫자를 배치
 populateGridCells(jackpotLevel)
 
 displayPrizeProbabilities(prizeThresholds)
+applyProbability()
 
-// 이벤트 핸들러 추가: 사용자가 버튼을 클릭했을 때 실행
-document.getElementById("applyProbability").addEventListener("click", () => {
+function applyProbability() {
 	const probabilityInput = document.getElementById("probabilityInput").value
 	// 사용자 입력값을 calculatePrizeProbabilities 함수에 전달
-	const p1 = parseFloat(probabilityInput) / 100
+	p1 = parseFloat(probabilityInput) / 100
 	if (isNaN(p1) || p1 <= 0 || p1 >= 1) {
-		alert("올바른 확률 값을 입력하세요. (0과 99 사이의 값)")
+		alert("Input valid integer value (0~99)")
 		return
 	}
 
@@ -365,7 +621,10 @@ document.getElementById("applyProbability").addEventListener("click", () => {
 	isPrizeAwarded = false
 
 	closeJackpotModal()
-})
+}
+
+// 이벤트 핸들러 추가: 사용자가 버튼을 클릭했을 때 실행
+document.getElementById("applyProbability").addEventListener("click", applyProbability)
 
 function updateDisplay() {
 	const costDisplay = document.getElementById("costDisplay")
@@ -376,20 +635,20 @@ function updateDisplay() {
 	if (!costDisplay) {
 		const newCostDisplay = document.createElement("div")
 		newCostDisplay.id = "costDisplay"
-		newCostDisplay.textContent = `총 비용: ₩${totalCost.toLocaleString()}`
+		newCostDisplay.textContent = `Total Cost: ${currencySymbol} ${totalCost.toLocaleString()}`
 		document.getElementById("lotteryBalance").appendChild(newCostDisplay)
 	} else {
-		costDisplay.textContent = `총 비용: ₩${totalCost.toLocaleString()}`
+		costDisplay.textContent = `Total Cost: ${currencySymbol} ${totalCost.toLocaleString()}`
 	}
 
 	// 총 당첨금액 표시
 	if (!prizeDisplay) {
 		const newPrizeDisplay = document.createElement("div")
 		newPrizeDisplay.id = "prizeDisplay"
-		newPrizeDisplay.textContent = `총 당첨금액: ₩${totalPrize.toLocaleString()}`
+		newPrizeDisplay.textContent = `Total Prize: ${currencySymbol} ${totalPrize.toLocaleString()}`
 		document.getElementById("lotteryBalance").appendChild(newPrizeDisplay)
 	} else {
-		prizeDisplay.textContent = `총 당첨금액: ₩${totalPrize.toLocaleString()}`
+		prizeDisplay.textContent = `Total Prize: ${currencySymbol} ${totalPrize.toLocaleString()}`
 	}
 
 	// 총 손익 계산 및 표시
@@ -397,10 +656,10 @@ function updateDisplay() {
 	if (!profitDisplay) {
 		const newProfitDisplay = document.createElement("div")
 		newProfitDisplay.id = "profitDisplay"
-		newProfitDisplay.textContent = `총 손익: ₩${totalProfit.toLocaleString()}`
+		newProfitDisplay.textContent = `Total Profit: ${currencySymbol} ${totalProfit.toLocaleString()}`
 		document.getElementById("lotteryBalance").appendChild(newProfitDisplay)
 	} else {
-		profitDisplay.textContent = `총 손익: ₩${totalProfit.toLocaleString()}`
+		profitDisplay.textContent = `Total Profit: ${currencySymbol} ${totalProfit.toLocaleString()}`
 	}
 }
 
@@ -412,16 +671,15 @@ function showJackpotModal(jackpotLevel) {
 	updateDisplay()
 	updateLotteryRecord(jackpotLevel)
 	const totalProfit = totalPrize - totalCost // 총 손익 계산
-
 	if (jackpotLevel) {
-		jackpotMessage.innerHTML = `축하합니다!<br>${jackpotLevel.rank}등 당첨!<br>
-                                    <span>₩ ${jackpotLevel.rewardMoney.toLocaleString()}원 수령!</span>
-                                    <br> 총 손익: ₩ ${totalProfit.toLocaleString()}<br>
-                                    총 시도 횟수: ${totalAttempts}회`
+		jackpotMessage.innerHTML = `${winning_message}<br>${jackpotLevel.rank} Prize!<br>
+                                    <span>${currencySymbol} ${jackpotLevel.rewardMoney.toLocaleString()}!</span>
+                                    <br> Total Profit: ${currencySymbol} ${totalProfit.toLocaleString()}<br>
+                                    Total attempts: ${totalAttempts}`
 		totalPrize += jackpotLevel.rewardMoney
 	} else {
-		jackpotMessage.innerHTML = `꽝!<br> 총 손익: ₩${totalProfit.toLocaleString()}<br>
-                                    총 시도 횟수: ${totalAttempts}회`
+		jackpotMessage.innerHTML = `${no_luck}<br> Total Profit: ${currencySymbol} ${totalProfit.toLocaleString()}<br>
+                                    Total attempts: ${totalAttempts}`
 	}
 
 	isRevealed = true
@@ -467,7 +725,7 @@ let totalCost = 0 // 총 비용
 let totalPrize = 0 // 총 당첨금
 
 // 리셋 버튼 이벤트 핸들러
-document.getElementById("resetLottery").addEventListener("click", () => {
+function resetLottery() {
 	initCanvas()
 	lotteryRecord = [] // 기록 초기화
 	totalAttempts = 0 // 총 시도 횟수 초기화
@@ -479,13 +737,14 @@ document.getElementById("resetLottery").addEventListener("click", () => {
 	isRevealed = false
 	isDrawing = false // 복권 긁기 상태 초기화
 	isPrizeAwarded = false
+	prizeVTScroll.innerHTML = ``
 	updateDisplay()
 
-	document.getElementById("costDisplay").textContent = "총 비용: ₩ 0"
-	document.getElementById("prizeDisplay").textContent = "총 당첨금액: ₩ 0"
-	document.getElementById("profitDisplay").textContent = "총 손익: ₩ 0"
+	document.getElementById("costDisplay").innerHTML = `Total Cost: ${currencySymbol} 0`
+	document.getElementById("prizeDisplay").innerHTML = `Total Prize: ${currencySymbol} 0`
+	document.getElementById("profitDisplay").innerHTML = `Total Profit: ${currencySymbol} 0`
 
-	document.getElementById("recordDisplay").innerHTML = `<h3>당첨 내역</h3>`
+	document.getElementById("recordDisplay").innerHTML = `<h3>Lottery Logs</h3>`
 	// 새로운 확률로 당첨 확률 계산
 	calculatePrizeProbabilities(p1)
 	// 새 복권을 위한 새로운 당첨번호 생성
@@ -494,13 +753,14 @@ document.getElementById("resetLottery").addEventListener("click", () => {
 	jackpotLevel = findLowestRankWithJackpotOne(jackpot)
 	populateGridCells(jackpotLevel)
 	displayPrizeProbabilities(prizeThresholds)
-
 	closeJackpotModal()
-})
+}
+
+document.getElementById("resetLottery").addEventListener("click", resetLottery)
 
 document.getElementById("nextLottery").onclick = () => {
 	if (!isRevealed) {
-		alert("복권을 긁어야 합니다.")
+		alert(scratch_label)
 	} else {
 		// 다음 복권 준비
 		initCanvas()
@@ -537,11 +797,11 @@ function updateLotteryRecord(jackpotLevel) {
 
 	let result
 	if (jackpotLevel) {
-		result = `${jackpotLevel.rank}등 당첨 - ₩ ${jackpotLevel.rewardMoney.toLocaleString()}`
+		result = `${jackpotLevel.rank} Prize ${currencySymbol} ${jackpotLevel.rewardMoney.toLocaleString()}`
 	} else {
-		result = "꽝"
+		result = `<span>${no_luck}</span>`
 	}
-
+	prizeVTScroll.innerHTML = `<span>${result}</span>`
 	// 기록을 lotteryRecord 배열에 추가
 	lotteryRecord.push({ time: formattedTime, result: result })
 
@@ -562,5 +822,5 @@ function displayLotteryRecord() {
 	// 기록을 HTML로 변환하여 표시
 	const recordHtml = lotteryRecord.map((record) => `<div>${record.time} - ${record.result}</div>`).join("")
 
-	recordDisplay.innerHTML = `<h3>당첨 내역</h3>${recordHtml}`
+	recordDisplay.innerHTML = `${lottery_logs}${recordHtml}`
 }

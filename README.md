@@ -1,7 +1,6 @@
 # 스크래치 복권 체험 프로그램
 
-![image](https://github.com/user-attachments/assets/4511846e-db3e-4b70-8732-ff0efb01ab24)
-
+![image](https://github.com/user-attachments/assets/fa23e5bf-2c0a-4f7c-bb54-9e7d54f9d28c)
 
 이 프로젝트는 사용자가 복권을 긁어 당첨 여부를 확인할 수 있는 스크래치 복권 체험 프로그램입니다. 사용자는 복권을 긁으며 당첨 결과를 확인할 수 있으며, 확률을 설정하여 복권의 당첨 확률을 조정할 수 있습니다.
 
@@ -37,9 +36,8 @@
 - **당첨 확률 계산**: 사용자가 설정한 확률에 따라 각 등수의 당첨 확률을 계산합니다.
 ![1_page-0001](https://github.com/user-attachments/assets/88dd726c-4645-43d2-8604-f88342b2492d)
 ![1_page-0002](https://github.com/user-attachments/assets/9bc85bac-986e-4bec-b1e3-b7b388f5a034)
-
 - **당첨 결과 표시**: 당첨 결과를 모달로 표시하며, 당첨된 경우에는 모달이 자동으로 나타납니다.
-
+- **다국어 지원**: 영어(EN), 스페인어(ES), 중국어(ZH), 독일어(DE), 이탈리아어(IT), 베트남어(VI), 한국어(KO), 러시아어(RU), 일본어(JP), 프랑스어(FR)
 ## 설치 및 사용 방법
 
 1. **저장소 클론하기**
