@@ -268,7 +268,7 @@ const closeModal = document.querySelector(".modal .close")
 const jackpotMessage = document.getElementById("jackpotMessage")
 const prizeVTScroll = document.getElementById("prizeVTScroll")
 /* 스크래치 커버 만들기 시작 */
-let p1 = "0.00002" // user-setting probability
+let p1 = "0.0000122850123" // user-setting probability
 const $canvas = document.getElementById("greyCover")
 const context = $canvas.getContext("2d")
 const WIDTH = 320
@@ -452,6 +452,7 @@ let jackpot = [
 
 // 가장 높은 등수 추출
 function findLowestRankWithJackpotOne(jackpot) {
+	console.log(jackpot)
 	// jackpot 값이 1인 객체들만 필터링
 	const filteredPrizes = jackpot.filter((prize) => prize.jackpot === 1)
 	// jackpot 값이 1인 객체가 하나도 없으면 null 반환
