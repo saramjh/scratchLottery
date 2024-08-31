@@ -453,8 +453,12 @@ let jackpot = [
 function findLowestRankWithJackpotOne(jackpot) {
 	// jackpot 값이 1인 객체들만 필터링
 	const filteredPrizes = jackpot.filter((prize) => prize.jackpot === 1)
+<<<<<<< HEAD
 	console.log(JSON.stringify(filteredPrizes))
 	// jackpot 값이 1인 객체가 없으면 null 반환
+=======
+	// jackpot 값이 1인 객체가 하나도 없으면 null 반환
+>>>>>>> 0b28503419ab603b4b12cf475938d97eb2a791d0
 	if (filteredPrizes.length === 0) {
 		return null
 	}
