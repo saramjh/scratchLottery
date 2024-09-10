@@ -743,7 +743,7 @@ function resetLottery() {
 	document.getElementById("prizeDisplay").innerHTML = `Total Prize: ${currencySymbol} 0`
 	document.getElementById("profitDisplay").innerHTML = `Total Profit: ${currencySymbol} 0`
 
-	document.getElementById("recordDisplay").innerHTML = `<h3>Lottery Logs</h3>`
+	document.getElementById("recordDisplay").innerHTML = `<h2>Lottery Logs</h2>`
 	// 새로운 확률로 당첨 확률 계산
 	calculatePrizeProbabilities(p1)
 	// 새 복권을 위한 새로운 당첨번호 생성
