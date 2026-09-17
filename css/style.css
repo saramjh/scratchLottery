@@ -598,6 +598,14 @@ input:focus-visible,
 	min-width: 0; /* 그리드 자식이 내용 때문에 넘치지 않고 줄어들 수 있게 */
 }
 
+/* .stat-box가 display:flex를 직접 지정하고 있어서, 이게 없으면 브라우저 기본
+   [hidden]{display:none} 규칙을 자체 규칙(같은 우선순위지만 저자 스타일이 항상 이김)이
+   덮어써서 hidden 속성이 무시된다 — 실측 발견(세금 계산기에서 국가 바꿔도 이전 나라의
+   "Est. Total Tax" 값이 안 사라지고 남아있었음) */
+.stat-box[hidden] {
+	display: none;
+}
+
 .stat-label {
 	font-size: 0.7rem;
 	color: var(--text-dim);
@@ -628,6 +636,23 @@ input:focus-visible,
 	white-space: normal;
 	overflow-wrap: anywhere;
 	line-height: 1.2;
+}
+
+/* 장기 예측기/세금 계산기는 입력값에 따라 숫자가 얼마든지 길어질 수 있다(억~조 단위) —
+   .stat-grid의 기본 nowrap+ellipsis(짧은 값 전용)를 여기서는 쓰면 안 된다(실측 발견:
+   세금 계산기에서 큰 숫자가 "..."로 잘려 보임) */
+#longRunResult .stat-value,
+#taxCard .stat-value {
+	white-space: normal;
+	overflow: visible;
+	text-overflow: clip;
+	overflow-wrap: anywhere;
+	font-size: clamp(0.75rem, 2vw, 1.1rem);
+}
+
+/* 세금 계산기는 억~조 단위 숫자가 나올 수 있어서 4열은 너무 좁다 — 2열로 여유를 준다 */
+#taxCard .stat-grid {
+	grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .stat-value.stat-profit-pos {

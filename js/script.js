@@ -1307,6 +1307,33 @@ function updateLongRunProjection() {
 	jackpotChanceEl.textContent = `${(jackpotChance * 100).toFixed(2)}%`
 }
 
+/* 미국 2026 연방 개인 소득세 누진 구간(1인 신고자 기준) — Tax Foundation이 정리한
+   IRS Revenue Procedure 2025-32 수치. 원천징수(24% 단일세율)와는 별개로, "이 당첨금이
+   유일한 소득이라면" 실제로 최종 세액이 누진 구간을 거쳐 얼마가 되는지 보여주기 위함. */
+const US_2026_SINGLE_BRACKETS = [
+	{ upTo: 12400, rate: 0.1 },
+	{ upTo: 50400, rate: 0.12 },
+	{ upTo: 105700, rate: 0.22 },
+	{ upTo: 201775, rate: 0.24 },
+	{ upTo: 256225, rate: 0.32 },
+	{ upTo: 640600, rate: 0.35 },
+	{ upTo: Infinity, rate: 0.37 },
+]
+const US_2026_STANDARD_DEDUCTION = 16100
+
+function computeUsProgressiveTax(grossAmount) {
+	const taxableIncome = Math.max(0, grossAmount - US_2026_STANDARD_DEDUCTION)
+	let tax = 0
+	let previousCap = 0
+	for (const bracket of US_2026_SINGLE_BRACKETS) {
+		if (taxableIncome <= previousCap) break
+		const amountInBracket = Math.min(taxableIncome, bracket.upTo) - previousCap
+		tax += amountInBracket * bracket.rate
+		previousCap = bracket.upTo
+	}
+	return tax
+}
+
 /* 로또 당첨금 세금 — 실제로 검증한 각국 공식 규정만 사용한다(지어낸 세율 없음).
    미국은 원천징수(24%)일 뿐 최종 세액이 아니라는 걸 명시하고, 한국은 3억 기준 구간별
    최종 분리과세, 영국/호주는 실제로 세금이 0%인 국가라는 걸 그대로 보여준다. */
@@ -1314,18 +1341,20 @@ const LOTTERY_TAX_RULES = {
 	us: {
 		symbol: "$",
 		defaultAmount: 1000000,
-		sourceLabel: "IRS Instructions for Forms W-2G and 5754",
+		sourceLabel: "IRS Instructions for Forms W-2G and 5754; brackets via Tax Foundation (IRS Rev. Proc. 2025-32)",
 		sourceUrl: "https://www.irs.gov/instructions/iw2g",
 		compute(amount) {
 			// IRS: 상금이 $5,000을 넘을 때만 원천징수가 발생하고, 그 24%는 초과분이 아니라
 			// 상금 "전체"에 적용된다 — $5,000 미만은 원천징수 자체가 없다(0%)
 			const withholdingThreshold = 5000
 			const withheld = amount > withholdingThreshold ? amount * 0.24 : 0
+			const finalEstimate = computeUsProgressiveTax(amount)
 			return {
 				withheld,
+				finalEstimate,
 				note:
 					amount > withholdingThreshold
-						? "The IRS withholds 24% of the entire prize up front once it exceeds $5,000 — but that's only a prepayment. If the prize pushes your income into the top 37% bracket, you'll owe more when you file. State taxes aren't included here."
+						? `The IRS withholds a flat 24% up front once a prize exceeds $5,000 — that's only a prepayment, not your real bracket. Assuming this prize were your *only* income for the year (single filer, standard deduction, 2026 brackets), your actual federal tax would be closer to the "Est. Total Tax" figure above — real life usually lands somewhere between the two since you likely have other income too. State taxes aren't included.`
 						: "Prizes of $5,000 or less aren't subject to automatic federal withholding — you'd still owe income tax on it when you file, just not withheld up front.",
 			}
 		},
@@ -1333,17 +1362,20 @@ const LOTTERY_TAX_RULES = {
 	kr: {
 		symbol: "₩",
 		defaultAmount: 1000000000,
-		sourceLabel: "국세청 기타소득세 원천징수 규정 (기사 요약: 코리아데일리)",
+		sourceLabel: "소득세법 제129조(원천징수세율)",
 		sourceUrl: "https://www.koreadaily.com/article/20250101180050504",
 		compute(amount) {
 			const threshold = 300000000
 			const below = Math.min(amount, threshold)
 			const above = Math.max(0, amount - threshold)
-			const withheld = below * 0.22 + above * 0.33
-			return {
-				withheld,
-				note: "Korea taxes lottery winnings as final withholding (분리과세) — 22% on the amount up to ₩300,000,000, and 33% on everything above that. No further filing needed for this specific income.",
-			}
+			const belowTax = below * 0.22
+			const aboveTax = above * 0.33
+			const withheld = belowTax + aboveTax
+			const note =
+				above > 0
+					? `Korea taxes lottery winnings as final withholding (분리과세), split by bracket — not one flat rate on the whole prize: 22% on the first ₩${below.toLocaleString()} (= ₩${Math.round(belowTax).toLocaleString()}), plus 33% on the remaining ₩${above.toLocaleString()} (= ₩${Math.round(aboveTax).toLocaleString()}). No further filing needed for this specific income.`
+					: `Korea taxes lottery winnings at a flat 22% up to ₩300,000,000 as final withholding (분리과세) — no further filing needed for this specific income.`
+			return { withheld, note }
 		},
 	},
 	uk: {
@@ -1379,18 +1411,31 @@ function updateTaxCalculator() {
 	const withheldEl = document.getElementById("taxWithheld")
 	const netEl = document.getElementById("taxNet")
 	const noteEl = document.getElementById("taxNote")
+	const finalEstimateBox = document.getElementById("taxFinalEstimateBox")
+	const finalEstimateEl = document.getElementById("taxFinalEstimate")
 	if (!countrySelect || !amountInput || !grossEl || !withheldEl || !netEl || !noteEl) return
 
 	const rule = LOTTERY_TAX_RULES[countrySelect.value]
 	if (!rule) return
 	const amount = Math.max(0, parseFloat(amountInput.value) || 0)
-	const { withheld, note } = rule.compute(amount)
+	const { withheld, note, finalEstimate } = rule.compute(amount)
 	const net = amount - withheld
 
 	grossEl.textContent = `${rule.symbol}${Math.round(amount).toLocaleString()}`
 	withheldEl.textContent = `${rule.symbol}${Math.round(withheld).toLocaleString()}`
 	netEl.textContent = `${rule.symbol}${Math.round(net).toLocaleString()}`
 	noteEl.innerHTML = `${note} Source: <a href="${rule.sourceUrl}" target="_blank" rel="noopener">${rule.sourceLabel}</a>.`
+
+	// "구간별 세율" 실제 최종세액 추정 — 지금은 미국만 별도 표기(withholding=단일세율 24%가
+	// 실제 최종세액과 다르다는 걸 숫자로 보여준다). 다른 나라는 원천징수 자체가 이미 최종이라 불필요.
+	if (finalEstimateBox && finalEstimateEl) {
+		if (typeof finalEstimate === "number") {
+			finalEstimateBox.hidden = false
+			finalEstimateEl.textContent = `${rule.symbol}${Math.round(finalEstimate).toLocaleString()}`
+		} else {
+			finalEstimateBox.hidden = true
+		}
+	}
 }
 updateTaxCalculator()
 
