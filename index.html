@@ -25,9 +25,18 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description"
-    content="A scratch lottery simulation program. Set the odds of winning and scratch the lottery.">
-  <meta name="keywords" content="scratch lottery, lottery simulation, winning odds, lottery program">
+    content="Free online Scratch Lottery Simulation. Test scratch-off odds, customize winning probabilities, and analyze expected return (RTP).">
+  <meta name="keywords" content="scratch lottery, lottery simulation, scratch off odds, winning odds, lottery simulator, rtp calculator">
   <meta name="author" content="Saramjh">
+  <link rel="canonical" href="https://saramjh.github.io/scratchLottery/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saramjh.github.io/scratchLottery/">
+  <meta property="og:title" content="Scratch Lottery Simulation Program">
+  <meta property="og:description" content="Simulate real scratch-off lottery tickets. Test custom odds, track costs and winnings in real time.">
+  <meta property="og:locale" content="en_US">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scratch Lottery Simulation Program">
+  <meta name="twitter:description" content="Simulate real scratch-off lottery tickets. Test custom odds, track costs and winnings in real time.">
   <title>Scratch Lottery Simulation Program</title>
   <link rel="stylesheet" href="//cdn.jsdelivr.net/gh/neodgm/neodgm-pro-webfont@latest/neodgm_pro/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -103,12 +112,32 @@
       <section class="lotteryInfo">
         <div class="probability-setting">
           <h2>probability-setting</h2>
+          <p data-translate="preset_label">Select Lottery Preset</p>
+          <select id="lotteryPreset" aria-label="Select Lottery Preset">
+            <option value="custom">⚙️ Custom Odds</option>
+            <option value="us_scratch5" selected>🇺🇸 US $5 Scratch-Off (1 in 250K)</option>
+            <option value="powerball">🇺🇸 Powerball Jackpot (1 in 292M)</option>
+            <option value="speetto1000">🇰🇷 Speetto 1000 (1 in 5M)</option>
+            <option value="lucky_fun">🎉 Lucky High-Win (1 in 5)</option>
+          </select>
+
           <p data-translate="probability_tag">Set Winning Probability (%)</p>
           <label for="probabilityInput">
-            <input type="number" id="probabilityInput" value="0.0000122850123" min="0" max="100" placeholder="%">
+            <input type="number" id="probabilityInput" value="0.0004" min="0" max="100" step="any" placeholder="%">
           </label>
           <button id="applyProbability" data-translate="apply_probability_button">Apply Probability</button>
         </div>
+
+        <div class="fast-sim-box">
+          <p class="fast-sim-title">⚡ Fast Simulation (Expectation / RTP)</p>
+          <div class="fast-sim-buttons">
+            <button id="sim10Btn" class="sim-btn">Simulate 10x</button>
+            <button id="sim100Btn" class="sim-btn">Simulate 100x</button>
+            <button id="sim1000Btn" class="sim-btn">Simulate 1,000x</button>
+          </div>
+          <div id="fastSimResult" class="fast-sim-result" style="display: none;"></div>
+        </div>
+
         <div class="prize-tier">
           <!-- Prize probability table -->
         </div>
@@ -121,6 +150,107 @@
       <section id="recordDisplay">
         <h2>Lottery Logs</h2>
       </section>
+
+      <!-- Safe Responsive Ad Container (Prevent CLS & Prevent accidental clicks) -->
+      <section class="ad-safe-container" aria-label="Advertisement">
+        <div class="ad-label">SPONSORED</div>
+        <div class="ad-slot-wrapper">
+          <ins class="adsbygoogle"
+               style="display:block"
+               data-ad-client="ca-pub-4410729598083068"
+               data-ad-slot="8896916964"
+               data-ad-format="auto"
+               data-full-width-responsive="true"></ins>
+          <script>
+               (adsbygoogle = window.adsbygoogle || []).push({});
+          </script>
+        </div>
+      </section>
+
+      <!-- SEO Educational & FAQ Section -->
+      <section class="seo-faq-section">
+        <h2>About Scratch-Off Lottery Odds & Simulation</h2>
+        <article class="seo-article">
+          <h3>How Do Scratch Lottery Odds Actually Work?</h3>
+          <p>
+            Scratch-off lottery tickets are pre-printed with a fixed distribution of winning and non-winning tickets.
+            While overall odds (e.g., 1 in 4) sound generous, the vast majority of winning tickets merely refund the ticket cost
+            (break-even). The chance of winning the top jackpot is astronomical—often 1 in hundreds of thousands or even millions.
+          </p>
+        </article>
+
+        <article class="seo-article">
+          <h3>What is Return to Player (RTP) in Lotteries?</h3>
+          <p>
+            Unlike typical casino games with RTPs of 95–99%, government and state lotteries typically offer an RTP between <strong>50% and 70%</strong>.
+            This means for every $100 spent, players mathematically recoup roughly $50 to $70 on average across long runs,
+            with the remainder retained for administrative costs and state funds.
+          </p>
+        </article>
+
+        <article class="seo-article">
+          <h3>Frequently Asked Questions (FAQ)</h3>
+          <details>
+            <summary>Does buying a whole pack or consecutive tickets guarantee a profit?</summary>
+            <p>No. While packs guarantee a set minimum of small tier prizes, the total payout of a single pack almost never exceeds the retail cost of the entire pack.</p>
+          </details>
+          <details>
+            <summary>How can this simulation help players understand risk?</summary>
+            <p>By using the Fast Simulation feature (100x to 1,000x), you can immediately experience the mathematical reality of negative expected value without risking real money.</p>
+          </details>
+        </article>
+      </section>
+
+      <!-- Schema.org JSON-LD structured data for Google Rich Snippets -->
+      <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@graph": [
+          {
+            "@type": "WebApplication",
+            "name": "Scratch Lottery Simulation",
+            "url": "https://saramjh.github.io/scratchLottery/",
+            "applicationCategory": "GameApplication",
+            "operatingSystem": "All",
+            "offers": {
+              "@type": "Offer",
+              "price": "0",
+              "priceCurrency": "USD"
+            },
+            "description": "Interactive online scratch-off lottery simulation with real-world presets, probability tuning, and expected value (RTP) analysis."
+          },
+          {
+            "@type": "FAQPage",
+            "mainEntity": [
+              {
+                "@type": "Question",
+                "name": "How do scratch lottery odds actually work?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "Scratch lottery tickets have pre-printed fixed distributions. While overall win rates are around 1 in 4, most winning tickets only break even. Jackpot odds range from 1 in 200,000 to 1 in several millions."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "What is Return to Player (RTP) in scratch-off lotteries?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "State scratch lotteries typically retain an RTP of 50% to 70%, meaning players mathematically lose 30% to 50% of total wagered money on average over time."
+                }
+              },
+              {
+                "@type": "Question",
+                "name": "Does buying a whole pack guarantee a profit?",
+                "acceptedAnswer": {
+                  "@type": "Answer",
+                  "text": "No. Packs contain a guaranteed number of low-tier prizes, but the total payout almost never exceeds the purchase price of the pack."
+                }
+              }
+            ]
+          }
+        ]
+      }
+      </script>
     </main>
     <footer>
       <div class="footer-content">

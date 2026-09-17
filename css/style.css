@@ -685,3 +685,160 @@ footer:hover .footer-text {
 		border-radius: 0.2rem;
 	}
 }
+
+/* Enhancements: Presets, Fast Sim, SEO Section */
+#lotteryPreset {
+	width: 100%;
+	padding: 8px 10px;
+	margin-bottom: 12px;
+	background-color: #222;
+	color: #fff;
+	border: 1px solid #e0b847;
+	border-radius: 6px;
+	font-family: inherit;
+	font-size: 0.9rem;
+	cursor: pointer;
+}
+
+.fast-sim-box {
+	width: 90%;
+	background: #1a1a1a;
+	border: 1px dashed #e0b847;
+	border-radius: 8px;
+	padding: 12px;
+	margin: 15px auto;
+	text-align: center;
+}
+
+.fast-sim-title {
+	color: #ffd700;
+	font-size: 0.9rem;
+	font-weight: bold;
+	margin-bottom: 10px;
+}
+
+.fast-sim-buttons {
+	display: flex;
+	justify-content: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+
+.sim-btn {
+	background: linear-gradient(180deg, #444, #222);
+	color: #fff;
+	border: 1px solid #777;
+	padding: 6px 12px;
+	border-radius: 6px;
+	font-size: 0.8rem;
+	cursor: pointer;
+	transition: all 0.2s;
+}
+
+.sim-btn:hover {
+	background: #e0b847;
+	color: #000;
+	border-color: #e0b847;
+}
+
+.fast-sim-result {
+	margin-top: 10px;
+	padding: 8px;
+	background: #0d0d0d;
+	border-radius: 6px;
+	color: #eee;
+	font-size: 0.85rem;
+	line-height: 1.5;
+	text-align: left;
+}
+
+.fast-sim-result .stat-profit-pos {
+	color: #4ade80;
+	font-weight: bold;
+}
+
+.fast-sim-result .stat-profit-neg {
+	color: #f87171;
+	font-weight: bold;
+}
+
+/* SEO Educational & FAQ Section */
+.seo-faq-section {
+	width: 90%;
+	max-width: 480px;
+	margin: 25px auto 10px auto;
+	color: #ddd;
+	font-size: 0.85rem;
+	line-height: 1.6;
+	border-top: 1px solid #333;
+	padding-top: 15px;
+}
+
+.seo-faq-section h2 {
+	color: #ffd700;
+	font-size: 1.1rem;
+	margin-bottom: 12px;
+	text-align: center;
+}
+
+.seo-article {
+	margin-bottom: 15px;
+	background: #161616;
+	padding: 10px 14px;
+	border-radius: 6px;
+	border-left: 3px solid #e0b847;
+}
+
+.seo-article h3 {
+	color: #fff;
+	font-size: 0.95rem;
+	margin-bottom: 6px;
+}
+
+.seo-faq-section details {
+	margin-top: 8px;
+	background: #1f1f1f;
+	padding: 8px 12px;
+	border-radius: 4px;
+}
+
+.seo-faq-section summary {
+	cursor: pointer;
+	font-weight: bold;
+	color: #ffd700;
+}
+
+.seo-faq-section details p {
+	margin-top: 6px;
+	color: #ccc;
+}
+
+/* Safe Responsive Ad Container (Anti-CLS & Policy Compliant) */
+.ad-safe-container {
+	width: 90%;
+	max-width: 480px;
+	margin: 20px auto;
+	padding: 10px 8px;
+	background: #111;
+	border: 1px solid #2a2a2a;
+	border-radius: 8px;
+	text-align: center;
+	overflow: hidden;
+}
+
+.ad-label {
+	font-size: 0.65rem;
+	letter-spacing: 1px;
+	color: #666;
+	margin-bottom: 6px;
+	text-transform: uppercase;
+}
+
+.ad-slot-wrapper {
+	width: 100%;
+	min-height: 250px; /* Reserves vertical layout space to prevent CLS */
+	display: flex;
+	justify-content: center;
+	align-items: center;
+}
+

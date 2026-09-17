@@ -232,6 +232,12 @@ document.querySelectorAll("#languageMenu a").forEach((link) => {
 	})
 })
 
+function trackEvent(name, params = {}) {
+	if (typeof gtag === "function") {
+		gtag("event", name, params)
+	}
+}
+
 function changeLanguage(selectedLang) {
 	// 언어를 변경하고 UI를 업데이트하는 부분
 	const elements = document.querySelectorAll("[data-translate]")
@@ -259,6 +265,8 @@ function changeLanguage(selectedLang) {
 	// 언어 메뉴 숨김
 	document.getElementById("languageMenu").style.display = "none"
 	document.getElementById("langBtn").style.display = "flex"
+
+	trackEvent("change_language", { language: selectedLang })
 }
 
 // 모달 요소
@@ -350,9 +358,16 @@ const handleDrawing = (event) => {
 			context.clearRect(0, 0, WIDTH, HEIGHT)
 			isRevealed = true
 			isPrizeAwarded = true
-			totalCost += 1000
+			totalCost += ticketCost
 			updateDisplay()
 			showJackpotModal(jackpotLevel)
+
+			trackEvent("scratch_completed", {
+				is_winner: !!jackpotLevel,
+				rank: jackpotLevel ? jackpotLevel.rank : 0,
+				reward_money: jackpotLevel ? jackpotLevel.rewardMoney : 0,
+				total_attempts: totalAttempts,
+			})
 		}
 	}
 }
@@ -387,38 +402,79 @@ $canvas.addEventListener("touchmove", handleDrawing)
 $canvas.addEventListener("touchend", handleDrawingEnd)
 
 /* 스크래치 커버 만들기 끝 */
-function calculatePrizeProbabilities(P1) {
+let ticketCost = 1000 // 기본 티켓 가격
+
+const LOTTERY_PRESETS = {
+	custom: {
+		name: "Custom Odds",
+		ticketCost: 1000,
+		p1: "0.0000122850123",
+		currency: "$",
+		rewards: [1000000000, 100000000, 11000000, 20000, 4000, 2000, 1000, 500],
+	},
+	us_scratch5: {
+		name: "US $5 Scratch-Off",
+		ticketCost: 5,
+		p1: "0.0004", // 1 in 250,000 (0.0004%)
+		currency: "$",
+		rewards: [100000, 10000, 1000, 250, 100, 50, 20, 5],
+	},
+	powerball: {
+		name: "Powerball Jackpot Tier",
+		ticketCost: 2,
+		p1: "0.0000003422", // 1 in 292,201,338
+		currency: "$",
+		rewards: [300000000, 1000000, 50000, 100, 100, 7, 7, 4],
+	},
+	speetto1000: {
+		name: "Speetto 1000",
+		ticketCost: 1000,
+		p1: "0.00002", // 1 in 5,000,000 (0.00002%)
+		currency: "₩",
+		rewards: [500000000, 20000000, 100000, 5000, 1000, 1000, 1000, 1000],
+	},
+	lucky_fun: {
+		name: "Lucky High-Win (Demo)",
+		ticketCost: 10,
+		p1: "20.0", // 20%
+		currency: "$",
+		rewards: [5000, 2000, 500, 200, 100, 50, 20, 10],
+	},
+}
+
+function calculatePrizeProbabilities(P1, rewardsArray) {
 	const remainingProbability = 1 - parseFloat(P1) // 나머지 확률
 	const fibonacci = [1, 2, 3, 5, 8, 13, 21, 34] // 1단계를 제외한 피보나치수열
 	const T = fibonacci.reduce((sum, f) => sum + f, 0) // 피보나치 수열의 총합
 
 	const probabilities = fibonacci.map((f, index) => {
-		// 각 등수별 당첨확률 계산해서 배열에 저장
-		// 1등의 확률은 P1로 설정
 		if (index === 0) {
 			return P1
 		} else {
-			// 2등부터의 확률 계산
 			return P1 + (remainingProbability * f) / T
 		}
 	})
 
-	// 확률 적용
+	// 확률 및 상금 적용
 	for (let i = 0; i < prizeThresholds.length; i++) {
 		prizeThresholds[i].threshold = probabilities[i]
+		if (rewardsArray && rewardsArray[i] !== undefined) {
+			prizeThresholds[i].rewardMoney = rewardsArray[i]
+			if (jackpot[i]) jackpot[i].rewardMoney = rewardsArray[i]
+		}
 	}
 }
 
 // 등수별 확률계산
 let prizeThresholds = [
-	{ rank: 1, rewardMoney: 1000000000, threshold: 0.2 }, // 1등 20% 확률
-	{ rank: 2, rewardMoney: 100000000, threshold: 0.2113 }, // 2등 21.13% 확률
-	{ rank: 3, rewardMoney: 11000000, threshold: 0.217 }, // 3등 21.70% 확률
-	{ rank: 4, rewardMoney: 20000, threshold: 0.284 }, // 4등 22.84% 확률
-	{ rank: 5, rewardMoney: 4000, threshold: 0.2452 }, // 5등 24.52% 확률
-	{ rank: 6, rewardMoney: 2000, threshold: 0.2738 }, // 6등 27.38% 확률
-	{ rank: 7, rewardMoney: 1000, threshold: 0.3191 }, // 7등 31.91% 확률
-	{ rank: 8, rewardMoney: 500, threshold: 0.3926 }, // 8등 39.26% 확률
+	{ rank: 1, rewardMoney: 100000, threshold: 0.000004 },
+	{ rank: 2, rewardMoney: 10000, threshold: 0.007 },
+	{ rank: 3, rewardMoney: 1000, threshold: 0.021 },
+	{ rank: 4, rewardMoney: 250, threshold: 0.042 },
+	{ rank: 5, rewardMoney: 100, threshold: 0.078 },
+	{ rank: 6, rewardMoney: 50, threshold: 0.137 },
+	{ rank: 7, rewardMoney: 20, threshold: 0.232 },
+	{ rank: 8, rewardMoney: 5, threshold: 0.384 },
 ]
 
 function getRandomPrize(prizeThresholds) {
@@ -440,14 +496,14 @@ function getRandomPrize(prizeThresholds) {
 
 // 당첨결과를 담을 jackopt
 let jackpot = [
-	{ rank: 1, num: 10, rewardMoney: 1000000000, jackpot: 0 }, // 1등 20% 확률
-	{ rank: 2, num: 8, rewardMoney: 100000000, jackpot: 0 }, // 2등 21.13% 확률
-	{ rank: 3, num: 7, rewardMoney: 11000000, jackpot: 0 }, // 3등 21.70% 확률
-	{ rank: 4, num: 6, rewardMoney: 20000, jackpot: 0 }, // 4등 22.84% 확률
-	{ rank: 5, num: 5, rewardMoney: 4000, jackpot: 0 }, // 5등 24.52% 확률
-	{ rank: 6, num: 4, rewardMoney: 2000, jackpot: 0 }, // 6등 27.38% 확률
-	{ rank: 7, num: 3, rewardMoney: 1000, jackpot: 0 }, // 7등 31.91% 확률
-	{ rank: 8, num: 2, rewardMoney: 500, jackpot: 0 }, // 8등 39.26% 확률
+	{ rank: 1, num: 10, rewardMoney: 100000, jackpot: 0 },
+	{ rank: 2, num: 8, rewardMoney: 10000, jackpot: 0 },
+	{ rank: 3, num: 7, rewardMoney: 1000, jackpot: 0 },
+	{ rank: 4, num: 6, rewardMoney: 250, jackpot: 0 },
+	{ rank: 5, num: 5, rewardMoney: 100, jackpot: 0 },
+	{ rank: 6, num: 4, rewardMoney: 50, jackpot: 0 },
+	{ rank: 7, num: 3, rewardMoney: 20, jackpot: 0 },
+	{ rank: 8, num: 2, rewardMoney: 5, jackpot: 0 },
 ]
 
 function findLowestRankWithJackpotOne(jackpot) {
@@ -620,6 +676,10 @@ function applyProbability() {
 	isPrizeAwarded = false
 
 	closeJackpotModal()
+
+	trackEvent("apply_probability", {
+		probability_percent: parseFloat(probabilityInput),
+	})
 }
 
 // 이벤트 핸들러 추가: 사용자가 버튼을 클릭했을 때 실행
@@ -711,12 +771,18 @@ $scratchButton.addEventListener("click", () => {
 		context.clearRect(0, 0, WIDTH, HEIGHT)
 		isRevealed = true
 		isPrizeAwarded = true
-		totalCost += 1000 // 한 번 긁기 당 1000원 비용 추가
+		totalCost += ticketCost
 		// 현재 총 비용과 당첨금액을 표시하는 함수 호출
 		updateDisplay()
 		// 모달 표시
 		showJackpotModal(jackpotLevel)
-		// 긁기 비용 추가
+
+		trackEvent("scratch_completed", {
+			is_winner: !!jackpotLevel,
+			rank: jackpotLevel ? jackpotLevel.rank : 0,
+			reward_money: jackpotLevel ? jackpotLevel.rewardMoney : 0,
+			total_attempts: totalAttempts,
+		})
 	}
 })
 
@@ -744,8 +810,11 @@ function resetLottery() {
 	document.getElementById("profitDisplay").innerHTML = `Total Profit: ${currencySymbol} 0`
 
 	document.getElementById("recordDisplay").innerHTML = `<h2>Lottery Logs</h2>`
-	// 새로운 확률로 당첨 확률 계산
-	calculatePrizeProbabilities(p1)
+	// 현재 설정된 프리셋 보존하면서 확률 계산
+	const currentPresetKey = document.getElementById("lotteryPreset")?.value || "custom"
+	const presetObj = LOTTERY_PRESETS[currentPresetKey]
+	calculatePrizeProbabilities(p1, presetObj ? presetObj.rewards : undefined)
+
 	// 새 복권을 위한 새로운 당첨번호 생성
 	getRandomPrize(prizeThresholds)
 
@@ -753,6 +822,8 @@ function resetLottery() {
 	populateGridCells(jackpotLevel)
 	displayPrizeProbabilities(prizeThresholds)
 	closeJackpotModal()
+
+	trackEvent("reset_lottery")
 }
 
 document.getElementById("resetLottery").addEventListener("click", resetLottery)
@@ -778,6 +849,12 @@ document.getElementById("nextLottery").onclick = () => {
 		updateDisplay()
 		// 당첨율표 표시
 		displayPrizeProbabilities(prizeThresholds)
+
+		trackEvent("next_lottery", {
+			total_cost: totalCost,
+			total_prize: totalPrize,
+			total_profit: totalPrize - totalCost,
+		})
 	}
 	closeJackpotModal()
 }
@@ -823,3 +900,106 @@ function displayLotteryRecord() {
 
 	recordDisplay.innerHTML = `${lottery_logs}${recordHtml}`
 }
+
+/* ============================================================
+   Preset & Fast Simulation Handlers
+   ============================================================ */
+
+function applyPreset(presetKey) {
+	const preset = LOTTERY_PRESETS[presetKey]
+	if (!preset) return
+
+	if (presetKey !== "custom") {
+		document.getElementById("probabilityInput").value = preset.p1
+		p1 = parseFloat(preset.p1) / 100
+		ticketCost = preset.ticketCost
+		currencySymbol = preset.currency
+	} else {
+		ticketCost = 1000
+	}
+
+	calculatePrizeProbabilities(p1, preset.rewards)
+	resetLottery()
+
+	trackEvent("select_preset", {
+		preset_name: presetKey,
+		p1: p1,
+		ticket_cost: ticketCost,
+	})
+}
+
+const $presetSelect = document.getElementById("lotteryPreset")
+if ($presetSelect) {
+	$presetSelect.addEventListener("change", (e) => {
+		applyPreset(e.target.value)
+	})
+}
+
+// Fast Simulation Engine (Monte Carlo)
+function runFastSimulation(count) {
+	let simCost = count * ticketCost
+	let simPrize = 0
+	const tierHits = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, lose: 0 }
+
+	for (let i = 0; i < count; i++) {
+		// evaluate ticket
+		let wonRank = null
+		for (let t = 0; t < prizeThresholds.length; t++) {
+			if (Math.random() < prizeThresholds[t].threshold) {
+				wonRank = prizeThresholds[t]
+			}
+		}
+		if (wonRank) {
+			tierHits[wonRank.rank]++
+			simPrize += wonRank.rewardMoney
+		} else {
+			tierHits.lose++
+		}
+	}
+
+	const netProfit = simPrize - simCost
+	const rtp = simCost > 0 ? ((simPrize / simCost) * 100).toFixed(1) : 0
+	const profitClass = netProfit >= 0 ? "stat-profit-pos" : "stat-profit-neg"
+
+	const resultDiv = document.getElementById("fastSimResult")
+	if (resultDiv) {
+		resultDiv.style.display = "block"
+		resultDiv.innerHTML = `
+			<div><strong>Simulated ${count.toLocaleString()} Tickets:</strong></div>
+			<div>Total Spent: ${currencySymbol} ${simCost.toLocaleString()}</div>
+			<div>Total Won: ${currencySymbol} ${simPrize.toLocaleString()}</div>
+			<div>Net Profit: <span class="${profitClass}">${currencySymbol} ${netProfit.toLocaleString()}</span></div>
+			<div>Estimated Return (RTP): <strong>${rtp}%</strong></div>
+			<div style="margin-top: 6px; font-size: 0.8rem; color: #bbb;">
+				1st Prize: ${tierHits[1]} | 2nd: ${tierHits[2]} | 3rd: ${tierHits[3]} | 4th+: ${tierHits[4] + tierHits[5] + tierHits[6] + tierHits[7] + tierHits[8]} | No luck: ${tierHits.lose}
+			</div>
+		`
+	}
+
+	// Update cumulative balance as well
+	totalCost += simCost
+	totalPrize += simPrize
+	totalAttempts += count
+	updateDisplay()
+
+	trackEvent("run_fast_simulation", {
+		ticket_count: count,
+		total_cost: simCost,
+		total_prize: simPrize,
+		rtp_percent: parseFloat(rtp),
+	})
+}
+
+const $sim10 = document.getElementById("sim10Btn")
+const $sim100 = document.getElementById("sim100Btn")
+const $sim1000 = document.getElementById("sim1000Btn")
+
+if ($sim10) $sim10.addEventListener("click", () => runFastSimulation(10))
+if ($sim100) $sim100.addEventListener("click", () => runFastSimulation(100))
+if ($sim1000) $sim1000.addEventListener("click", () => runFastSimulation(1000))
+
+// Initial load preset application
+if ($presetSelect && $presetSelect.value) {
+	applyPreset($presetSelect.value)
+}
+
