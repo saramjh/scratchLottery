@@ -611,11 +611,15 @@ input:focus-visible,
 	text-overflow: ellipsis;
 }
 
-/* "Current Odds"의 확률비(예: "1 in 292,201,338")는 길어서 한 줄 강제 시 잘려 보인다(실측 발견) —
-   줄바꿈을 허용하고 최소 폰트도 더 낮춘다 */
+/* "Current Odds"의 확률비(예: "1 in 292,201,338")는 길어서 한 줄 강제 시 잘려 보인다(실측 발견).
+   vw 기반 clamp는 뷰포트가 넓으면 무조건 최대값에 붙어버려서, 뷰포트가 넓어도 이 3열 박스 자체는
+   좁다는 사실과 무관해진다(실측 발견: 데스크톱에서도 오버플로우 발생) — 그래서 vw를 버리고
+   고정 상한을 낮게 잡는다. 그래도 안 맞는 극단적으로 긴 값은 overflow-wrap으로 강제로 줄바꿈해서
+   최소한 카드 밖으로 넘치지는 않게 한다. */
 .odds-summary-item .stat-value {
-	font-size: clamp(0.7rem, 4vw, 1rem);
+	font-size: clamp(0.65rem, 2.2vw, 0.8rem);
 	white-space: normal;
+	overflow-wrap: anywhere;
 	line-height: 1.2;
 }
 
