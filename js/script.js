@@ -826,6 +826,9 @@ function applyProbability() {
 // 이벤트 핸들러 추가: 사용자가 버튼을 클릭했을 때 실행
 document.getElementById("applyProbability").addEventListener("click", applyProbability)
 
+const $longRunApply = document.getElementById("longRunApply")
+if ($longRunApply) $longRunApply.addEventListener("click", updateLongRunProjection)
+
 function updateDisplay() {
 	const costDisplay = document.getElementById("costDisplay")
 	const prizeDisplay = document.getElementById("prizeDisplay")
@@ -842,16 +845,29 @@ function updateDisplay() {
 		profitDisplay.classList.toggle("stat-profit-pos", totalProfit >= 0)
 		profitDisplay.classList.toggle("stat-profit-neg", totalProfit < 0)
 	}
+
+	updatePersonalRtpRecap()
 }
 
 // 모달을 표시하고 내용을 업데이트하는 함수
 function showJackpotModal(jackpotLevel) {
 	totalAttempts++ // 시도 횟수 증가
-	updateDisplay()
 	updateLotteryRecord(jackpotLevel)
-	const totalProfit = totalPrize - totalCost // 총 손익 계산
 
 	if (modalBadge) modalBadge.className = `modal-badge ${jackpotLevel ? "modal-badge-win" : "modal-badge-lose"}`
+
+	// 당첨금은 여기서 먼저 반영해야 아래 totalProfit/updateDisplay가 이번 당첨을 포함한 값을 보여준다
+	// (이전엔 반영 전에 계산해서, 당첨 직후 화면에 이번 당첨금이 안 잡히는 버그가 있었다)
+	if (jackpotLevel) {
+		totalPrize += jackpotLevel.rewardMoney
+		if (jackpotLevel.rewardMoney > bestWinAmount) {
+			bestWinAmount = jackpotLevel.rewardMoney
+			bestWinLabel = `${jackpotLevel.rank} Prize`
+		}
+	}
+
+	const totalProfit = totalPrize - totalCost // 총 손익 계산
+	updateDisplay()
 
 	if (jackpotLevel) {
 		jackpotMessage.innerHTML = `
@@ -860,11 +876,6 @@ function showJackpotModal(jackpotLevel) {
 			<span class="modal-amount">${currencySymbol} ${jackpotLevel.rewardMoney.toLocaleString()}</span>
 			<span class="modal-footline">Total Profit: ${currencySymbol} ${totalProfit.toLocaleString()} · Attempts: ${totalAttempts}</span>
 		`
-		totalPrize += jackpotLevel.rewardMoney
-		if (jackpotLevel.rewardMoney > bestWinAmount) {
-			bestWinAmount = jackpotLevel.rewardMoney
-			bestWinLabel = `${jackpotLevel.rank} Prize`
-		}
 	} else {
 		jackpotMessage.innerHTML = `
 			<span class="modal-headline">${no_luck}</span>
@@ -1208,6 +1219,20 @@ function applyTicketTheme(presetKey) {
 	ticketArt.style.setProperty("--ticket-accent-contrast", accentContrast)
 }
 
+/* prizeThresholds(실제 CDF)로부터 티켓 1장의 기대 상금과 이론적 RTP%를 계산한다.
+   updateOddsSummary와 "장기 오즈 예측"이 같은 계산을 중복하지 않도록 공용 함수로 뺐다. */
+function computeTheoreticalReturn() {
+	let previousThreshold = 0
+	let expectedReturnPerTicket = 0
+	prizeThresholds.forEach((tier) => {
+		const marginalProbability = tier.threshold - previousThreshold
+		previousThreshold = tier.threshold
+		expectedReturnPerTicket += marginalProbability * tier.rewardMoney
+	})
+	const overallReturnPercent = ticketCost > 0 ? (expectedReturnPerTicket / ticketCost) * 100 : 0
+	return { expectedReturnPerTicket, overallReturnPercent }
+}
+
 /* 현재 오즈 요약 — prizeThresholds(실제 CDF)로부터 직접 계산, 근사/예시 값 아님 */
 function updateOddsSummary() {
 	const topPrizeEl = document.getElementById("oddsTopPrize")
@@ -1217,19 +1242,57 @@ function updateOddsSummary() {
 
 	const topPrizeProbability = prizeThresholds[0].threshold
 	const anyPrizeProbability = prizeThresholds[prizeThresholds.length - 1].threshold
-
-	let previousThreshold = 0
-	let expectedReturnPerTicket = 0
-	prizeThresholds.forEach((tier) => {
-		const marginalProbability = tier.threshold - previousThreshold
-		previousThreshold = tier.threshold
-		expectedReturnPerTicket += marginalProbability * tier.rewardMoney
-	})
-	const overallReturnPercent = ticketCost > 0 ? (expectedReturnPerTicket / ticketCost) * 100 : 0
+	const { overallReturnPercent } = computeTheoreticalReturn()
 
 	topPrizeEl.textContent = topPrizeProbability > 0 ? `1 in ${Math.round(1 / topPrizeProbability).toLocaleString()}` : "—"
 	anyPrizeEl.textContent = anyPrizeProbability > 0 ? `1 in ${(1 / anyPrizeProbability).toFixed(1)}` : "—"
 	returnEl.textContent = `${overallReturnPercent.toFixed(1)}%`
+
+	updateLongRunProjection()
+}
+
+/* "내 실제 RTP vs 이론적 RTP" — 표본이 너무 적으면 우연에 의한 극단값이 과장돼 보이므로
+   최소 시도 횟수 이상일 때만 보여준다(가짜로 그럴싸하게 꾸미지 않기 위한 가드) */
+const PERSONAL_RTP_MIN_ATTEMPTS = 20
+
+function updatePersonalRtpRecap() {
+	const el = document.getElementById("personalRtpRecap")
+	if (!el) return
+	if (totalAttempts < PERSONAL_RTP_MIN_ATTEMPTS || totalCost <= 0) {
+		el.hidden = true
+		return
+	}
+	const actualReturnPercent = (totalPrize / totalCost) * 100
+	const { overallReturnPercent: theoreticalReturnPercent } = computeTheoreticalReturn()
+	el.hidden = false
+	el.textContent = `Over your last ${totalAttempts} tickets, you've actually gotten back ${actualReturnPercent.toFixed(1)}% of what you spent (this game's theoretical average is ${theoreticalReturnPercent.toFixed(1)}%). Short-run luck swings — that's expected, not a bug.`
+}
+
+/* "장기 오즈 예측" — 지금 게임의 진짜 확률/RTP를 몇 주/몇 년치로 그대로 투영만 한다.
+   여기서도 확률 엔진(p1, prizeThresholds)은 그대로 가져다 쓸 뿐 새로 지어내지 않는다. */
+function updateLongRunProjection() {
+	const ticketsInput = document.getElementById("longRunPerWeek")
+	const yearsInput = document.getElementById("longRunYears")
+	const ticketsEl = document.getElementById("longRunTickets")
+	const spentEl = document.getElementById("longRunSpent")
+	const lossEl = document.getElementById("longRunLoss")
+	const jackpotChanceEl = document.getElementById("longRunJackpotChance")
+	if (!ticketsInput || !yearsInput || !ticketsEl || !spentEl || !lossEl || !jackpotChanceEl) return
+
+	const perWeek = Math.max(1, parseInt(ticketsInput.value, 10) || 1)
+	const years = Math.max(1, parseInt(yearsInput.value, 10) || 1)
+	const totalTickets = perWeek * 52 * years
+	const totalSpent = totalTickets * ticketCost
+	const { overallReturnPercent } = computeTheoreticalReturn()
+	const expectedReturn = totalSpent * (overallReturnPercent / 100)
+	const expectedLoss = totalSpent - expectedReturn
+	const topPrizeProbability = prizeThresholds[0].threshold
+	const jackpotChance = 1 - Math.pow(1 - topPrizeProbability, totalTickets)
+
+	ticketsEl.textContent = totalTickets.toLocaleString()
+	spentEl.textContent = `${currencySymbol}${Math.round(totalSpent).toLocaleString()}`
+	lossEl.textContent = `${currencySymbol}${Math.round(expectedLoss).toLocaleString()}`
+	jackpotChanceEl.textContent = `${(jackpotChance * 100).toFixed(2)}%`
 }
 
 /* "Choose a Game" 카드 — 실제로는 기존 <select id="lotteryPreset">를 그대로 조작한다 (로직 중복 없음) */

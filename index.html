@@ -129,6 +129,7 @@
           </div>
         </div>
         <p class="save-hint">Your totals are saved automatically on this device — come back anytime to continue.</p>
+        <p class="personal-rtp-recap" id="personalRtpRecap" hidden></p>
       </section>
 
       <section id="recordDisplay" class="panel panel-quiet">
@@ -252,6 +253,79 @@
           <p class="panel-sub">Figures reflect this simulator's presets, modeled on publicly known odds for each ticket type.</p>
         </section>
       </div>
+
+      <section class="panel" id="worldOddsCard">
+        <h2>Real-World Lottery Jackpot Odds</h2>
+        <p class="panel-sub">Official published jackpot odds for major lotteries — not modeled, not simulated, straight from each operator. Useful as a reference if you're comparing games this simulator doesn't cover.</p>
+        <table class="odds-compare-table">
+          <thead>
+            <tr>
+              <th>Lottery</th>
+              <th>Jackpot Odds</th>
+              <th>Source</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>Mega Millions (US)</td>
+              <td>1 in 302,575,350</td>
+              <td><a href="https://www.delottery.com/Drawing-Games/Mega-Millions/Prizes-And-Odds" target="_blank" rel="noopener">Delaware Lottery</a></td>
+            </tr>
+            <tr>
+              <td>Powerball (US)</td>
+              <td>1 in 292,201,338</td>
+              <td><a href="https://www.powerball.com/games/powerball" target="_blank" rel="noopener">Powerball.com</a></td>
+            </tr>
+            <tr>
+              <td>EuroMillions (EU)</td>
+              <td>1 in 139,838,160</td>
+              <td><a href="https://www.euro-millions.com/odds-of-winning" target="_blank" rel="noopener">EuroMillions.com</a></td>
+            </tr>
+            <tr>
+              <td>Lotto (UK National Lottery)</td>
+              <td>1 in 45,057,474</td>
+              <td><a href="https://www.national-lottery.co.uk/games/lotto/about-lotto" target="_blank" rel="noopener">National-Lottery.co.uk</a></td>
+            </tr>
+            <tr>
+              <td>Lotto 6/45 (South Korea)</td>
+              <td>1 in 8,145,060</td>
+              <td><a href="https://m.dhlottery.co.kr/gameInfo.do?method=gameMethod" target="_blank" rel="noopener">Dhlottery.co.kr</a></td>
+            </tr>
+          </tbody>
+        </table>
+        <p class="panel-sub">Last checked 2026-09. Odds can change if an operator changes its number matrix — always confirm with the operator before relying on this for a real purchase decision.</p>
+      </section>
+
+      <section class="panel" id="longRunCard">
+        <h2>See Your Long-Run Odds</h2>
+        <p class="panel-sub">Project the current game's real math over months or years of play — same probability engine, just run forward.</p>
+        <div class="long-run-controls">
+          <label for="longRunPerWeek">Tickets per week</label>
+          <input type="number" id="longRunPerWeek" value="1" min="1" max="1000" step="1">
+          <label for="longRunYears">Years</label>
+          <input type="number" id="longRunYears" value="5" min="1" max="80" step="1">
+          <button id="longRunApply" class="btn-secondary">Calculate</button>
+        </div>
+        <div class="stat-grid" id="longRunResult">
+          <div class="stat-box">
+            <span class="stat-label">Total Tickets</span>
+            <span class="stat-value" id="longRunTickets">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Total Spent</span>
+            <span class="stat-value" id="longRunSpent">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Expected Net Loss</span>
+            <span class="stat-value" id="longRunLoss">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Chance of ≥1 Top Prize</span>
+            <span class="stat-value" id="longRunJackpotChance">—</span>
+          </div>
+        </div>
+        <p class="panel-sub">"Expected Net Loss" uses the current game's real RTP — it's the mathematically expected outcome, not a guarantee; any single run can (rarely) end in profit.</p>
+      </section>
 
       <section class="panel" id="faqCard">
         <h2>Frequently Asked Questions</h2>

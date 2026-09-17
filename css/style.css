@@ -183,10 +183,13 @@ input:focus-visible,
 .ticket-header-row {
 	display: flex;
 	justify-content: space-between;
-	align-items: center;
+	align-items: flex-start;
+	gap: var(--space-2);
 	margin-bottom: var(--space-2);
 }
 
+/* 가격 배지는 "$1,000" 같은 긴 값에서도 절대 줄바꿈되면 안 된다 — 줄바꿈되면 옆의
+   브랜드 라벨과 세로 정렬이 깨지면서 전체 헤더 줄이 불균형해 보인다(실측 발견) */
 .ticket-denom {
 	background: #fff;
 	color: var(--ticket-bg-1);
@@ -196,6 +199,8 @@ input:focus-visible,
 	padding: 3px 10px;
 	border-radius: 4px;
 	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+	white-space: nowrap;
+	flex-shrink: 0;
 }
 
 .ticket-brand {
@@ -203,6 +208,8 @@ input:focus-visible,
 	font-size: 0.65rem;
 	text-transform: uppercase;
 	letter-spacing: 1px;
+	text-align: right;
+	min-width: 0;
 }
 
 .ticket-art-top {
@@ -854,6 +861,59 @@ input:focus-visible,
 .custom-odds-controls .btn-secondary {
 	width: auto;
 	padding: 10px 16px;
+}
+
+/* "See Your Long-Run Odds" 입력 줄 — Custom Odds 줄과 같은 톤/여백을 재사용 */
+.long-run-controls {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: flex-end;
+	gap: var(--space-2);
+	margin-bottom: var(--space-3);
+}
+
+.long-run-controls label {
+	display: block;
+	font-size: 0.75rem;
+	color: var(--text-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: var(--space-1);
+}
+
+.long-run-controls input[type="number"] {
+	width: 100px;
+	padding: 10px;
+	background: var(--surface-2);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	font-size: 1rem;
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+.long-run-controls input[type="number"]::-webkit-inner-spin-button,
+.long-run-controls input[type="number"]::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.long-run-controls .btn-secondary {
+	width: auto;
+	padding: 10px 16px;
+}
+
+/* "내 실제 RTP vs 이론 RTP" 리캡 — 표본이 충분할 때만 조용히 나타나는 보조 텍스트 */
+.personal-rtp-recap {
+	margin-top: var(--space-2);
+	padding: var(--space-2) var(--space-3);
+	background: var(--surface-2);
+	border-left: 3px solid var(--accent);
+	border-radius: 4px;
+	color: var(--text-dim);
+	font-size: 0.8rem;
+	line-height: 1.5;
 }
 
 /* Current Odds */
