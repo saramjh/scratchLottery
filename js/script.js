@@ -69,7 +69,41 @@ function playRevealChime(isWin) {
 	const ctx = getAudioCtx()
 	if (!ctx) return
 	const now = ctx.currentTime
-	const notes = isWin ? [523.25, 659.25, 783.99] : [329.63, 261.63] // 당첨: 도미솔 상승 / 낙첨: 짧은 하강 2음
+
+	if (isWin) {
+		// 코인/잭팟 느낌: 사인파 대신 triangle(더 밝은 음색)로 도미솔도(한 옥타브 위) 아르페지오를
+		// 빠르게 쌓고, 마지막 음에 한 옥타브+5도 위 배음을 살짝 얹어서 반짝이는 느낌을 더한다
+		const notes = [523.25, 659.25, 783.99, 1046.5] // C5-E5-G5-C6
+		notes.forEach((freq, i) => {
+			const t = now + i * 0.075
+			const osc = ctx.createOscillator()
+			const gain = ctx.createGain()
+			osc.type = "triangle"
+			osc.frequency.value = freq
+			gain.gain.setValueAtTime(0.0001, t)
+			gain.gain.linearRampToValueAtTime(0.22, t + 0.015)
+			gain.gain.exponentialRampToValueAtTime(0.001, t + 0.28)
+			osc.connect(gain).connect(ctx.destination)
+			osc.start(t)
+			osc.stop(t + 0.3)
+
+			if (i === notes.length - 1) {
+				const sparkle = ctx.createOscillator()
+				const sparkleGain = ctx.createGain()
+				sparkle.type = "triangle"
+				sparkle.frequency.value = freq * 3 // 한 옥타브+5도 위 배음
+				sparkleGain.gain.setValueAtTime(0.0001, t)
+				sparkleGain.gain.linearRampToValueAtTime(0.08, t + 0.015)
+				sparkleGain.gain.exponentialRampToValueAtTime(0.001, t + 0.4)
+				sparkle.connect(sparkleGain).connect(ctx.destination)
+				sparkle.start(t)
+				sparkle.stop(t + 0.42)
+			}
+		})
+		return
+	}
+
+	const notes = [329.63, 261.63] // 낙첨: 짧은 하강 2음
 	notes.forEach((freq, i) => {
 		const osc = ctx.createOscillator()
 		const gain = ctx.createGain()
