@@ -829,6 +829,18 @@ document.getElementById("applyProbability").addEventListener("click", applyProba
 const $longRunApply = document.getElementById("longRunApply")
 if ($longRunApply) $longRunApply.addEventListener("click", updateLongRunProjection)
 
+const $taxCalculate = document.getElementById("taxCalculate")
+const $taxCountry = document.getElementById("taxCountry")
+const $taxJackpotAmount = document.getElementById("taxJackpotAmount")
+if ($taxCalculate) $taxCalculate.addEventListener("click", updateTaxCalculator)
+if ($taxCountry) {
+	$taxCountry.addEventListener("change", () => {
+		const rule = LOTTERY_TAX_RULES[$taxCountry.value]
+		if (rule && $taxJackpotAmount) $taxJackpotAmount.value = rule.defaultAmount
+		updateTaxCalculator()
+	})
+}
+
 function updateDisplay() {
 	const costDisplay = document.getElementById("costDisplay")
 	const prizeDisplay = document.getElementById("prizeDisplay")
@@ -1294,6 +1306,87 @@ function updateLongRunProjection() {
 	lossEl.textContent = `${currencySymbol}${Math.round(expectedLoss).toLocaleString()}`
 	jackpotChanceEl.textContent = `${(jackpotChance * 100).toFixed(2)}%`
 }
+
+/* 로또 당첨금 세금 — 실제로 검증한 각국 공식 규정만 사용한다(지어낸 세율 없음).
+   미국은 원천징수(24%)일 뿐 최종 세액이 아니라는 걸 명시하고, 한국은 3억 기준 구간별
+   최종 분리과세, 영국/호주는 실제로 세금이 0%인 국가라는 걸 그대로 보여준다. */
+const LOTTERY_TAX_RULES = {
+	us: {
+		symbol: "$",
+		defaultAmount: 1000000,
+		sourceLabel: "IRS Instructions for Forms W-2G and 5754",
+		sourceUrl: "https://www.irs.gov/instructions/iw2g",
+		compute(amount) {
+			const withheld = amount * 0.24
+			return {
+				withheld,
+				note: "The IRS withholds 24% up front on lottery prizes over $5,000 — but that's only a prepayment. If the prize pushes your income into the top 37% bracket, you'll owe more when you file. State taxes aren't included here.",
+			}
+		},
+	},
+	kr: {
+		symbol: "₩",
+		defaultAmount: 1000000000,
+		sourceLabel: "국세청 기타소득세 원천징수 규정 (기사 요약: 코리아데일리)",
+		sourceUrl: "https://www.koreadaily.com/article/20250101180050504",
+		compute(amount) {
+			const threshold = 300000000
+			const below = Math.min(amount, threshold)
+			const above = Math.max(0, amount - threshold)
+			const withheld = below * 0.22 + above * 0.33
+			return {
+				withheld,
+				note: "Korea taxes lottery winnings as final withholding (분리과세) — 22% on the amount up to ₩300,000,000, and 33% on everything above that. No further filing needed for this specific income.",
+			}
+		},
+	},
+	uk: {
+		symbol: "£",
+		defaultAmount: 1000000,
+		sourceLabel: "HMRC guidance (via The Accountancy Partnership)",
+		sourceUrl: "https://www.theaccountancy.co.uk/tax/paying-tax-on-lottery-winnings-279329.html",
+		compute(amount) {
+			return {
+				withheld: 0,
+				note: "UK National Lottery winnings are completely tax-free — HMRC treats it as gambling, not income. The lottery duty is already paid by the operator before the prize is ever offered.",
+			}
+		},
+	},
+	au: {
+		symbol: "A$",
+		defaultAmount: 1000000,
+		sourceLabel: "The Lott Help Centre (ATO guidance)",
+		sourceUrl: "https://help.thelott.com/hc/en-us/articles/115002565674-Do-I-need-to-pay-tax-on-my-winnings",
+		compute(amount) {
+			return {
+				withheld: 0,
+				note: "The ATO treats Australian lottery prizes as a windfall gain, not assessable income — so the prize itself is tax-free. Interest or investment income you later earn from it is still taxable.",
+			}
+		},
+	},
+}
+
+function updateTaxCalculator() {
+	const countrySelect = document.getElementById("taxCountry")
+	const amountInput = document.getElementById("taxJackpotAmount")
+	const grossEl = document.getElementById("taxGross")
+	const withheldEl = document.getElementById("taxWithheld")
+	const netEl = document.getElementById("taxNet")
+	const noteEl = document.getElementById("taxNote")
+	if (!countrySelect || !amountInput || !grossEl || !withheldEl || !netEl || !noteEl) return
+
+	const rule = LOTTERY_TAX_RULES[countrySelect.value]
+	if (!rule) return
+	const amount = Math.max(0, parseFloat(amountInput.value) || 0)
+	const { withheld, note } = rule.compute(amount)
+	const net = amount - withheld
+
+	grossEl.textContent = `${rule.symbol}${Math.round(amount).toLocaleString()}`
+	withheldEl.textContent = `${rule.symbol}${Math.round(withheld).toLocaleString()}`
+	netEl.textContent = `${rule.symbol}${Math.round(net).toLocaleString()}`
+	noteEl.innerHTML = `${note} Source: <a href="${rule.sourceUrl}" target="_blank" rel="noopener">${rule.sourceLabel}</a>.`
+}
+updateTaxCalculator()
 
 /* "Choose a Game" 카드 — 실제로는 기존 <select id="lotteryPreset">를 그대로 조작한다 (로직 중복 없음) */
 const GAME_CARD_DESCRIPTIONS = {

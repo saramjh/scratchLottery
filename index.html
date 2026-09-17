@@ -298,6 +298,14 @@
           </tbody>
         </table>
         <p class="panel-sub">Last checked 2026-09. Odds can change if an operator changes its number matrix — always confirm with the operator before relying on this for a real purchase decision.</p>
+        <ul class="perspective-list">
+          <li>Mega Millions: you're about 70x more likely to die from a shark attack (1 in 4,332,817) than to win this jackpot.</li>
+          <li>Powerball: you're about 19,000x more likely to be struck and killed by lightning in your lifetime (1 in 15,300) than to win this jackpot.</li>
+          <li>EuroMillions: you're about 410x more likely to die in a fireworks accident (1 in 340,733) than to win this jackpot.</li>
+          <li>UK Lotto: you're about 289x more likely to die in a train crash (1 in 156,169) than to win this jackpot.</li>
+          <li>Korea Lotto 6/45: you're about 1,613x more likely to die in an air or space accident (1 in 5,051) than to win this jackpot.</li>
+        </ul>
+        <p class="panel-sub">Death-risk figures: <a href="https://www.floridamuseum.ufl.edu/shark-attacks/odds/compare-risk/death/" target="_blank" rel="noopener">International Shark Attack File, University of Florida</a>; lightning figure: <a href="https://www.noaa.gov/jetstream/lightning/frequently-asked-questions" target="_blank" rel="noopener">NOAA</a>.</p>
       </section>
 
       <section class="panel" id="longRunCard">
@@ -329,6 +337,38 @@
           </div>
         </div>
         <p class="panel-sub">"Expected Net Loss" uses the current game's real RTP — it's the mathematically expected outcome, not a guarantee; any single run can (rarely) end in profit.</p>
+      </section>
+
+      <section class="panel" id="taxCard">
+        <h2>If You Actually Won: What Tax Takes</h2>
+        <p class="panel-sub">Real, sourced tax treatment of lottery jackpots in a few countries — not tax advice, and rules change, but a good first estimate.</p>
+        <div class="long-run-controls">
+          <label for="taxCountry">Country</label>
+          <select id="taxCountry">
+            <option value="us">United States (federal only)</option>
+            <option value="kr">South Korea</option>
+            <option value="uk">United Kingdom</option>
+            <option value="au">Australia</option>
+          </select>
+          <label for="taxJackpotAmount">Jackpot amount</label>
+          <input type="number" id="taxJackpotAmount" value="1000000" min="0" step="1">
+          <button id="taxCalculate" class="btn-secondary">Calculate</button>
+        </div>
+        <div class="stat-grid">
+          <div class="stat-box">
+            <span class="stat-label">Gross Prize</span>
+            <span class="stat-value" id="taxGross">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Tax Withheld</span>
+            <span class="stat-value" id="taxWithheld">—</span>
+          </div>
+          <div class="stat-box">
+            <span class="stat-label">Net Take-Home</span>
+            <span class="stat-value" id="taxNet">—</span>
+          </div>
+        </div>
+        <p class="panel-sub" id="taxNote"></p>
       </section>
 
       <section class="panel" id="faqCard">

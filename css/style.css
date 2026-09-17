@@ -881,6 +881,15 @@ input:focus-visible,
 	margin-bottom: var(--space-1);
 }
 
+.long-run-controls select {
+	padding: 10px;
+	background: var(--surface-2);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	font-size: 1rem;
+}
+
 .long-run-controls input[type="number"] {
 	width: 100px;
 	padding: 10px;
@@ -945,6 +954,22 @@ input:focus-visible,
 	font-size: 0.8rem;
 	line-height: 1.5;
 	margin-bottom: var(--space-2);
+}
+
+.perspective-list {
+	list-style: none;
+	padding: var(--space-2) var(--space-3);
+	margin: var(--space-2) 0;
+	background: var(--surface-2);
+	border-left: 3px solid var(--accent);
+	border-radius: 4px;
+	color: var(--text-dim);
+	font-size: 0.8rem;
+	line-height: 1.6;
+}
+
+.perspective-list li + li {
+	margin-top: var(--space-1);
 }
 
 .probability-comparison a {
