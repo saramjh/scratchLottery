@@ -1,9 +1,28 @@
-@font-face {
-	font-family: "NeoDunggeunmo Pro";
-	font-weight: normal;
-	font-style: normal;
-	font-display: block;
-	src: url("font/NeoDunggeunmoPro-Regular.woff2") format("woff2");
+/* ============================================================
+   디자인 토큰 — "조용한 도구 + 시끄러운 티켓"이 이 사이트의 유일한 원칙이다.
+   워크스페이스(도구 영역)는 데이터 중심의 차분한 다크 UI, 강조색 하나만 쓴다.
+   티켓만 촉각적이고 시각적으로 진하다. 임의의 색을 그때그때 고르지 않고
+   아래 토큰만 재사용한다.
+   ============================================================ */
+:root {
+	--bg: #0a0c0f;
+	--surface: #14171b;
+	--surface-2: #1c1f24;
+	--border: #272b31;
+	--text: #edf0f3;
+	--text-dim: #8f98a3;
+	--accent: #d4a94a;
+	--accent-contrast: #191305;
+	--win: #4ade80;
+	--loss: #f87171;
+	--radius: 10px;
+	--space-1: 4px;
+	--space-2: 8px;
+	--space-3: 16px;
+	--space-4: 24px;
+	--content-max: 1180px;
+	--font-display: Georgia, "Times New Roman", serif; /* 브랜드 워드마크 전용 */
+	--font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
 * {
@@ -12,824 +31,1043 @@
 	box-sizing: border-box;
 	text-decoration: none;
 	list-style: none;
-
-	/* 폰트 */
-	font-family: "NeoDunggeunmo Pro", sans-serif;
+	font-family: var(--font-body);
 	font-weight: 400;
 	font-style: normal;
 }
-a {
-	text-decoration: none;
-	color: #000;
-}
+
 html,
 body {
-	height: 100%;
+	background: var(--bg);
+	color: var(--text);
 	width: 100%;
-	background: linear-gradient(rgb(64, 78, 94) 75%, #000000);
-	overflow-x: hidden;
+}
+
+a {
+	color: var(--accent);
+}
+
+/* 브라우저 기본 파란색 포커스 링이 다크+골드 테마와 안 어울려서 강조색으로 통일 */
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+[tabindex]:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+/* ============================================================
+   상단 바
+   ============================================================ */
+.topbar {
+	background: var(--surface);
+	border-bottom: 1px solid var(--border);
+	padding: var(--space-3) var(--space-3);
+}
+
+.topbar-inner {
+	max-width: var(--content-max);
+	margin: 0 auto;
 	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	position: relative;
-}
-@keyframes glitter {
-	0% {
-		text-shadow: 0 0 5px gold, 0 0 10px gold, 0 0 15px gold;
-	}
-	50% {
-		text-shadow: 0 0 10px gold, 0 0 20px gold, 0 0 30px gold;
-	}
-	100% {
-		text-shadow: 0 0 5px gold, 0 0 10px gold, 0 0 15px gold;
-	}
-}
-
-@keyframes glitterBox {
-	0% {
-		box-shadow: 0 0 2px gold, 0 0 5px gold, 0 0 7px gold;
-	}
-	50% {
-		box-shadow: 0 0 5px gold, 0 0 10px gold, 0 0 15px gold;
-	}
-	100% {
-		box-shadow: 0 0 2px gold, 0 0 5px gold, 0 0 7px gold;
-	}
-}
-@-webkit-keyframes STAR {
-	0% {
-		background: powderblue;
-		height: 1px;
-		width: 1px;
-		box-shadow: 0px 0px 10px white;
-	}
-	10% {
-		background: #b0e5de;
-	}
-	20% {
-		background: #b0e5cc;
-	}
-	30% {
-		background: #cce5b0;
-	}
-	40% {
-		background: #dae5b0;
-	}
-	50% {
-		background: #e5ddb0;
-		width: 4px;
-		height: 4px;
-		box-shadow: 0px 0px 10px #d3bd3d;
-	}
-	100% {
-		width: 1px;
-		height: 1px;
-		background: powderblue;
-		box-shadow: 0px 0px 10px white;
-	}
-}
-
-.star {
-	height: 1px;
-	width: 1px;
-	border-radius: 5px;
-	box-shadow: 0px 0px 10px white;
-	background: powderblue;
-	position: absolute;
-	z-index: 0; /* 별이 배경보다 위에 위치 */
-}
-
-.star.pulse {
-	-webkit-animation: STAR 2s infinite; /* Safari 4+ */
-}
-@keyframes float {
-	0% {
-		transform: translateY(0);
-	}
-
-	50% {
-		transform: translateY(-5px);
-	}
-
-	100% {
-		transform: translateY(0);
-	}
-}
-
-/* Floating language selector button */
-
-#langBtn {
-	top: 15px;
-	right: 20px;
-	width: 45px;
-	height: 45px;
-	position: absolute;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	background: inset -1px -1px 0 rgba(0, 0, 0, 1);
-	background-color: #fff;
-	border: 1px solid #ccc;
-	border-radius: 5rem;
-	animation: float 2s ease-in-out infinite;
-	cursor: pointer;
-	z-index: 1000;
-}
-#languageSelector {
-	width: auto;
-	height: auto;
-}
-
-#languageMenu {
-	display: none;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	position: absolute;
-	top: 15px;
-	right: 20px;
-	width: 45px;
-	padding: 7.5px 0;
-	text-align: center;
-	background: #fff;
-	border: 1px solid #ccc;
-	border-radius: 2rem;
-	box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
-	animation: float 5s ease-in-out infinite;
-	z-index: 1001;
-}
-
-#languageMenu a {
-	display: block;
-	padding: 5px 10px;
-	text-decoration: none;
-	color: #000;
-}
-
-#languageMenu a:hover {
-	background: #f0f0f0;
-	border-radius: 5rem;
-}
-.wrapper {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	min-height: 100vh;
-	width: 100%;
-	z-index: 1;
-}
-
-main {
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-start;
-	align-items: center;
-	width: 500px;
-	background-color: black;
-	z-index: 1;
-	border-radius: 0 0 5px 5px;
-}
-
-header {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	padding: 10px 0px;
-	width: 500px;
-	background-color: black;
-	border-radius: 10px 10px 0 0;
-	min-width: 360px;
-	z-index: 1;
-}
-
-header h1 {
-	background: linear-gradient(95deg, rgb(177, 16, 16) 5%, rgb(103, 6, 6));
-	box-shadow: inset 0 0 0 1px rgb(3, 78, 29);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	color: white;
-	font-size: 24px; /* 텍스트 크기 */
-	padding: 15px 30px;
-	border-radius: 5px;
-}
-
-header p {
-	color: #fff;
-	font-size: 0.8rem;
-	margin-top: 5px;
-	text-align: center;
-}
-
-sup {
-	color: #4a4848;
-	font-size: 0.6rem;
-	font-weight: 100;
-}
-
-.lottery {
-	color: #fff;
-	position: relative;
-	display: flex;
-	flex-direction: column;
 	justify-content: space-between;
 	align-items: center;
-	background-color: #333;
-	padding: 10px;
-	height: 370px;
-	width: 100%;
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	position: relative;
 }
 
-.lottery h2 {
-	margin-top: 10px;
+.brand h1 {
+	font-family: var(--font-display);
+	font-weight: bold;
+	font-size: 1.25rem;
 }
 
-.btnGroup button {
-	font-size: 1rem;
-	padding: 15px 10px;
-	border-radius: 10px;
-	box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.2);
+.brand p {
+	color: var(--text-dim);
+	font-size: 0.75rem;
+	margin-top: 2px;
 }
 
-#scratch {
-	background-color: rgb(138, 13, 13);
-	color: #fff;
-	box-shadow: inset -3px -3px 0 rgba(219, 4, 4, 0.2);
-}
-#nextLottery {
-	background-color: rgb(25, 148, 57);
-	color: #fff;
-	box-shadow: inset -3px -3px 0 rgba(25, 148, 57, 0.2);
+.topbar-nav {
+	display: flex;
+	gap: var(--space-3);
 }
 
-#greyCover {
-	width: 320px;
-	position: absolute;
-	top: 50%;
-	left: 50%;
-	transform: translate(-50%, -50%);
-	border-radius: 20px;
-	z-index: 1000; /* z-index를 낮게 설정 */
+.topbar-nav a {
+	color: var(--text-dim);
+	font-size: 0.85rem;
 }
 
-.grid {
-	position: absolute;
-	top: 50%;
-	/* 세로 중앙 */
-	left: 50%;
-	/* 가로 중앙 */
-	transform: translate(-50%, -50%);
-	/* 중앙으로 이동 */
-	transition: all 0.3s ease;
-	/* 전환 효과 */
-	display: grid;
-	justify-content: center;
+.topbar-nav a:hover {
+	color: var(--accent);
+}
+
+.nav-toggle-checkbox {
+	display: none;
+}
+
+.nav-toggle-btn {
+	display: none;
+	cursor: pointer;
+	font-size: 1.4rem;
+	color: var(--text);
+}
+
+/* ============================================================
+   레이아웃: 데스크톱은 "티켓(좌) / 도구(우)" 2단, 모바일은 완전히 다른 구성
+   ============================================================ */
+.layout {
+	max-width: var(--content-max);
+	margin: 0 auto;
+	padding: var(--space-4) var(--space-3);
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-4);
+}
+
+@media (min-width: 960px) {
+	.layout {
+		flex-direction: row;
+		align-items: flex-start;
+	}
+
+	.ticket-panel {
+		position: sticky;
+		top: var(--space-4);
+		flex: 0 0 400px;
+	}
+
+	.workspace {
+		flex: 1;
+		min-width: 0;
+	}
+}
+
+/* ============================================================
+   티켓 패널 — 유일하게 시각적으로 크고 진한 영역
+   ============================================================ */
+.ticket-panel {
+	display: flex;
+	flex-direction: column;
 	align-items: center;
-	grid-auto-flow: column;
-	grid-template-rows: 1fr 1fr 1fr;
-	gap: 5px;
+	gap: var(--space-2);
+}
+
+/* 실제 미국 즉석복권처럼 밀도 높고 대비가 강한 티켓 — 외부 이미지 없이 CSS/SVG 패턴으로만 구현.
+   가짜 브랜드명/상금 문구는 넣지 않고, 진짜 프리셋 데이터(이름/상금/가격)만 표시한다. */
+/* 게임별 배색은 JS(applyTicketTheme)가 이 변수들만 갈아끼운다 — 레이아웃/구조는 그대로,
+   색만 바뀐다. 기본값은 US $5 Scratch-Off 테마(JS 실행 전 첫 페인트용 폴백). */
+.ticket-art {
+	--ticket-bg-1: #0d2b4d;
+	--ticket-bg-2: #122238;
+	--ticket-accent: #d4a94a;
+	--ticket-accent-contrast: #191305;
+
+	position: relative;
+	width: 100%;
+	max-width: 360px;
+	background-color: var(--ticket-bg-1);
+	background-image: radial-gradient(circle at 15% 15%, color-mix(in srgb, var(--ticket-accent) 35%, transparent), transparent 45%),
+		radial-gradient(circle at 85% 10%, color-mix(in srgb, var(--ticket-accent) 25%, transparent), transparent 40%),
+		url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Ctext x='10' y='30' font-size='28' fill='%23ffffff' fill-opacity='0.05' font-family='Georgia,serif'%3E$%3C/text%3E%3Ctext x='70' y='90' font-size='28' fill='%23ffffff' fill-opacity='0.05' font-family='Georgia,serif'%3E$%3C/text%3E%3Ctext x='40' y='115' font-size='20' fill='%23ffffff' fill-opacity='0.04' font-family='Georgia,serif'%3E$%3C/text%3E%3C/svg%3E");
+	border: 2px solid var(--ticket-accent);
+	border-radius: var(--radius);
+	padding: var(--space-3);
+	box-shadow: 0 20px 40px rgba(0, 0, 0, 0.6);
+	overflow: hidden;
+	user-select: none; /* 드래그로 긁는 동안 주변 텍스트가 같이 선택되지 않도록 */
+	-webkit-user-select: none;
+	transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.ticket-header-row {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: var(--space-2);
+}
+
+.ticket-denom {
+	background: #fff;
+	color: var(--ticket-bg-1);
+	font-weight: bold;
+	font-size: 0.9rem;
+	letter-spacing: 0.5px;
+	padding: 3px 10px;
+	border-radius: 4px;
+	box-shadow: 0 2px 6px rgba(0, 0, 0, 0.4);
+}
+
+.ticket-brand {
+	color: rgba(255, 255, 255, 0.6);
+	font-size: 0.65rem;
+	text-transform: uppercase;
+	letter-spacing: 1px;
+}
+
+.ticket-art-top {
+	text-align: center;
+	margin-bottom: var(--space-3);
+}
+
+.ticket-game-title {
+	display: block;
+	font-family: var(--font-display);
+	font-weight: 900;
+	font-size: 1.6rem;
+	line-height: 1.1;
+	color: #fff;
+	letter-spacing: 0.3px;
+	text-shadow: 0 2px 0 var(--ticket-bg-2), 0 0 18px color-mix(in srgb, var(--ticket-accent) 60%, transparent);
+}
+
+.ticket-prize-line {
+	display: inline-block;
+	margin-top: var(--space-1);
+	color: var(--ticket-accent-contrast);
+	background: var(--ticket-accent);
+	font-weight: bold;
+	font-size: 0.9rem;
+	padding: 3px 12px;
 	border-radius: 20px;
-	pointer-events: none;
-	max-width: 320px;
-	max-height: 200px;
+}
+
+.ticket-howto {
+	color: rgba(255, 255, 255, 0.75);
+	font-size: 0.7rem;
+	margin-top: var(--space-2);
+	line-height: 1.4;
+}
+
+.ticket-section-label {
+	color: var(--ticket-accent);
+	font-size: 0.7rem;
+	font-weight: bold;
+	letter-spacing: 1.5px;
+	text-transform: uppercase;
+	text-align: center;
+	margin-bottom: var(--space-1);
+}
+
+/* 인쇄된 당첨번호 — 실제 티켓처럼 긁을 필요 없이 그대로 보인다 */
+.winning-numbers-block {
+	margin-bottom: var(--space-3);
+	padding-bottom: var(--space-2);
+	border-bottom: 1px dashed rgba(255, 255, 255, 0.25);
+}
+
+/* 당첨번호는 실제 티켓처럼 인쇄되어 그대로 보인다 — 긁을 필요 없음, UI 칩 아님 */
+.winning-numbers-list {
+	text-align: center;
+	color: #fff;
+	font-family: var(--font-display);
+	font-weight: bold;
+	font-size: 1.05rem;
+	letter-spacing: 1px;
+}
+
+/* 파워볼처럼 실제로 잘 알려진 "보너스 공" 형식을 가진 게임만: 마지막 번호를 시각적으로 분리 */
+.bonus-ball-number {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.6em;
+	height: 1.6em;
+	margin-left: 10px;
+	border-radius: 50%;
+	background: #d92626;
+	color: #fff;
+	font-size: 0.9em;
+	vertical-align: middle;
+}
+
+.your-numbers-block {
+	margin-bottom: var(--space-1);
+}
+
+.ticket-ticker {
+	text-align: center;
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 0.75rem;
+	min-height: 1.2em;
+	margin-top: var(--space-2);
+}
+
+/* 15개의 플레이 자리 — 각 자리가 티켓 표면에 인쇄된 개별 스크래치 필드다.
+   하나의 큰 캔버스가 아니라 칸마다 독립된 <canvas>를 갖는다(JS: setupCellScratch). */
+.your-numbers-grid {
+	position: relative;
+	display: grid;
+	/* minmax(0, 1fr) — 1fr 트랙 기본 min-width는 auto(내용의 최소 폭)라, 내용이 길면
+	   트랙이 뷰포트보다 넓어져 페이지 전체가 가로로 밀려나는 버그가 생긴다(모바일에서 실측됨) */
+	grid-template-columns: repeat(5, minmax(0, 1fr));
+	gap: 5px;
+}
+
+/* 스피또1000: LUCKY NUMBER / MY NUMBER 두 줄 구분 라벨 — 실물 티켓의 행 라벨을 재현 */
+.numbers-row-label {
+	grid-column: 1 / -1;
+	color: rgba(255, 255, 255, 0.55);
+	font-size: 0.6rem;
+	font-weight: bold;
+	letter-spacing: 1px;
+	margin-top: 4px;
+}
+
+.numbers-row-label:first-child {
+	margin-top: 0;
+}
+
+/* 스피또2000: 6개 게임칸을 2x3으로 배치 — 게임칸 하나에 심볼 2개가 나란히 들어간다 */
+.symbol-match-grid {
+	gap: 8px;
+}
+
+.symbol-game {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: color-mix(in srgb, var(--ticket-bg-1) 50%, #fff 6%);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 8px;
+	padding: 6px;
+}
+
+.symbol-game-prize {
+	text-align: center;
+	color: rgba(255, 255, 255, 0.7);
+	font-size: 0.65rem;
+	font-weight: bold;
+}
+
+.symbol-game-cells {
+	display: flex;
+	gap: 4px;
+}
+
+.symbol-game .symbol-cell {
+	flex: 1;
+	aspect-ratio: 1;
+	padding: 0;
+}
+
+.symbol-shape {
+	position: absolute;
+	inset: 22%;
+	background: var(--ticket-accent);
+}
+
+.symbol-shape-circle {
+	border-radius: 50%;
+}
+
+.symbol-shape-diamond {
+	clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+}
+
+.symbol-shape-triangle {
+	clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+}
+
+.symbol-shape-hexagon {
+	clip-path: polygon(25% 0%, 75% 0%, 100% 50%, 75% 100%, 25% 100%, 0% 50%);
+}
+
+.symbol-shape-star {
+	clip-path: polygon(50% 0%, 61% 35%, 98% 35%, 68% 57%, 79% 91%, 50% 70%, 21% 91%, 32% 57%, 2% 35%, 39% 35%);
+}
+
+.symbol-shape-square {
+	border-radius: 2px;
+}
+
+.play-cell.winner .symbol-shape {
+	background: #fff;
+}
+
+.play-cell {
+	position: relative;
+	background: color-mix(in srgb, var(--ticket-bg-1) 60%, #fff 10%);
+	border: 1px solid rgba(255, 255, 255, 0.15);
+	border-radius: 6px;
+	padding: 4px 2px 5px;
+	text-align: center;
+	overflow: hidden;
+}
+
+/* 파워볼의 보너스 공 자리 — 흰 공들과 시각적으로 확실히 구분 */
+.play-cell.bonus-ball-slot {
+	background: #7a1a1a;
+	border-color: #d92626;
+}
+
+.play-number {
+	color: #fff;
+	font-weight: bold;
+	font-size: 1rem;
+	line-height: 1.2;
+}
+
+.play-prize {
+	color: rgba(255, 255, 255, 0.65);
+	font-size: 0.6rem;
+	margin-top: 1px;
+}
+
+/* 당첨번호와 일치해서 드러난 자리만 강조색 테두리로 — 유일한 "당첨" 신호, 과장된 반짝임 없음 */
+.play-cell.winner {
+	border-color: var(--ticket-accent);
+	box-shadow: inset 0 0 0 1px var(--ticket-accent);
+	background: color-mix(in srgb, var(--ticket-accent) 18%, var(--ticket-bg-2));
+}
+
+.play-cell.winner .play-number,
+.play-cell.winner .play-prize {
+	color: var(--ticket-accent);
+}
+
+/* 보너스 공 자리라도 당첨 신호(강조색)가 항상 우선한다 */
+.play-cell.winner.bonus-ball-slot {
+	border-color: var(--ticket-accent);
+	background: color-mix(in srgb, var(--ticket-accent) 25%, #7a1a1a);
+}
+
+.play-scratch-canvas {
+	position: absolute;
+	inset: 0;
 	width: 100%;
 	height: 100%;
-	padding: 10px 20px;
-	background-color: #787878;
-	padding-left: 70px;
-	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.6);
-	z-index: 10;
-}
-
-.grid-cell {
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	font-size: 1.5em;
-	width: 44px;
-	height: 55px;
-	padding: 2px 0 0 8px;
-	pointer-events: none;
-	user-select: none;
-	/* 크롬, 파이어폭스 등에서 텍스트 선택 방지 */
-	-webkit-user-select: none;
-	/* 사파리 */
-	-moz-user-select: none;
-	/* 파이어폭스 */
-	background-color: #8f8f8f;
-	color: #2e2c2c;
-	background-size: cover;
-	border-radius: 5%;
-	box-shadow: inset 2px 4px 3px rgba(0, 0, 0, 0.2);
-	background: linear-gradient(155deg, rgb(147, 147, 147), rgb(147, 147, 147), rgb(147, 147, 147), rgb(198, 198, 198), rgb(147, 147, 147), rgb(147, 147, 147), rgb(147, 147, 147));
-}
-
-.chosen {
-	background-color: darkgoldenrod;
-	background: linear-gradient(155deg, rgb(184, 142, 102), rgb(142, 108, 77), rgb(197, 174, 117), rgb(255, 255, 255), rgb(184, 142, 102), rgb(146, 112, 81), rgb(184, 142, 102));
-	box-shadow: inset 2px 4px 3px rgba(0, 0, 0, 0.2);
-	border: 1px solid rgba(255, 255, 255, 0.5);
-	animation: glitterBox 0.5s infinite;
-}
-
-.chosen span {
-	font-size: 1em;
-	color: rgb(254, 195, 58);
-	text-shadow: -2px -2px 3px rgba(69, 58, 49, 0.1), 2px -2px 5px rgba(68, 42, 21, 0.8), -2px 2px 5px rgba(68, 42, 21, 0.8), 2px 2px 5px rgba(68, 42, 21, 0.8);
-	/* 테두리 효과 */
-	padding: 0 0 0 0;
-}
-
-.chosen span sup {
-	color: #725334;
-	text-shadow: none;
-}
-
-#probabilityInput {
-	width: 100%;
-	padding: 2px;
-}
-
-#prizeVTScroll {
-	margin-top: -220px;
-	animation: glitter 0.5s infinite;
-}
-
-.showModal {
-	position: relative;
-	padding: 10px 5px;
-	width: 100%;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-}
-
-#jackpotModal {
-	position: absolute;
-	top: 10px;
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	transition: all 0.3s ease;
-	/* 전환 효과 */
-	z-index: 1000;
-	/* 다른 요소 위에 표시 */
-	background-color: rgb(51, 50, 50);
-	color: #fff;
-	/* 배경색 (선택사항) */
-	padding: 10px;
-	/* 패딩 (선택사항) */
-	border-radius: 8px;
-	/* 모서리 둥글기 (선택사항) */
-	box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-	/* 그림자 (선택사항) */
-	padding: 1em 2em;
-	border: 1px solid #fff;
-}
-
-.modal-content {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-	line-height: 2em;
-}
-
-.modal-content h2 {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	text-align: center;
-	border: 1px solid #fff;
-	width: 100%;
-	padding: 5px 25px;
-	border-radius: 5px;
-}
-
-.modal-content .close {
-	width: 100%;
+	touch-action: none; /* 이 칸을 긁는 동안만 스크롤 방지 — 티켓 밖 스크롤엔 영향 없음 */
 	cursor: pointer;
-	text-align: center;
-	background-color: #8f8f8f;
-	box-shadow: inset -1px -1px 3px rgba(0, 0, 0, 1);
-	color: #524f4f;
+}
+
+.ticket-actions {
+	width: 100%;
+	max-width: 320px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: var(--space-1);
+}
+
+.btnGroup {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
+	width: 100%;
+}
+
+.btn-primary,
+.btn-secondary {
 	font-size: 1rem;
-	font-weight: 800;
-	margin: 5px 0;
-	border-radius: 5px;
+	padding: 14px;
+	border-radius: var(--radius);
+	cursor: pointer;
+	width: 100%;
+	min-height: 44px; /* 편안한 터치 타겟 */
 }
 
-.lotteryInfo {
+.btn-primary {
+	background-color: var(--accent);
+	color: var(--accent-contrast);
+	border: 1px solid var(--accent);
+	font-weight: bold;
+}
+
+.btn-secondary {
+	background-color: transparent;
+	color: var(--text);
+	border: 1px solid var(--border);
+}
+
+.text-link-btn {
+	background: none;
+	border: none;
+	color: var(--text-dim);
+	font-size: 0.75rem;
+	text-decoration: underline;
+	cursor: pointer;
+	padding: var(--space-1);
+}
+
+.ticket-disclaimer {
+	color: var(--text-dim);
+	font-size: 0.7rem;
+	text-align: center;
+}
+
+.icon-toggle {
+	align-self: center;
+	background: transparent;
+	color: var(--text-dim);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	font-size: 0.7rem;
+	padding: 4px 10px;
+	cursor: pointer;
+}
+
+/* ============================================================
+   워크스페이스 — 차분한 데이터 카드들
+   ============================================================ */
+.workspace {
 	display: flex;
 	flex-direction: column;
-	justify-content: center;
-	align-items: center;
+	gap: var(--space-3);
 }
 
-.probability-setting {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: auto;
-	padding: 5%;
+.panel {
+	background: var(--surface);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: var(--space-3);
 }
 
-.probability-setting h2 {
-	display: none;
-}
-.probability-setting p {
-	background-color: #e0b847;
-	padding: 5px 10px;
-	margin: 20px 20px 5px;
-	border-radius: 10px 10px 0 0;
+.panel h2 {
 	font-size: 1rem;
-	text-align: center;
-	width: 100%;
-}
-.probability-setting label {
-	width: 100%;
-}
-.probability-setting input {
-	font-size: 1.5em;
-	text-align: center;
+	color: var(--accent);
+	margin-bottom: var(--space-2);
 }
 
-.probability-setting button {
+.panel-sub {
+	color: var(--text-dim);
+	font-size: 0.8rem;
+	margin-top: var(--space-1);
+	line-height: 1.5;
+}
+
+.panel-quiet {
+	background: transparent;
+	border: 1px solid var(--border);
+}
+
+.panel-header-row {
 	display: flex;
-	flex-direction: column;
-	justify-content: center;
+	justify-content: space-between;
 	align-items: center;
-	width: 100%;
-	font-size: 1.2rem;
-	margin-top: 5px;
-	padding: 5px 0px;
-	border-radius: 0 0 10px 10px;
-	box-shadow: inset -2px -3px 0px rgba(0, 0, 0, 0.5);
+	flex-wrap: wrap;
+	gap: var(--space-2);
+	margin-bottom: var(--space-2);
 }
 
-.prize-tier table {
-	background-color: #d3d3d3;
-	text-align: right;
-	padding: 2px;
-	border-radius: 10px;
-	border: 1px solid #444;
-	margin: 30px 5px;
+.panel-header-row h2 {
+	margin-bottom: 0;
 }
 
-.prize-tier table th {
-	text-align: center;
-	font-size: 1rem;
-	background-color: #8f8f8f;
-	padding: 2px 10px;
-	border-radius: 4px 4px 0 0;
+.two-col {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-3);
 }
 
-#jackpotMessage span {
-	animation: glitter 0.5s infinite;
-	font-size: 1rem;
-	background-color: #000;
-	color: #fff;
-	padding: 10px 35px;
-	border-radius: 5px;
-	width: 100%;
-}
-#lotteryBalance {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: auto;
-	color: #fff;
+@media (min-width: 700px) {
+	.two-col {
+		grid-template-columns: 1.3fr 1fr;
+	}
 }
 
-#recordDisplay {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	margin: 10px 0px 10px;
-	background-color: #0e850e;
-	padding: 5px 0 10px;
-	border-radius: 0 0 5px 5px;
-}
-
-.balanceTitle {
-	font-size: 1.2rem;
-	margin: 0 0 10px 0px;
-	background-color: #8f8f8f;
-	padding: 2px 10px;
-	border-radius: 5px;
-	border-bottom: 4px solid rgba(255, 255, 255, 0.5);
-	border-right: 2px solid rgba(255, 255, 255, 0.2);
-}
-
-#recordDisplay h3 {
-	display: flex;
-	flex-direction: column;
-	justify-content: center;
-	align-items: center;
-	width: 100%;
-	margin: 10px 20px;
-}
-
-#recordDisplay div {
-	width: 450px;
-	background-color: #e2e2e2;
-	padding: 3px 5px;
-	margin-bottom: 2px;
-	border-radius: 0.2rem;
-	width: 98%;
-}
-
-footer {
-	position: fixed;
-	bottom: 0;
-	right: 0;
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	background-color: #dcdcdc;
-	text-align: center;
-	font-size: 1rem;
-	width: 50px;
-	height: 50px;
-	margin: 15px;
-	border-radius: 100%;
-	transition: all 0.3s ease;
-	overflow: hidden;
-	z-index: inherit;
-}
-
-.footer-content {
-	text-align: center;
-	display: block;
-	bottom: 60px;
-	/* 푸터 위에 추가 콘텐츠를 표시할 위치 */
-	background-color: #dcdcdc;
-	width: 200px;
-	/* 콘텐츠 영역의 너비 */
-	text-align: center;
-	padding: 20px;
-	box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-}
-
-.footer-text {
-	display: none;
-}
-
-footer:hover {
-	width: 300px;
-	/* 마우스 오버 시 푸터의 너비 확장 */
-	border-radius: 25px;
-	/* 사각형으로 변환 */
-}
-
-footer:hover .footer-content {
-	display: none;
-	padding: 10px;
-	/* 마우스 오버 시 콘텐츠와 텍스트 표시 */
-}
-
-footer:hover .footer-text {
-	display: block;
-	padding: 10px;
-	/* 마우스 오버 시 콘텐츠와 텍스트 표시 */
+/* 결과 스탯 */
+.stat-grid {
+	display: grid;
+	grid-template-columns: repeat(4, minmax(0, 1fr));
+	gap: var(--space-2);
 }
 
 @media (max-width: 500px) {
-	.wrapper {
-		width: 100%;
-	}
-
-	header {
-		width: 100%;
-	}
-
-	header h1 {
-		width: 100%;
-	}
-
-	header p {
-		padding: 0 10px;
-	}
-
-	main {
-		width: 100%;
-		border-radius: 0 0 5px 5px;
-	}
-
-	.lottery {
-		width: 100%;
-		height: 400px;
-	}
-
-	.lottery h2 {
-		margin-top: 15px;
-	}
-
-	#greyCover {
-		width: 320px;
-	}
-
-	.btnGroup button {
-		font-size: 0.8rem;
-		padding: 20px 5px;
-		border-radius: 10px;
-		box-shadow: inset -2px -2px 0 rgba(0, 0, 0, 0.2);
-	}
-
-	.probability-setting {
-		width: 95%;
-	}
-
-	td {
-		font-size: 0.8rem;
-	}
-
-	.modal {
-		width: 85%;
-	}
-
-	#prizeVTScroll {
-		margin-top: -230px;
-		animation: glitter 0.5s infinite;
-	}
-
-	#recordDisplay {
-		font-size: 0.8rem;
-		display: flex;
-		flex-direction: column;
-		justify-content: space-between;
-		width: 100%;
-	}
-
-	#recordDisplay h3 {
-		font-size: 1rem;
-	}
-
-	#recordDisplay div {
-		width: 98%;
-		background-color: #e2e2e2;
-		margin: 0 0 2px 0;
-		font-size: 0.9rem;
-		border-radius: 0.2rem;
+	.stat-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}
 }
 
-/* Enhancements: Presets, Fast Sim, SEO Section */
-#lotteryPreset {
-	width: 100%;
-	padding: 8px 10px;
-	margin-bottom: 12px;
-	background-color: #222;
-	color: #fff;
-	border: 1px solid #e0b847;
-	border-radius: 6px;
-	font-family: inherit;
+.stat-box {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: var(--surface-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: var(--space-2);
+	text-align: center;
+	min-width: 0; /* 그리드 자식이 내용 때문에 넘치지 않고 줄어들 수 있게 */
+}
+
+.stat-label {
+	font-size: 0.7rem;
+	color: var(--text-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.stat-value {
+	font-size: clamp(0.85rem, 5vw, 1.1rem);
+	font-weight: bold;
+	color: var(--text);
+}
+
+/* 결과 장부(비용/당첨금/손익/횟수)는 항상 짧은 값이라 줄바꿈 대신 줄여서 한 줄 유지 */
+.stat-grid .stat-value {
+	white-space: nowrap;
+	overflow: hidden;
+	text-overflow: ellipsis;
+}
+
+/* "Current Odds"의 확률비(예: "1 in 292,201,338")는 길어서 한 줄 강제 시 잘려 보인다(실측 발견) —
+   줄바꿈을 허용하고 최소 폰트도 더 낮춘다 */
+.odds-summary-item .stat-value {
+	font-size: clamp(0.7rem, 4vw, 1rem);
+	white-space: normal;
+	line-height: 1.2;
+}
+
+.stat-value.stat-profit-pos {
+	color: var(--win);
+}
+.stat-value.stat-profit-neg {
+	color: var(--loss);
+}
+
+.save-hint {
+	color: var(--text-dim);
+	font-size: 0.75rem;
+	margin-top: var(--space-2);
+}
+
+.share-btn {
+	background: transparent;
+	color: var(--accent);
+	border: 1px solid var(--accent);
+	border-radius: var(--radius);
+	padding: 8px 14px;
+	font-size: 0.85rem;
+	cursor: pointer;
+	min-height: 40px;
+}
+
+.share-btn:hover {
+	background: var(--accent);
+	color: var(--accent-contrast);
+}
+
+/* 복권 로그 — 시계열 차트 */
+#recordDisplay h2 {
+	color: var(--accent);
 	font-size: 0.9rem;
+	margin-bottom: 0;
+}
+
+.lottery-log-chart {
+	width: 100%;
+	background: var(--surface-2);
+	border-radius: var(--radius);
+	padding: var(--space-2);
+	margin-top: var(--space-2);
+}
+
+.lottery-log-svg {
+	width: 100%;
+	height: 140px;
+	display: block;
+	overflow: visible;
+}
+
+.lottery-log-zero-line {
+	stroke: var(--border);
+	stroke-width: 1;
+	stroke-dasharray: 3 3;
+}
+
+.lottery-log-line {
+	stroke: var(--text-dim);
+	stroke-width: 2;
+}
+
+.lottery-log-point {
+	fill: var(--text-dim);
+	stroke: var(--surface-2);
+	stroke-width: 2;
 	cursor: pointer;
 }
 
-.fast-sim-box {
-	width: 90%;
-	background: #1a1a1a;
-	border: 1px dashed #e0b847;
-	border-radius: 8px;
-	padding: 12px;
-	margin: 15px auto;
+.lottery-log-point.is-win {
+	fill: var(--win);
+}
+
+.lottery-log-point.is-lose {
+	fill: var(--loss);
+	opacity: 0.55;
+}
+
+.lottery-log-point.is-selected {
+	stroke: var(--accent);
+	stroke-width: 3;
+	r: 7;
+}
+
+.lottery-log-point:focus-visible {
+	outline: 2px solid var(--accent);
+	outline-offset: 2px;
+}
+
+.lottery-log-note,
+.lottery-log-empty {
+	color: var(--text-dim);
+	font-size: 0.7rem;
+	margin-top: var(--space-1);
 	text-align: center;
 }
 
-.fast-sim-title {
-	color: #ffd700;
-	font-size: 0.9rem;
+.lottery-log-detail {
+	margin-top: var(--space-2);
+}
+
+.lottery-log-detail:empty {
+	display: none;
+}
+
+.lottery-log-detail-row {
+	display: flex;
+	justify-content: space-between;
+	padding: 4px 0;
+	border-bottom: 1px solid var(--border);
+	font-size: 0.85rem;
+}
+
+.lottery-log-table {
+	margin-top: var(--space-2);
+	max-height: 220px;
+	overflow-y: auto;
+}
+
+.lottery-log-table-row {
+	display: flex;
+	justify-content: space-between;
+	gap: var(--space-2);
+	background-color: var(--surface-2);
+	color: var(--text-dim);
+	padding: 6px 10px;
+	margin-bottom: 4px;
+	border-radius: 4px;
+	font-size: 0.8rem;
+}
+
+/* Choose a Game */
+.todays-ticket-label {
+	font-size: 0.75rem;
+	color: var(--accent);
+	margin-bottom: var(--space-2);
+	min-height: 1em;
+}
+
+.visually-hidden-select {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	overflow: hidden;
+	clip: rect(0, 0, 0, 0);
+	white-space: nowrap;
+}
+
+.game-choice-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+	gap: var(--space-2);
+	margin-bottom: var(--space-3);
+}
+
+@media (max-width: 500px) {
+	.game-choice-grid {
+		grid-template-columns: 1fr;
+	}
+}
+
+.game-card {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	text-align: left;
+	background: var(--surface-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: var(--space-2);
+	color: var(--text);
+	cursor: pointer;
+	min-height: 44px;
+}
+
+.game-card:hover {
+	border-color: var(--accent);
+}
+
+.game-card.selected {
+	border-color: var(--accent);
+	box-shadow: inset 0 0 0 1px var(--accent);
+}
+
+.game-card-name {
 	font-weight: bold;
-	margin-bottom: 10px;
+	font-size: 0.9rem;
+}
+
+.game-card-desc {
+	font-size: 0.75rem;
+	color: var(--text-dim);
+}
+
+.custom-odds-row label {
+	display: block;
+	font-size: 0.75rem;
+	color: var(--text-dim);
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+	margin-bottom: var(--space-1);
+}
+
+.custom-odds-controls {
+	display: flex;
+	gap: var(--space-2);
+}
+
+#probabilityInput {
+	flex: 1;
+	min-width: 0;
+	padding: 10px;
+	background: var(--surface-2);
+	color: var(--text);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	font-size: 1rem;
+	/* 브라우저 기본 증감 화살표(밝은 회색)가 다크 테마와 안 어울려서 제거 */
+	-moz-appearance: textfield;
+	appearance: textfield;
+}
+
+#probabilityInput::-webkit-inner-spin-button,
+#probabilityInput::-webkit-outer-spin-button {
+	-webkit-appearance: none;
+	margin: 0;
+}
+
+.custom-odds-controls .btn-secondary {
+	width: auto;
+	padding: 10px 16px;
+}
+
+/* Current Odds */
+.odds-summary-strip {
+	display: grid;
+	grid-template-columns: repeat(3, minmax(0, 1fr));
+	gap: var(--space-2);
+	margin-bottom: var(--space-2);
+}
+
+.odds-summary-item {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	background: var(--surface-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: var(--space-2);
+	text-align: center;
+	min-width: 0;
+}
+
+.probability-comparison {
+	padding: var(--space-2) var(--space-3);
+	background: var(--surface-2);
+	border-left: 3px solid var(--accent);
+	border-radius: 4px;
+	color: var(--text-dim);
+	font-size: 0.8rem;
+	line-height: 1.5;
+	margin-bottom: var(--space-2);
+}
+
+.probability-comparison a {
+	color: var(--accent);
+	text-decoration: underline;
+}
+
+.prize-tier table,
+.odds-compare-table {
+	width: 100%;
+	border-collapse: collapse;
+	font-size: 0.85rem;
+}
+
+.prize-tier table th,
+.prize-tier table td,
+.odds-compare-table th,
+.odds-compare-table td {
+	border: 1px solid var(--border);
+	padding: 6px 8px;
+	text-align: left;
+}
+
+.prize-tier table th,
+.odds-compare-table th {
+	background: var(--surface-2);
+	color: var(--accent);
+}
+
+.prize-tier table td {
+	color: var(--text);
+}
+
+/* Fast Simulation */
+.sim-layout {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-3);
+}
+
+@media (min-width: 700px) {
+	.sim-layout {
+		grid-template-columns: 220px 1fr;
+	}
+}
+
+.sim-output {
+	display: flex;
+	flex-direction: column;
+	gap: var(--space-2);
 }
 
 .fast-sim-buttons {
 	display: flex;
-	justify-content: center;
-	gap: 8px;
-	flex-wrap: wrap;
+	flex-direction: column;
+	gap: var(--space-2);
+}
+
+@media (min-width: 700px) {
+	.fast-sim-buttons {
+		flex-direction: column;
+	}
+}
+
+@media (max-width: 699px) {
+	.fast-sim-buttons {
+		flex-direction: row;
+		flex-wrap: wrap;
+	}
+	.fast-sim-buttons .sim-btn {
+		flex: 1;
+		min-width: 100px;
+	}
 }
 
 .sim-btn {
-	background: linear-gradient(180deg, #444, #222);
-	color: #fff;
-	border: 1px solid #777;
-	padding: 6px 12px;
-	border-radius: 6px;
-	font-size: 0.8rem;
+	background: var(--surface-2);
+	color: var(--text);
+	border: 1px solid var(--border);
+	padding: 10px 12px;
+	border-radius: var(--radius);
+	font-size: 0.85rem;
 	cursor: pointer;
-	transition: all 0.2s;
+	min-height: 44px;
 }
 
 .sim-btn:hover {
-	background: #e0b847;
-	color: #000;
-	border-color: #e0b847;
+	background: var(--accent);
+	color: var(--accent-contrast);
+	border-color: var(--accent);
 }
 
 .fast-sim-result {
-	margin-top: 10px;
-	padding: 8px;
-	background: #0d0d0d;
-	border-radius: 6px;
-	color: #eee;
+	padding: var(--space-2);
+	background: var(--surface-2);
+	border-radius: var(--radius);
+	color: var(--text);
 	font-size: 0.85rem;
 	line-height: 1.5;
-	text-align: left;
+	margin-bottom: var(--space-2);
 }
 
 .fast-sim-result .stat-profit-pos {
-	color: #4ade80;
+	color: var(--win);
 	font-weight: bold;
 }
 
 .fast-sim-result .stat-profit-neg {
-	color: #f87171;
+	color: var(--loss);
 	font-weight: bold;
 }
 
-/* SEO Educational & FAQ Section */
-.seo-faq-section {
-	width: 90%;
-	max-width: 480px;
-	margin: 25px auto 10px auto;
-	color: #ddd;
-	font-size: 0.85rem;
-	line-height: 1.6;
-	border-top: 1px solid #333;
-	padding-top: 15px;
+/* Fast Simulation은 로터리 로그와 완전히 같은 .lottery-log-* 시각 언어를 그대로 재사용한다 */
+.fast-sim-chart {
+	width: 100%;
+	background: var(--surface-2);
+	border-radius: var(--radius);
+	padding: var(--space-2);
 }
 
-.seo-faq-section h2 {
-	color: #ffd700;
-	font-size: 1.1rem;
-	margin-bottom: 12px;
-	text-align: center;
+/* FAQ */
+.faq-grid {
+	display: grid;
+	grid-template-columns: 1fr;
+	gap: var(--space-2);
 }
 
-.seo-article {
-	margin-bottom: 15px;
-	background: #161616;
-	padding: 10px 14px;
-	border-radius: 6px;
-	border-left: 3px solid #e0b847;
+@media (min-width: 700px) {
+	.faq-grid {
+		grid-template-columns: 1fr 1fr;
+	}
 }
 
-.seo-article h3 {
-	color: #fff;
-	font-size: 0.95rem;
-	margin-bottom: 6px;
+.faq-grid details {
+	background: var(--surface-2);
+	border: 1px solid var(--border);
+	border-radius: var(--radius);
+	padding: var(--space-2) var(--space-3);
 }
 
-.seo-faq-section details {
-	margin-top: 8px;
-	background: #1f1f1f;
-	padding: 8px 12px;
-	border-radius: 4px;
-}
-
-.seo-faq-section summary {
+.faq-grid summary {
 	cursor: pointer;
 	font-weight: bold;
-	color: #ffd700;
+	color: var(--text);
+	min-height: 24px;
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--space-2);
+	list-style: none; /* 브라우저 기본 삼각형 마커 대신 아래 shevron으로 대체 */
 }
 
-.seo-faq-section details p {
-	margin-top: 6px;
-	color: #ccc;
+.faq-grid summary::-webkit-details-marker {
+	display: none;
 }
 
-/* Safe Responsive Ad Container (Anti-CLS & Policy Compliant) */
+.faq-grid summary::after {
+	content: "";
+	flex-shrink: 0;
+	width: 8px;
+	height: 8px;
+	border-right: 2px solid var(--accent);
+	border-bottom: 2px solid var(--accent);
+	transform: rotate(45deg);
+	transition: transform 0.15s ease;
+}
+
+.faq-grid details[open] summary::after {
+	transform: rotate(-135deg);
+}
+
+.faq-grid details p {
+	margin-top: var(--space-2);
+	color: var(--text-dim);
+	font-size: 0.85rem;
+	line-height: 1.5;
+}
+
+/* 광고: 슬롯 1개, CLS 방지, SPONSORED 라벨 — 인터랙션 영역과 분리 */
 .ad-safe-container {
-	width: 90%;
-	max-width: 480px;
-	margin: 20px auto;
-	padding: 10px 8px;
-	background: #111;
-	border: 1px solid #2a2a2a;
-	border-radius: 8px;
 	text-align: center;
-	overflow: hidden;
 }
 
 .ad-label {
 	font-size: 0.65rem;
 	letter-spacing: 1px;
-	color: #666;
+	color: var(--text-dim);
 	margin-bottom: 6px;
 	text-transform: uppercase;
 }
@@ -842,3 +1080,263 @@ footer:hover .footer-text {
 	align-items: center;
 }
 
+/* ============================================================
+   모달 — 문서 흐름과 무관한 오버레이
+   ============================================================ */
+#jackpotModal {
+	display: none;
+	position: fixed;
+	inset: 0;
+	z-index: 2000;
+	background: rgba(0, 0, 0, 0.7);
+	justify-content: center;
+	align-items: center;
+	padding: var(--space-3);
+}
+
+.modal-content {
+	position: relative;
+	background: linear-gradient(180deg, var(--surface-2), var(--surface));
+	color: var(--text);
+	border-radius: 16px;
+	box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+	padding: var(--space-4) var(--space-3) var(--space-3);
+	border: 1px solid var(--border);
+	max-width: 340px;
+	width: 100%;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: var(--space-2);
+}
+
+.modal-content h2 {
+	display: none; /* "Result" 라벨은 배지/헤드라인으로 대체 — 별도 제목 불필요 */
+}
+
+.modal-close-btn {
+	position: absolute;
+	top: var(--space-2);
+	right: var(--space-2);
+	width: 32px;
+	height: 32px;
+	border-radius: 50%;
+	background: var(--surface-2);
+	border: 1px solid var(--border);
+	color: var(--text-dim);
+	font-size: 1.2rem;
+	line-height: 1;
+	cursor: pointer;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+}
+
+.modal-close-btn:hover {
+	color: var(--text);
+	border-color: var(--accent);
+}
+
+/* 결과 배지 — CSS만으로 그린 원형 아이콘(당첨: 체크, 낙첨: 대시). 이미지/이모지 없음 */
+.modal-badge {
+	width: 56px;
+	height: 56px;
+	border-radius: 50%;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin-bottom: var(--space-1);
+}
+
+.modal-badge-win {
+	background: rgba(74, 222, 128, 0.15); /* var(--win) 20% 근사값 — color-mix 미지원 브라우저 대비 */
+	background: color-mix(in srgb, var(--win) 20%, transparent);
+	border: 2px solid var(--win);
+}
+.modal-badge-win::after {
+	content: "";
+	width: 14px;
+	height: 26px;
+	border-right: 4px solid var(--win);
+	border-bottom: 4px solid var(--win);
+	transform: rotate(45deg) translate(-2px, -4px);
+}
+
+.modal-badge-lose {
+	background: var(--surface-2);
+	border: 2px solid var(--border);
+}
+.modal-badge-lose::after {
+	content: "";
+	width: 22px;
+	height: 4px;
+	background: var(--text-dim);
+	border-radius: 2px;
+}
+
+#jackpotMessage {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	width: 100%;
+}
+
+.modal-headline {
+	font-size: 1.1rem;
+	font-weight: bold;
+	color: var(--text);
+}
+
+.modal-rank {
+	color: var(--text-dim);
+	font-size: 0.85rem;
+	text-transform: uppercase;
+	letter-spacing: 0.5px;
+}
+
+.modal-amount {
+	font-size: 1.8rem;
+	font-weight: 900;
+	color: var(--accent);
+	animation: glitter 0.5s infinite;
+}
+
+.modal-footline {
+	color: var(--text-dim);
+	font-size: 0.75rem;
+	margin-top: var(--space-1);
+	padding-top: var(--space-2);
+	border-top: 1px solid var(--border);
+	width: 100%;
+}
+
+#jackpotModal .btn-primary {
+	margin-top: var(--space-2);
+}
+
+@keyframes glitter {
+	0%,
+	100% {
+		text-shadow: 0 0 5px var(--accent), 0 0 10px var(--accent);
+	}
+	50% {
+		text-shadow: 0 0 10px var(--accent), 0 0 22px var(--accent);
+	}
+}
+
+/* 당첨 시 짧은 티커 반짝임 — 상시 애니메이션 아님, 당첨 순간에만 클래스 토글 */
+.ticket-ticker.ticker-win {
+	animation: glitter 0.6s ease-in-out 2;
+}
+
+/* 당첨 시 짧은 컨페티 연출 — 이미 정해진 결과를 확인해주는 순수 시각 효과 */
+@keyframes confettiFall {
+	0% {
+		transform: translate(0, -10px) rotate(0deg);
+		opacity: 1;
+	}
+	100% {
+		transform: translate(var(--drift, 0), 220px) rotate(340deg);
+		opacity: 0;
+	}
+}
+
+.confetti-piece {
+	position: absolute;
+	top: 0;
+	width: 6px;
+	height: 10px;
+	pointer-events: none;
+	z-index: 20;
+	animation: confettiFall 0.9s ease-in forwards;
+}
+
+/* ============================================================
+   푸터
+   ============================================================ */
+/* 브라우저 기본 alert() 대체 — 사이트 톤(다크 카드 + 강조색 테두리)에 맞춘 알림 배너 */
+.app-toast {
+	position: fixed;
+	left: 50%;
+	bottom: var(--space-4);
+	transform: translate(-50%, 0);
+	background: var(--surface);
+	color: var(--text);
+	border: 1px solid var(--accent);
+	border-radius: var(--radius);
+	padding: var(--space-2) var(--space-3);
+	box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+	font-size: 0.85rem;
+	max-width: 90vw;
+	z-index: 3000;
+	opacity: 0;
+	transition: opacity 0.2s ease, transform 0.2s ease;
+	pointer-events: none;
+}
+
+.app-toast.is-visible {
+	opacity: 1;
+	transform: translate(-50%, -4px);
+}
+
+footer {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: space-between;
+	align-items: center;
+	gap: var(--space-2);
+	max-width: var(--content-max);
+	margin: 0 auto;
+	padding: var(--space-3);
+	color: var(--text-dim);
+	font-size: 0.75rem;
+	border-top: 1px solid var(--border);
+}
+
+footer a {
+	color: var(--text-dim);
+}
+
+footer a:hover {
+	color: var(--accent);
+}
+
+/* ============================================================
+   모바일 재구성 (< 960px) — 데스크톱을 그냥 눕힌 게 아니라 별도 구성:
+   내비게이션은 햄버거로 접고, 티켓은 sticky를 풀고 전체 폭으로,
+   게임 카드는 1열로 눌러서 탭하기 쉽게 만든다.
+   ============================================================ */
+@media (max-width: 959px) {
+	.nav-toggle-btn {
+		display: block;
+	}
+
+	.topbar-nav {
+		display: none;
+		flex-direction: column;
+		width: 100%;
+		background: var(--surface);
+		border: 1px solid var(--border);
+		border-radius: var(--radius);
+		padding: var(--space-2);
+		position: absolute;
+		top: 100%;
+		right: 0;
+		margin-top: var(--space-2);
+		z-index: 50;
+	}
+
+	.nav-toggle-checkbox:checked ~ .topbar-nav {
+		display: flex;
+	}
+
+	.topbar-nav a {
+		padding: var(--space-2);
+	}
+
+	.ticket-art {
+		max-width: 100%;
+	}
+}
