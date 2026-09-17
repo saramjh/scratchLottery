@@ -1317,10 +1317,16 @@ const LOTTERY_TAX_RULES = {
 		sourceLabel: "IRS Instructions for Forms W-2G and 5754",
 		sourceUrl: "https://www.irs.gov/instructions/iw2g",
 		compute(amount) {
-			const withheld = amount * 0.24
+			// IRS: 상금이 $5,000을 넘을 때만 원천징수가 발생하고, 그 24%는 초과분이 아니라
+			// 상금 "전체"에 적용된다 — $5,000 미만은 원천징수 자체가 없다(0%)
+			const withholdingThreshold = 5000
+			const withheld = amount > withholdingThreshold ? amount * 0.24 : 0
 			return {
 				withheld,
-				note: "The IRS withholds 24% up front on lottery prizes over $5,000 — but that's only a prepayment. If the prize pushes your income into the top 37% bracket, you'll owe more when you file. State taxes aren't included here.",
+				note:
+					amount > withholdingThreshold
+						? "The IRS withholds 24% of the entire prize up front once it exceeds $5,000 — but that's only a prepayment. If the prize pushes your income into the top 37% bracket, you'll owe more when you file. State taxes aren't included here."
+						: "Prizes of $5,000 or less aren't subject to automatic federal withholding — you'd still owe income tax on it when you file, just not withheld up front.",
 			}
 		},
 	},
