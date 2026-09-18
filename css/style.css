@@ -48,6 +48,11 @@ a {
 	color: var(--accent);
 }
 
+/* 문단 안에 섞여 흐르는 링크는 색만으로 구분되면 안 됨 (Lighthouse: link-in-text-block) */
+p a {
+	text-decoration: underline;
+}
+
 /* 브라우저 기본 파란색 포커스 링이 다크+골드 테마와 안 어울려서 강조색으로 통일 */
 a:focus-visible,
 button:focus-visible,
@@ -1213,6 +1218,8 @@ input:focus-visible,
 }
 
 .ad-slot-wrapper ins.adsbygoogle {
+	width: 100%; /* flex 부모의 align-items:center 때문에 명시적 width 없이는 0폭이 되어
+	                adsbygoogle.push()가 "No slot size for availableWidth=0"로 실패함 */
 	max-width: 100%;
 }
 
