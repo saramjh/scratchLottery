@@ -1003,9 +1003,20 @@ input:focus-visible,
 	text-decoration: underline;
 }
 
+/* table-layout:fixed + overflow-wrap로 셀 너비를 줄여도, 삼성 인터넷 등 일부 모바일
+   브라우저는 테이블의 min-content 폭 계산이 달라서 여전히 뷰포트보다 넓게 나올 수 있다
+   (실측 발견: 웨일에선 정상, 갤럭시 기본 브라우저에선 오버플로우). 그 경우 페이지 전체가
+   밀리는 대신 이 안에서만 가로 스크롤되도록 마지막 방어선을 둔다. */
+.table-scroll {
+	width: 100%;
+	max-width: 100%;
+	overflow-x: auto;
+}
+
 .prize-tier table,
 .odds-compare-table {
 	width: 100%;
+	table-layout: fixed;
 	border-collapse: collapse;
 	font-size: 0.85rem;
 }
@@ -1017,6 +1028,10 @@ input:focus-visible,
 	border: 1px solid var(--border);
 	padding: 6px 8px;
 	text-align: left;
+	/* 링크(National-Lottery.co.uk)나 큰 숫자(302,575,350)처럼 공백 없는 긴 토큰이
+	   테이블을 뷰포트 밖으로 밀어내지 않도록 강제로 줄바꿈(실측 발견: 모바일에서
+	   "Real-World Lottery Jackpot Odds" 표가 우측으로 오버플로우됨) */
+	overflow-wrap: anywhere;
 }
 
 .prize-tier table th,

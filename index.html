@@ -198,7 +198,7 @@
             </div>
           </div>
           <div id="probabilityComparison" class="probability-comparison" style="display: none;"></div>
-          <div class="prize-tier">
+          <div class="prize-tier table-scroll">
             <!-- Full per-tier probability table, populated live for the selected game -->
           </div>
         </section>
@@ -237,32 +237,34 @@
 
         <section class="panel">
           <h2>Odds Comparison</h2>
-          <table class="odds-compare-table">
-            <thead>
-              <tr>
-                <th>Game</th>
-                <th>Top Prize Odds</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>US $5 Scratch-Off</td>
-                <td>1 in 250,000</td>
-              </tr>
-              <tr>
-                <td>Powerball Jackpot Tier</td>
-                <td>1 in 292,201,338</td>
-              </tr>
-              <tr>
-                <td>Speetto 1000 (Korea)</td>
-                <td>1 in 5,000,000</td>
-              </tr>
-              <tr>
-                <td>Speetto 2000 (Korea)</td>
-                <td>Not publicly disclosed</td>
-              </tr>
-            </tbody>
-          </table>
+          <div class="table-scroll">
+            <table class="odds-compare-table">
+              <thead>
+                <tr>
+                  <th>Game</th>
+                  <th>Top Prize Odds</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>US $5 Scratch-Off</td>
+                  <td>1 in 250,000</td>
+                </tr>
+                <tr>
+                  <td>Powerball Jackpot Tier</td>
+                  <td>1 in 292,201,338</td>
+                </tr>
+                <tr>
+                  <td>Speetto 1000 (Korea)</td>
+                  <td>1 in 5,000,000</td>
+                </tr>
+                <tr>
+                  <td>Speetto 2000 (Korea)</td>
+                  <td>Not publicly disclosed</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
           <p class="panel-sub">Figures reflect this simulator's presets, modeled on publicly known odds for each ticket type.</p>
         </section>
       </div>
@@ -270,42 +272,44 @@
       <section class="panel" id="worldOddsCard">
         <h2>Real-World Lottery Jackpot Odds</h2>
         <p class="panel-sub">Official published jackpot odds for major lotteries — not modeled, not simulated, straight from each operator. Useful as a reference if you're comparing games this simulator doesn't cover.</p>
-        <table class="odds-compare-table">
-          <thead>
-            <tr>
-              <th>Lottery</th>
-              <th>Jackpot Odds</th>
-              <th>Source</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>Mega Millions (US)</td>
-              <td>1 in 302,575,350</td>
-              <td><a href="https://www.delottery.com/Drawing-Games/Mega-Millions/Prizes-And-Odds" target="_blank" rel="noopener">Delaware Lottery</a></td>
-            </tr>
-            <tr>
-              <td>Powerball (US)</td>
-              <td>1 in 292,201,338</td>
-              <td><a href="https://www.powerball.com/powerball-prize-chart" target="_blank" rel="noopener">Powerball.com</a></td>
-            </tr>
-            <tr>
-              <td>EuroMillions (EU)</td>
-              <td>1 in 139,838,160</td>
-              <td><a href="https://www.euro-millions.com/odds-of-winning" target="_blank" rel="noopener">EuroMillions.com</a></td>
-            </tr>
-            <tr>
-              <td>Lotto (UK National Lottery)</td>
-              <td>1 in 45,057,474</td>
-              <td><a href="https://www.national-lottery.co.uk/games/lotto/about-lotto" target="_blank" rel="noopener">National-Lottery.co.uk</a></td>
-            </tr>
-            <tr>
-              <td>Lotto 6/45 (South Korea)</td>
-              <td>1 in 8,145,060</td>
-              <td><a href="https://www.dhlottery.co.kr/lt645/intro" target="_blank" rel="noopener">Dhlottery.co.kr</a></td>
-            </tr>
-          </tbody>
-        </table>
+        <div class="table-scroll">
+          <table class="odds-compare-table">
+            <thead>
+              <tr>
+                <th>Lottery</th>
+                <th>Jackpot Odds</th>
+                <th>Source</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Mega Millions (US)</td>
+                <td>1 in 302,575,350</td>
+                <td><a href="https://www.delottery.com/Drawing-Games/Mega-Millions/Prizes-And-Odds" target="_blank" rel="noopener">Delaware Lottery</a></td>
+              </tr>
+              <tr>
+                <td>Powerball (US)</td>
+                <td>1 in 292,201,338</td>
+                <td><a href="https://www.powerball.com/powerball-prize-chart" target="_blank" rel="noopener">Powerball.com</a></td>
+              </tr>
+              <tr>
+                <td>EuroMillions (EU)</td>
+                <td>1 in 139,838,160</td>
+                <td><a href="https://www.euro-millions.com/odds-of-winning" target="_blank" rel="noopener">EuroMillions.com</a></td>
+              </tr>
+              <tr>
+                <td>Lotto (UK National Lottery)</td>
+                <td>1 in 45,057,474</td>
+                <td><a href="https://www.national-lottery.co.uk/games/lotto/about-lotto" target="_blank" rel="noopener">National-Lottery.co.uk</a></td>
+              </tr>
+              <tr>
+                <td>Lotto 6/45 (South Korea)</td>
+                <td>1 in 8,145,060</td>
+                <td><a href="https://www.dhlottery.co.kr/lt645/intro" target="_blank" rel="noopener">Dhlottery.co.kr</a></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         <p class="panel-sub">Last checked 2026-09. Odds can change if an operator changes its number matrix — always confirm with the operator before relying on this for a real purchase decision.</p>
         <ul class="perspective-list">
           <li>Mega Millions: you're about 70x more likely to die from a shark attack (1 in 4,332,817) than to win this jackpot.</li>
