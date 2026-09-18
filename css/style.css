@@ -41,6 +41,7 @@ body {
 	background: var(--bg);
 	color: var(--text);
 	width: 100%;
+	overflow-x: hidden; /* 광고 iframe이 컨테이너보다 넓게 렌더링돼도 뷰포트 자체가 늘어나지 않도록 하는 방어선 */
 }
 
 a {
@@ -1188,10 +1189,16 @@ input:focus-visible,
 
 .ad-slot-wrapper {
 	width: 100%;
+	max-width: 100%;
+	overflow: hidden; /* 광고가 컨테이너보다 넓은 고정폭으로 내려와도 모바일 뷰포트를 밀어내지 않게 함 */
 	min-height: 250px; /* Reserves vertical layout space to prevent CLS */
 	display: flex;
 	justify-content: center;
 	align-items: center;
+}
+
+.ad-slot-wrapper ins.adsbygoogle {
+	max-width: 100%;
 }
 
 /* ============================================================
