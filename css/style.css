@@ -569,13 +569,19 @@ input:focus-visible,
 
 .two-col {
 	display: grid;
-	grid-template-columns: 1fr;
+	/* 바닥짐 minmax(0, 1fr): 맨 fr 트랙은 내부 콘텐츠(테이블/버튼/인풋 등)의
+	   min-content를 트랙 자체의 최소폭으로 채택해버려서, 그 콘텐츠가 안 줄어드는
+	   경우 트랙이 .two-col 컨테이너보다 넓어지고 패널이 뷰포트 밖으로 밀려난다
+	   (Samsung Internet에서만 우측 잘림으로 관측됨 — 엔진마다 min-content 전파
+	   방식이 달라서 어떤 브라우저는 안 걸리고 어떤 브라우저는 걸림). 0을 명시하면
+	   트랙이 실제 가용 폭까지 줄어들 수 있어 컨테이너를 넘지 않는다. */
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--space-3);
 }
 
 @media (min-width: 700px) {
 	.two-col {
-		grid-template-columns: 1.3fr 1fr;
+		grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
 	}
 }
 
@@ -818,7 +824,10 @@ input:focus-visible,
 
 @media (max-width: 500px) {
 	.game-choice-grid {
-		grid-template-columns: 1fr;
+		/* auto-fit minmax(140px, 1fr)에서 여기로 override되면서 140px 바닥짐이
+		   사라지고 다시 순정 1fr(=content-based auto minimum)이 됨 — 동일한
+		   overflow 위험이 재발하므로 0으로 명시 */
+		grid-template-columns: minmax(0, 1fr);
 	}
 }
 
@@ -1052,13 +1061,15 @@ input:focus-visible,
 /* Fast Simulation */
 .sim-layout {
 	display: grid;
-	grid-template-columns: 1fr;
+	/* .two-col과 같은 이유: 바닥짐 없는 1fr은 내부 콘텐츠 min-content를 트랙
+	   최소폭으로 물려받아 컨테이너보다 넓어질 수 있다 */
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--space-3);
 }
 
 @media (min-width: 700px) {
 	.sim-layout {
-		grid-template-columns: 220px 1fr;
+		grid-template-columns: 220px minmax(0, 1fr);
 	}
 }
 
@@ -1139,13 +1150,13 @@ input:focus-visible,
 /* FAQ */
 .faq-grid {
 	display: grid;
-	grid-template-columns: 1fr;
+	grid-template-columns: minmax(0, 1fr);
 	gap: var(--space-2);
 }
 
 @media (min-width: 700px) {
 	.faq-grid {
-		grid-template-columns: 1fr 1fr;
+		grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	}
 }
 
