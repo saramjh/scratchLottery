@@ -1,3 +1,6 @@
+/* ============================================================
+   전역 유틸 — 트래킹, 토스트, 사운드/진동
+   ============================================================ */
 let currencySymbol = "$"
 const winning_message = "Congratulations!"
 const no_luck = "No luck!"
@@ -171,6 +174,9 @@ const modalBadge = document.getElementById("modalBadge")
 const jackpotMessage = document.getElementById("jackpotMessage")
 const prizeVTScroll = document.getElementById("prizeVTScroll")
 
+/* ============================================================
+   상태 영속화 (localStorage)
+   ============================================================ */
 /* 누적 기록 영속화 (localStorage) — 재방문 시 이전 장부를 복원한다.
    STATE_VERSION: 프리셋 상금표를 재보정(RTP 버그 수정)할 때마다 올린다 — 예전 버전에서 쌓인
    비현실적인 누적 총액(예: 억 단위 당첨금)이 지금 코드로 고쳐도 그대로 남아있던 문제가 있었다.
@@ -210,6 +216,9 @@ if (lotteryRecord.length) {
 	prizeVTScroll.innerHTML = `<span>${lotteryRecord[lotteryRecord.length - 1].result}</span>`
 }
 
+/* ============================================================
+   스크래치 캔버스 — 칸별 은박 렌더링, 드래그/터치 처리
+   ============================================================ */
 /* 스크래치 티켓: 칸마다 독립된 은박 캔버스를 갖는다 — 하나의 큰 캔버스로 전체를 긁는 방식이 아니라
    실제 즉석복권처럼 "각 플레이 자리마다 따로 긁는" 구조. 결과는 이미 drawLotteryResult가 정했고,
    여기서는 그 결과를 몇 개의 자리로 어떻게 드러낼지만 다룬다. */
@@ -344,6 +353,10 @@ function setupCellScratch(canvas, onRevealed) {
 }
 
 /* 스크래치 커버 만들기 끝 */
+
+/* ============================================================
+   티켓 데이터 — 프리셋, 확률 계산, 당첨 판정
+   ============================================================ */
 let ticketCost = 1000 // 기본 티켓 가격
 
 /* 게임마다 실제로 다른 티켓 포맷을 갖는다 — 프리셋을 바꿔도 항상 같은 "당첨번호 5개 + 15칸" 틀이
@@ -516,6 +529,9 @@ let jackpot = [
 	{ rank: 8, num: 2, rewardMoney: 5 },
 ]
 
+/* ============================================================
+   티켓 빌드 & 렌더 — 포맷, 셀, 화면 반영
+   ============================================================ */
 /* 실제 즉석복권 형식: WINNING NUMBERS(인쇄되어 그대로 보임) vs 여러 개의 플레이 자리(각각 숫자+상금을
    따로 긁어야 보임). 당첨/등수는 이미 drawLotteryResult가 정직하게 결정했다 — 여기서는 그 결과를
    "몇 개 자리가 당첨번호와 맞았는지"로 나눠 보여줄 뿐, 자리 배치가 확률에 영향을 주지 않는다.
@@ -766,6 +782,9 @@ function startNewTicket() {
 	return jackpotLevel
 }
 
+/* ============================================================
+   확률 표시, 결과 모달, 리셋
+   ============================================================ */
 function displayPrizeProbabilities(prizeThresholds) {
 	// 'div.prize-tier' 요소 선택
 	const prizeTierDiv = document.querySelector("div.prize-tier")
@@ -1012,6 +1031,9 @@ document.getElementById("nextLottery").onclick = goToNextTicket
 const $modalPlayAgainBtn = document.getElementById("modalPlayAgainBtn")
 if ($modalPlayAgainBtn) $modalPlayAgainBtn.addEventListener("click", goToNextTicket)
 
+/* ============================================================
+   로터리 로그 — 차트 / 상세보기 / 테이블
+   ============================================================ */
 function updateLotteryRecord(jackpotLevel) {
 	const currentTime = new Date() // 현재 시각
 	const month = String(currentTime.getMonth() + 1).padStart(2, "0") // 월 (0부터 시작하므로 +1 필요)
@@ -1172,7 +1194,7 @@ if ($lotteryLogTableToggle) {
 }
 
 /* ============================================================
-   Preset & Fast Simulation Handlers
+   프리셋 적용 & 오즈 요약 — 비교, 배너, 테마, RTP, 장기 예측
    ============================================================ */
 
 function applyPreset(presetKey, wipeLedger = true) {
@@ -1341,6 +1363,9 @@ function updateLongRunProjection() {
 	jackpotChanceEl.textContent = `${(jackpotChance * 100).toFixed(2)}%`
 }
 
+/* ============================================================
+   세금 계산기 — 미국 누진세 + 국가별 공식 규정
+   ============================================================ */
 /* 미국 2026 연방 개인 소득세 누진 구간(1인 신고자 기준) — Tax Foundation이 정리한
    IRS Revenue Procedure 2025-32 수치. 원천징수(24% 단일세율)와는 별개로, "이 당첨금이
    유일한 소득이라면" 실제로 최종 세액이 누진 구간을 거쳐 얼마가 되는지 보여주기 위함. */
@@ -1473,6 +1498,9 @@ function updateTaxCalculator() {
 }
 updateTaxCalculator()
 
+/* ============================================================
+   게임 선택 카드 & 오늘의 추천 프리셋
+   ============================================================ */
 /* "Choose a Game" 카드 — 실제로는 기존 <select id="lotteryPreset">를 그대로 조작한다 (로직 중복 없음) */
 const GAME_CARD_DESCRIPTIONS = {
 	custom: "Make your own scratch ticket — set any top-prize probability by hand.",
@@ -1554,6 +1582,9 @@ if ($presetSelect) {
 }
 renderGameChoiceCards()
 
+/* ============================================================
+   빠른 시뮬레이션 (Fast Simulation)
+   ============================================================ */
 /* 시뮬레이션 결과 막대그래프 — 티켓 수가 많으면(>30) 막대가 안 읽히므로 집계 텍스트만 표시 */
 // 로터리 로그(시계열 선+점)와는 다른 종류의 차트: 등수별 결과 빈도 히스토그램(범주형 분포).
 // 개별 티켓 하나당 막대 하나가 아니라 "등수별로 몇 장 나왔는지"를 세므로, 10장이든 1000장이든
@@ -1734,6 +1765,9 @@ if ($presetSelect && $presetSelect.value) {
 	applyPreset($presetSelect.value, false)
 }
 
+/* ============================================================
+   결과 공유 카드
+   ============================================================ */
 /* 결과 공유 카드 — 이미 추적 중인 실제 세션 데이터만 사용, 가짜 수치/업적 없음 */
 function generateShareCard() {
 	const cardCanvas = document.createElement("canvas")
