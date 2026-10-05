@@ -3,3 +3,7 @@ AGENTS.md
 AD_SEO_POLICY.md
 .serena/
 .DS_Store
+.context/
+.impeccable/
+__pycache__/
+*.pyc

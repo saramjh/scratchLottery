@@ -13,4 +13,7 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-      - run: node scripts/verify.js
+      - run: |
+          node scripts/verify.js
+          node scripts/verify_math_page.js
+          node scripts/verify_architecture.js

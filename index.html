@@ -23,24 +23,31 @@
   <!-- End Microsoft Clarity -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="max-image-preview:large">
   <meta name="description"
-    content="Free scratch off simulator and scratch lottery simulator. Scratch real Powerball and scratch-off tickets, or make your own custom ticket. Real odds and RTP, instantly.">
-  <meta name="keywords" content="scratch lottery, lottery simulator, scratch off simulator, scratch off ticket simulator, scratch ticket simulator, scratch card simulator, make your own scratch ticket, winning odds, rtp calculator">
+    content="Free scratch off simulator, scratch card simulator and scratch ticket simulator with fast simulations, odds, RTP and custom probability tools. No real money.">
   <meta name="author" content="Saramjh">
   <link rel="canonical" href="https://saramjh.github.io/scratchLottery/">
   <meta property="og:type" content="website">
   <meta property="og:url" content="https://saramjh.github.io/scratchLottery/">
-  <meta property="og:title" content="Scratch Off Simulator — Free Scratch Lottery Ticket Simulator">
-  <meta property="og:description" content="Scratch real Powerball and scratch-off ticket odds for free, or make your own custom ticket. Real presets, RTP, and probability tuning.">
+  <meta property="og:title" content="Scratch Off Simulator — Free Scratch Card &amp; Ticket Simulator">
+  <meta property="og:description" content="Free scratch card and scratch ticket simulator with probability tools, RTP, long-run simulations and sourced lottery odds.">
   <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="Scratch Off Simulator">
   <meta property="og:image" content="https://saramjh.github.io/scratchLottery/docs/og-image.png">
   <meta property="og:image:width" content="1200">
   <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Scratch Off Simulator showing a Texas scratch ticket, current odds and simulation tools">
   <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Scratch Off Simulator — Free Scratch Lottery Ticket Simulator">
-  <meta name="twitter:description" content="Scratch real Powerball and scratch-off ticket odds for free, or make your own custom ticket. Real presets, RTP, and probability tuning.">
+  <meta name="twitter:title" content="Scratch Off Simulator — Free Scratch Card &amp; Ticket Simulator">
+  <meta name="twitter:description" content="Free scratch card and scratch ticket simulator with probability tools, RTP, long-run simulations and sourced lottery odds.">
   <meta name="twitter:image" content="https://saramjh.github.io/scratchLottery/docs/og-image.png">
-  <title>Scratch Off Simulator — Free Scratch Lottery Ticket Simulator</title>
+  <meta name="twitter:image:alt" content="Scratch Off Simulator showing a Texas scratch ticket, current odds and simulation tools">
+  <title>Scratch Off Simulator — Free Scratch Card &amp; Ticket Simulator</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -48,33 +55,39 @@
   <header class="topbar">
     <div class="topbar-inner">
       <div class="brand">
-        <h1>Scratch Lottery Simulator</h1>
-        <p>Real games. Real odds. No real money.</p>
+        <h1>Scratch Off Simulator</h1>
+        <p>Free scratch card and scratch ticket simulator with odds, RTP and no real money.</p>
       </div>
-      <input type="checkbox" id="navToggle" class="nav-toggle-checkbox">
-      <label for="navToggle" class="nav-toggle-btn" aria-label="Open menu" aria-hidden="true">&#9776;</label>
-      <nav class="topbar-nav" aria-label="Page sections">
+      <button type="button" id="navToggle" class="nav-toggle-btn" aria-expanded="false" aria-controls="topbarNav" aria-label="Open menu">
+        <span class="nav-toggle-line" aria-hidden="true"></span>
+        <span class="nav-toggle-line" aria-hidden="true"></span>
+        <span class="nav-toggle-line" aria-hidden="true"></span>
+      </button>
+      <nav class="topbar-nav" id="topbarNav" aria-label="Page sections">
         <a href="#ticketPanel">Play</a>
         <a href="#oddsCard">Odds</a>
+        <a href="math/">Math</a>
         <a href="#simCard">Simulate</a>
+        <a href="#experimentLab">Lab</a>
         <a href="#faqCard">FAQ</a>
       </nav>
     </div>
   </header>
 
-  <main class="layout">
+  <main class="site-main">
+    <section class="play-stage">
     <!-- Ticket: the one loud, tactile element. Everything else is a quiet data tool. -->
     <aside class="ticket-panel" id="ticketPanel">
       <div class="ticket-art">
         <div class="ticket-header-row">
-          <span class="ticket-denom" id="ticketDenom">$5</span>
+          <span class="ticket-denom" id="ticketDenom">$5 TICKET</span>
           <span class="ticket-brand">Scratch Lottery Simulator</span>
         </div>
 
         <div class="ticket-art-top">
-          <span class="ticket-game-title" id="ticketBannerName">US $5 Scratch-Off</span>
+          <span class="ticket-game-title" id="ticketBannerName">Texas $5 Houston Texans</span>
           <span class="ticket-prize-line" id="ticketBannerPrize">Win up to $100,000</span>
-          <p class="ticket-howto" id="ticketHowTo">Match any of YOUR NUMBERS to a WINNING NUMBER to win the prize shown for that number.</p>
+          <p class="ticket-howto" id="ticketHowTo">Simulation interface: match YOUR NUMBERS to a WINNING NUMBER. Outcome probabilities use Texas Lottery Game 2755's printed prize distribution.</p>
         </div>
 
         <div class="winning-numbers-block" id="winningNumbersBlock">
@@ -83,9 +96,25 @@
         </div>
 
         <div class="your-numbers-block">
-          <p class="ticket-section-label">Your Numbers — scratch each spot to reveal its number and prize</p>
-          <!-- 15개 플레이 자리는 JS(renderTicket)가 매번 새로 채운다 — 각 자리마다 독립된 은박 캔버스 -->
-          <div class="your-numbers-grid" id="yourNumbersGrid"></div>
+          <p class="ticket-section-label ticket-instruction-label">Your numbers: scratch each spot to reveal its number and prize</p>
+          <!-- JS(renderTicket)가 실제 캔버스로 교체하기 전 기본 5×3 티켓 크기만 예약한다. -->
+          <div class="your-numbers-grid" id="yourNumbersGrid">
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+            <span class="scratch-cell-skeleton" aria-hidden="true"></span>
+          </div>
         </div>
 
         <div id="prizeVTScroll" class="ticket-ticker"></div>
@@ -95,18 +124,18 @@
           <button id="scratch" class="btn-secondary">Reveal All (accessibility)</button>
           <button id="nextLottery" class="btn-primary">New Ticket</button>
         </div>
-        <button id="resetLottery" class="text-link-btn">Reset all progress</button>
-        <p class="ticket-disclaimer">Simulation only. No real money. Scratch the numbers above to play — results are randomly generated for entertainment and educational purposes only.</p>
+        <button id="resetLottery" class="text-link-btn">Reset play totals</button>
+        <p class="ticket-disclaimer">Simulation only. No real money. Scratch the numbers above to play. Results are randomly generated for entertainment and educational purposes only.</p>
       </div>
-      <button id="soundToggle" class="icon-toggle" aria-label="Toggle sound">Sound: On</button>
+      <button id="soundToggle" class="icon-toggle">Sound: On</button>
     </aside>
 
     <!-- Workspace: the calm, data-forward side. -->
-    <div class="workspace">
+    <div class="play-console">
       <section class="panel" id="resultPanel">
         <div class="panel-header-row">
           <h2>Your Latest Result</h2>
-          <button id="shareCardBtn" class="share-btn">Save / Share Results</button>
+          <button id="shareCardBtn" class="share-btn" hidden>Share results</button>
         </div>
         <div class="stat-grid">
           <div class="stat-box">
@@ -126,42 +155,35 @@
             <span class="stat-value" id="attemptsDisplay">0</span>
           </div>
         </div>
-        <p class="save-hint">Your totals are saved automatically on this device — come back anytime to continue.</p>
+        <p class="save-hint">Your totals are saved automatically on this device. Come back anytime to continue.</p>
         <p class="personal-rtp-recap" id="personalRtpRecap" hidden></p>
       </section>
 
-      <section id="recordDisplay" class="panel panel-quiet">
-        <div class="panel-header-row">
-          <h2>Lottery Logs</h2>
-          <button type="button" id="lotteryLogTableToggle" class="text-link-btn">View as table</button>
-        </div>
-        <p class="panel-sub">Each point is one scratch. Click a point to see that ticket's details.</p>
-        <div id="lotteryLogChart" class="lottery-log-chart"></div>
-        <div id="lotteryLogDetail" class="lottery-log-detail"></div>
-        <div id="lotteryLogTable" class="lottery-log-table" hidden></div>
-      </section>
+
 
       <div class="two-col">
         <section class="panel" id="oddsCard">
           <h2>Choose a Game</h2>
           <p class="panel-sub">Scratch a real-world preset, or pick "Custom Odds" below to make your own scratch ticket with any top-prize probability you choose.</p>
-          <div id="todaysTicketLabel" class="todays-ticket-label"></div>
-          <div id="gameChoiceGrid" class="game-choice-grid"></div>
+          <div id="todaysTicketLabel" class="todays-ticket-label">Default real-data ticket: Texas Lottery Game 2755 · official printed distribution</div>
+          <div id="gameChoiceGrid" class="game-choice-grid" aria-label="Real-world game presets"></div>
 
-          <select id="lotteryPreset" aria-label="Select Lottery Preset" class="visually-hidden-select">
-            <option value="custom">Custom Odds</option>
-            <option value="us_scratch5" selected>US $5 Scratch-Off (1 in 250,000)</option>
-            <option value="powerball">Powerball Jackpot (1 in 292,201,338)</option>
-            <option value="speetto1000">Speetto 1000, Korea (1 in 5,000,000)</option>
-            <option value="speetto2000">Speetto 2000, Korea</option>
-            <option value="lucky_fun">Lucky High-Win, Demo (1 in 5)</option>
-          </select>
+          <input type="hidden" id="lotteryPreset" value="us_scratch5">
 
-          <div class="custom-odds-row">
-            <label for="probabilityInput">Custom top-prize probability (%)</label>
-            <div class="custom-odds-controls">
-              <input type="number" id="probabilityInput" value="0.0004" min="0" max="100" step="any" placeholder="%">
-              <button id="applyProbability" class="btn-secondary">Apply</button>
+          <div class="alternate-game-modes disclosure" data-disclosure>
+            <button type="button" class="disclosure-trigger" aria-expanded="false" aria-controls="secondaryGameModes">
+              <span>Custom and demo modes</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="disclosure-panel" id="secondaryGameModes" hidden>
+              <div id="secondaryGameChoiceGrid" class="game-choice-grid game-choice-grid-secondary" aria-label="Custom and demo presets"></div>
+              <div class="custom-odds-row">
+                <label for="probabilityInput">Custom top-prize probability (%)</label>
+                <div class="custom-odds-controls">
+                  <input type="text" inputmode="decimal" autocomplete="off" id="probabilityInput" value="0.0000730894" placeholder="%">
+                  <button id="applyProbability" class="btn-secondary">Apply</button>
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -171,52 +193,213 @@
           <div class="odds-summary-strip">
             <div class="odds-summary-item">
               <span class="stat-label">Top Prize</span>
-              <span class="stat-value" id="oddsTopPrize">—</span>
+              <span class="stat-value" id="oddsTopPrize">1 in 1,368,188</span>
             </div>
             <div class="odds-summary-item">
               <span class="stat-label">Any Prize</span>
-              <span class="stat-value" id="oddsAnyPrize">—</span>
+              <span class="stat-value" id="oddsAnyPrize">1 in 3.8</span>
             </div>
             <div class="odds-summary-item">
               <span class="stat-label">Overall Return</span>
-              <span class="stat-value" id="oddsOverallReturn">—</span>
+              <span class="stat-value" id="oddsOverallReturn">64.6%</span>
             </div>
           </div>
           <div id="probabilityComparison" class="probability-comparison" style="display: none;"></div>
+          <p id="presetEvidence" class="panel-sub">Official Texas Lottery Game 2755 printed distribution · $5 ticket · published overall odds 1 in 3.77. <a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698616.html" target="_blank" rel="noopener">Official source</a>. <a href="math/">Learn why RTP, variance and repeated trials behave this way.</a></p>
           <div class="prize-tier table-scroll">
             <!-- Full per-tier probability table, populated live for the selected game -->
           </div>
         </section>
       </div>
+    </div>
+  </section>
+
+  <div class="analysis-stack">
+      <section id="recordDisplay" class="panel panel-quiet">
+        <div class="panel-header-row">
+          <h2>Lottery Logs</h2>
+          <button type="button" id="lotteryLogTableToggle" class="text-link-btn" hidden>View as table</button>
+        </div>
+        <p class="panel-sub">Each point is one scratch. Click a point to see that ticket's details.</p>
+        <div id="lotteryLogChart" class="lottery-log-chart"></div>
+        <div id="lotteryLogDetail" class="lottery-log-detail"></div>
+        <div id="lotteryLogTable" class="lottery-log-table" hidden></div>
+      </section>
 
       <section class="panel" id="simCard">
         <h2>Fast Simulation</h2>
-        <p class="panel-sub">Run multiple tickets at once to see how results settle over the long run.</p>
+        <p class="panel-sub">Calculate exact multi-ticket odds, run fixed batches or a budget, then repeat that budget hundreds of times to compare short-run outcomes with the current model's theoretical RTP.</p>
         <div class="sim-layout">
           <div class="fast-sim-buttons">
             <button id="sim10Btn" class="sim-btn">Simulate 10x</button>
             <button id="sim100Btn" class="sim-btn">Simulate 100x</button>
             <button id="sim1000Btn" class="sim-btn">Simulate 1,000x</button>
+            <div class="sim-exact-odds-box">
+              <label for="exactOddsTicketsInput">Exact odds for N tickets</label>
+              <div class="sim-budget-row">
+                <input type="text" id="exactOddsTicketsInput" inputmode="numeric" autocomplete="off" value="10" aria-describedby="exactOddsHint">
+                <button id="exactOddsCalculateBtn" class="sim-btn" type="button">Calculate</button>
+              </div>
+              <p id="exactOddsHint" class="sim-budget-hint">No Monte Carlo: chance of at least one result is calculated as 1 − (1 − p)<sup>n</sup>.</p>
+            </div>
+            <div class="sim-budget-box">
+              <label for="simBudgetInput">Simulate a budget</label>
+              <div class="sim-budget-row">
+                <input type="text" id="simBudgetInput" inputmode="decimal" autocomplete="off" placeholder="500">
+                <button id="simBudgetBtn" class="sim-btn" type="button">Run Budget</button>
+              </div>
+              <button id="simBudgetRiskBtn" class="sim-btn sim-budget-risk-btn" type="button">Analyze 500 Budget Runs</button>
+              <p id="simBudgetHint" class="sim-budget-hint"></p>
+            </div>
           </div>
           <div class="sim-output">
+            <div id="exactOddsResult" class="exact-odds-result" aria-live="polite">
+              <div class="exact-odds-heading"><strong>10 tickets · $50 total cost</strong></div>
+              <div class="exact-odds-grid">
+                <div><span class="stat-label">≥1 any prize</span><strong>95.41%</strong></div>
+                <div><span class="stat-label">≥1 top prize</span><strong>0.000731%</strong></div>
+                <div><span class="stat-label">Expected payout</span><strong>$32.30</strong></div>
+                <div><span class="stat-label">Expected net</span><strong>−$17.70</strong></div>
+              </div>
+              <p class="sim-budget-hint">Exact probabilities use the current Texas Game 2755 published prize distribution. “Any prize” includes break-even prizes.</p>
+            </div>
             <div id="fastSimResult" class="fast-sim-result" style="display: none;"></div>
-            <div id="fastSimChart" class="fast-sim-chart"></div>
+            <div id="budgetRiskResult" class="budget-risk-result" hidden></div>
+            <div id="fastSimChart" class="fast-sim-chart"><p class="lottery-log-empty">Run a simulation to see results here.</p></div>
             <div id="fastSimDetail" class="lottery-log-detail"></div>
           </div>
         </div>
+      </section>
+
+      <section class="panel experiment-lab" id="experimentLab">
+        <div class="experiment-lab-head">
+          <div>
+            <h2>Experiment Lab</h2>
+            <p class="panel-sub">Turn one result into the next question. These experiments reuse the current game's verified probability model instead of adding separate demo logic.</p>
+          </div>
+          <span id="labSavedCount" class="lab-saved-count">0 saved on this device</span>
+        </div>
+
+        <div class="next-experiment" id="nextExperiment" aria-live="polite">
+          <span class="stat-label">Next question</span>
+          <strong class="experiment-question" id="nextExperimentQuestion">What changes when one ticket becomes ten?</strong>
+          <p class="panel-sub" id="nextExperimentReason">Start with exact probability, then compare it with a noisy simulated batch.</p>
+          <div class="experiment-actions" id="nextExperimentActions">
+            <button type="button" class="btn-secondary" data-experiment-id="exact10" data-experiment-source="next">Calculate 10-ticket odds</button>
+            <button type="button" class="text-link-btn" data-experiment-id="fast100" data-experiment-source="next">Run 100 tickets</button>
+          </div>
+        </div>
+
+        <div class="experiment-catalog">
+          <h3>Questions you can test now</h3>
+          <div class="experiment-list">
+            <button type="button" class="experiment-row" data-experiment-id="exact10" data-experiment-source="catalog">
+              <span class="experiment-row-copy">
+                <strong>What are the exact odds across 10 tickets?</strong>
+                <span>Calculate at-least-one prize and top-prize probability without Monte Carlo noise.</span>
+              </span>
+              <span class="experiment-row-action">Calculate</span>
+            </button>
+            <button type="button" class="experiment-row" data-experiment-id="fast100" data-experiment-source="catalog">
+              <span class="experiment-row-copy">
+                <strong>How noisy is a 100-ticket batch?</strong>
+                <span>Run one batch and compare observed return with the current model's theoretical RTP.</span>
+              </span>
+              <span class="experiment-row-action">Simulate</span>
+            </button>
+            <button type="button" class="experiment-row" data-experiment-id="budget10x500" data-experiment-source="catalog">
+              <span class="experiment-row-copy">
+                <strong>What happens if a 10-ticket budget is repeated 500 times?</strong>
+                <span>Measure profit frequency, median net and the 10th–90th percentile range.</span>
+              </span>
+              <span class="experiment-row-action">Analyze</span>
+            </button>
+            <button type="button" class="experiment-row" data-experiment-id="long5x1" data-experiment-source="catalog">
+              <span class="experiment-row-copy">
+                <strong>What does five tickets a week look like after one year?</strong>
+                <span>Project total spend, expected loss and the chance of at least one top prize.</span>
+              </span>
+              <span class="experiment-row-action">Project</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="my-lab">
+          <div class="panel-header-row">
+            <h3>My Lab</h3>
+            <button type="button" id="clearSavedExperiments" class="text-link-btn" hidden>Clear saved</button>
+          </div>
+          <p class="panel-sub">Save a result to return to the same setup later on this device. Saved experiments never leave your browser unless you share them.</p>
+          <div id="savedExperimentList" class="saved-experiment-list" aria-live="polite">
+            <p class="lottery-log-empty">No saved experiments yet.</p>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel prize-tracker" id="prizeTracker">
+        <div class="tracker-head">
+          <div>
+            <h2>Official Prize Tracker</h2>
+            <p class="panel-sub">A bounded watchlist of Texas $5 scratch games using the operator's published printed-prize and claimed-prize tables. Each changed snapshot is archived so real movement can accumulate over time.</p>
+          </div>
+          <span class="tracker-scope">Texas · 3-game $5 watchlist</span>
+        </div>
+        <!-- TEXAS_PRIZE_TRACKER_DATA_START -->
+        <div class="tracker-source-line">Texas Lottery claimed-prize tables · latest source date 2026-10-03</div>
+        <div class="tracker-list">
+          <article class="tracker-row">
+            <div class="tracker-game">
+              <strong>Houston Texans · Game 2755</strong>
+              <span>$5 ticket · published overall odds 1 in 3.77</span>
+            </div>
+            <div class="tracker-measures">
+              <span><strong>2 of 4</strong> $100,000 top prizes unclaimed</span>
+              <span><strong>377,552</strong> of 1,451,436 printed prizes claimed (26.0%)</span>
+            </div>
+            <a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698616.html" target="_blank" rel="noopener">Texas Lottery source</a>
+          </article>
+          <article class="tracker-row">
+            <div class="tracker-game">
+              <strong>Azulejos · Game 2751</strong>
+              <span>$5 ticket · published overall odds 1 in 4.15</span>
+            </div>
+            <div class="tracker-measures">
+              <span><strong>1 of 4</strong> $100,000 top prizes unclaimed</span>
+              <span><strong>1,542,200</strong> of 1,763,295 printed prizes claimed (87.5%)</span>
+            </div>
+            <a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698620.html" target="_blank" rel="noopener">Texas Lottery source</a>
+          </article>
+          <article class="tracker-row">
+            <div class="tracker-game">
+              <strong>50X The Cash · Game 2712</strong>
+              <span>$5 ticket · published overall odds 1 in 4.13</span>
+            </div>
+            <div class="tracker-measures">
+              <span><strong>2 of 4</strong> $200,000 top prizes unclaimed</span>
+              <span><strong>2,153,480</strong> of 3,591,364 printed prizes claimed (60.0%)</span>
+            </div>
+            <a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698743.html" target="_blank" rel="noopener">Texas Lottery source</a>
+          </article>
+        </div>
+          <p class="tracker-archive-note">Archive starts with the 2026-10-03 official snapshot. Changes will accumulate here as Texas Lottery updates claimed-prize counts.</p>
+        <!-- TEXAS_PRIZE_TRACKER_DATA_END -->
+        <p class="tracker-caveat"><strong>Not current ticket odds.</strong> Claimed-prize counts do not tell us how many tickets remain unsold or where they are distributed. This tracker describes published prize claims; it does not rank games, predict a future ticket, or recommend a purchase.</p>
       </section>
 
       <div class="two-col">
         <section class="panel">
           <h2>How the Odds Engine Works</h2>
           <p>
-            Each preset defines a probability threshold for every prize tier. When you scratch, this simulator draws a single
-            random number and checks which tier's range it falls into — so a ticket lands in exactly one outcome (a specific
-            prize tier, or no win), never more than one, just like a real scratch-off's fixed print distribution.
+            Every ticket uses one uniform random draw against cumulative prize-tier probabilities, so it lands in exactly one
+            outcome: one prize tier or no win. Presets with a published full prize structure use the operator's published
+            winning-ticket counts. Other presets are explicitly labeled as simulator models rather than official distributions.
           </p>
           <p class="panel-sub">
-            The near-misses you'll sometimes see are a real side effect of the ticket's match-format grid, not something
-            added on top — they happen at whatever rate pure chance produces.
+            For a published distribution, tier probability = winning tickets ÷ issued tickets, and RTP =
+            Σ(tier probability × prize) ÷ ticket price.
+            <a href="https://www.dhlottery.co.kr/st/st10Intro" target="_blank" rel="noopener">Speetto 1000</a> and
+            <a href="https://www.dhlottery.co.kr/st/st20Intro" target="_blank" rel="noopener">Speetto 2000</a>
+            use Donghaeng Lottery's official issue tables; the displayed odds and return are calculated from those counts.
           </p>
         </section>
 
@@ -232,8 +415,8 @@
               </thead>
               <tbody>
                 <tr>
-                  <td>US $5 Scratch-Off</td>
-                  <td>1 in 250,000</td>
+                  <td>Texas $5 Scratch-Off — Houston Texans</td>
+                  <td>1 in 1,368,188</td>
                 </tr>
                 <tr>
                   <td>Powerball Jackpot Tier</td>
@@ -245,18 +428,18 @@
                 </tr>
                 <tr>
                   <td>Speetto 2000 (Korea)</td>
-                  <td>Not publicly disclosed</td>
+                  <td>1 in 5,000,000</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          <p class="panel-sub">Figures reflect this simulator's presets, modeled on publicly known odds for each ticket type.</p>
+          <p class="panel-sub">Texas Game 2755 and Speetto 1000/2000 use official printed issue distributions. Other simulator presets may be modeled and are labeled in Current Odds.</p>
         </section>
       </div>
 
       <section class="panel" id="worldOddsCard">
         <h2>Real-World Lottery Jackpot Odds</h2>
-        <p class="panel-sub">Official published jackpot odds for major lotteries — not modeled, not simulated, straight from each operator. Useful as a reference if you're comparing games this simulator doesn't cover.</p>
+        <p class="panel-sub">Official published jackpot odds for major lotteries. These figures come straight from each operator, not from this simulator. Useful as a reference if you're comparing games this simulator doesn't cover.</p>
         <div class="table-scroll">
           <table class="odds-compare-table">
             <thead>
@@ -269,8 +452,8 @@
             <tbody>
               <tr>
                 <td>Mega Millions (US)</td>
-                <td>1 in 302,575,350</td>
-                <td><a href="https://www.delottery.com/Drawing-Games/Mega-Millions/Prizes-And-Odds" target="_blank" rel="noopener">Delaware Lottery</a></td>
+                <td>1 in 290,472,336</td>
+                <td><a href="https://www.megamillions.com/How-To-Play.aspx" target="_blank" rel="noopener">MegaMillions.com</a></td>
               </tr>
               <tr>
                 <td>Powerball (US)</td>
@@ -295,9 +478,9 @@
             </tbody>
           </table>
         </div>
-        <p class="panel-sub">Last checked 2026-09. Odds can change if an operator changes its number matrix — always confirm with the operator before relying on this for a real purchase decision.</p>
+        <p class="panel-sub">Last checked 2026-09. Odds can change if an operator changes its number matrix. Always confirm with the operator before relying on this for a real purchase decision.</p>
         <ul class="perspective-list">
-          <li>Mega Millions: you're about 70x more likely to die from a shark attack (1 in 4,332,817) than to win this jackpot.</li>
+          <li>Mega Millions: you're about 67x more likely to die from a shark attack (1 in 4,332,817) than to win this jackpot.</li>
           <li>Powerball: you're about 19,000x more likely to be struck and killed by lightning in your lifetime (1 in 15,300) than to win this jackpot.</li>
           <li>EuroMillions: you're about 410x more likely to die in a fireworks accident (1 in 340,733) than to win this jackpot.</li>
           <li>UK Lotto: you're about 289x more likely to die in a train crash (1 in 156,169) than to win this jackpot.</li>
@@ -306,14 +489,15 @@
         <p class="panel-sub">Death-risk figures: <a href="https://www.floridamuseum.ufl.edu/shark-attacks/odds/compare-risk/death/" target="_blank" rel="noopener">International Shark Attack File, University of Florida</a>; lightning figure: <a href="https://www.noaa.gov/jetstream/lightning/frequently-asked-questions" target="_blank" rel="noopener">NOAA</a>.</p>
       </section>
 
+      <div class="two-col forecast-grid">
       <section class="panel" id="longRunCard">
         <h2>See Your Long-Run Odds</h2>
-        <p class="panel-sub">Project the current game's real math over months or years of play — same probability engine, just run forward.</p>
+        <p class="panel-sub">Project the current game's real math over months or years of play using the same probability engine.</p>
         <div class="long-run-controls">
           <label for="longRunPerWeek">Tickets per week</label>
-          <input type="number" id="longRunPerWeek" value="1" min="1" max="1000" step="1">
+          <input type="text" id="longRunPerWeek" value="1" inputmode="numeric" autocomplete="off">
           <label for="longRunYears">Years</label>
-          <input type="number" id="longRunYears" value="5" min="1" max="80" step="1">
+          <input type="text" id="longRunYears" value="5" inputmode="numeric" autocomplete="off">
           <button id="longRunApply" class="btn-secondary">Calculate</button>
         </div>
         <div class="stat-grid" id="longRunResult">
@@ -334,22 +518,32 @@
             <span class="stat-value" id="longRunJackpotChance">—</span>
           </div>
         </div>
-        <p class="panel-sub">"Expected Net Loss" uses the current game's real RTP — it's the mathematically expected outcome, not a guarantee; any single run can (rarely) end in profit.</p>
+        <div class="sim-result-actions">
+          <button type="button" id="longRunSaveBtn" class="text-link-btn" hidden>Save projection to My Lab</button>
+        </div>
+        <p class="panel-sub">"Expected Net Loss" uses the current game's real RTP. It is the mathematically expected outcome, not a guarantee; any single run can (rarely) end in profit.</p>
       </section>
 
       <section class="panel" id="taxCard">
         <h2>If You Actually Won: What Tax Takes</h2>
-        <p class="panel-sub">Real, sourced tax treatment of lottery jackpots in a few countries — not tax advice, and rules change, but a good first estimate.</p>
+        <p class="panel-sub">Real, sourced tax treatment of lottery jackpots in a few countries. This is not tax advice, and rules change, but it is a useful first estimate.</p>
         <div class="long-run-controls">
-          <label for="taxCountry">Country</label>
-          <select id="taxCountry">
-            <option value="us">United States (federal only)</option>
-            <option value="kr">South Korea</option>
-            <option value="uk">United Kingdom</option>
-            <option value="au">Australia</option>
-          </select>
+          <label id="taxCountryLabel">Country</label>
+          <input type="hidden" id="taxCountry" value="us">
+          <div class="custom-select" data-custom-select="taxCountry">
+            <button type="button" id="taxCountryButton" class="custom-select-trigger" aria-haspopup="listbox" aria-expanded="false" aria-controls="taxCountryList" aria-labelledby="taxCountryLabel taxCountryValue">
+              <span id="taxCountryValue">United States (federal only)</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div id="taxCountryList" class="custom-select-menu" role="listbox" aria-labelledby="taxCountryLabel" hidden>
+              <button type="button" class="custom-select-option" role="option" data-value="us" aria-selected="true">United States (federal only)</button>
+              <button type="button" class="custom-select-option" role="option" data-value="kr" aria-selected="false">South Korea</button>
+              <button type="button" class="custom-select-option" role="option" data-value="uk" aria-selected="false">United Kingdom</button>
+              <button type="button" class="custom-select-option" role="option" data-value="au" aria-selected="false">Australia</button>
+            </div>
+          </div>
           <label for="taxJackpotAmount">Jackpot amount</label>
-          <input type="number" id="taxJackpotAmount" value="1000000" min="0" step="1">
+          <input type="text" id="taxJackpotAmount" value="1000000" inputmode="numeric" autocomplete="off">
           <button id="taxCalculate" class="btn-secondary">Calculate</button>
         </div>
         <div class="stat-grid">
@@ -372,34 +566,65 @@
         </div>
         <p class="panel-sub" id="taxNote"></p>
       </section>
+      </div>
 
       <section class="panel" id="faqCard">
         <h2>Frequently Asked Questions</h2>
         <div class="faq-grid">
-          <details>
-            <summary>Does this simulator use real money?</summary>
-            <p>No. Nothing here is real currency — "cost" and "prize" are simulated numbers only, so you can experience the odds without any financial risk.</p>
-          </details>
-          <details>
-            <summary>Does buying a whole pack guarantee a profit?</summary>
-            <p>No. While packs guarantee a set minimum of small tier prizes, the total payout of a single pack almost never exceeds the retail cost of the entire pack.</p>
-          </details>
-          <details>
-            <summary>How can this help me understand risk?</summary>
-            <p>By using the Fast Simulation feature (10x to 1,000x), you can immediately experience the mathematical reality of negative expected value without risking real money.</p>
-          </details>
-          <details>
-            <summary>Why do near-misses feel so common?</summary>
-            <p>This simulator's grid faithfully reproduces a real scratch card's match-to-win format, where partial matches happen naturally by chance. Psychologists call the strong reaction to a close-but-losing result the "near-miss effect."</p>
-          </details>
-          <details>
-            <summary>What is Return to Player (RTP)?</summary>
-            <p>Unlike casino games (95–99% RTP), government and state lotteries typically return 50–70%. For every $100 spent, players mathematically recoup roughly $50–$70 on average over the long run.</p>
-          </details>
-          <details>
-            <summary>Who built this simulator?</summary>
-            <p>An independent, free, ad-supported side project — not affiliated with any state lottery or Powerball.</p>
-          </details>
+          <div class="faq-item disclosure" data-disclosure>
+            <button type="button" class="faq-trigger disclosure-trigger" id="faqRealMoney" aria-expanded="false" aria-controls="faqRealMoneyPanel">
+              <span>Does this simulator use real money?</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="faq-answer disclosure-panel" id="faqRealMoneyPanel" role="region" aria-labelledby="faqRealMoney" hidden>
+              <p>No. Nothing here is real currency; "cost" and "prize" are simulated numbers only, so you can experience the odds without any financial risk.</p>
+            </div>
+          </div>
+          <div class="faq-item disclosure" data-disclosure>
+            <button type="button" class="faq-trigger disclosure-trigger" id="faqPack" aria-expanded="false" aria-controls="faqPackPanel">
+              <span>Does buying a whole pack guarantee a profit?</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="faq-answer disclosure-panel" id="faqPackPanel" role="region" aria-labelledby="faqPack" hidden>
+              <p>No. Buying a whole pack does not guarantee that the prizes inside exceed the pack's retail cost. Pack composition varies by lottery and game, so check the operator's rules for the specific ticket.</p>
+            </div>
+          </div>
+          <div class="faq-item disclosure" data-disclosure>
+            <button type="button" class="faq-trigger disclosure-trigger" id="faqRisk" aria-expanded="false" aria-controls="faqRiskPanel">
+              <span>How can this help me understand risk?</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="faq-answer disclosure-panel" id="faqRiskPanel" role="region" aria-labelledby="faqRisk" hidden>
+              <p>Use fixed batches or enter a budget to compare one simulated run with the current model's theoretical return, without risking real money.</p>
+            </div>
+          </div>
+          <div class="faq-item disclosure" data-disclosure>
+            <button type="button" class="faq-trigger disclosure-trigger" id="faqNearMiss" aria-expanded="false" aria-controls="faqNearMissPanel">
+              <span>Why do near-misses feel so common?</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="faq-answer disclosure-panel" id="faqNearMissPanel" role="region" aria-labelledby="faqNearMiss" hidden>
+              <p>This simulator does not add a separate near-miss probability. Its match-style grid is generated from the selected outcome model, so close-looking losing patterns can occur naturally by chance.</p>
+            </div>
+          </div>
+          <div class="faq-item disclosure" data-disclosure>
+            <button type="button" class="faq-trigger disclosure-trigger" id="faqRtp" aria-expanded="false" aria-controls="faqRtpPanel">
+              <span>What is Return to Player (RTP)?</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="faq-answer disclosure-panel" id="faqRtpPanel" role="region" aria-labelledby="faqRtp" hidden>
+              <p>RTP is the expected payout divided by ticket cost over many plays. For presets with full published prize counts, this simulator calculates RTP as Σ(tier probability × prize) ÷ ticket price; presets without a full official distribution are explicitly labeled as simulator models.</p>
+            </div>
+          </div>
+          <div class="faq-item disclosure" data-disclosure>
+            <button type="button" class="faq-trigger disclosure-trigger" id="faqBuilt" aria-expanded="false" aria-controls="faqBuiltPanel">
+              <span>Who built this simulator?</span>
+              <span class="control-chevron" aria-hidden="true"></span>
+            </button>
+            <div class="faq-answer disclosure-panel" id="faqBuiltPanel" role="region" aria-labelledby="faqBuilt" hidden>
+              <p>An independent, free, ad-supported side project, not affiliated with any state lottery or Powerball.</p>
+            </div>
+          </div>
         </div>
       </section>
 
@@ -422,63 +647,46 @@
 
   <!-- Schema.org JSON-LD structured data for Google Rich Snippets -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@graph": [
-      {
-        "@type": "WebApplication",
-        "name": "Scratch Lottery Simulator",
-        "url": "https://saramjh.github.io/scratchLottery/",
-        "applicationCategory": "GameApplication",
-        "operatingSystem": "All",
-        "offers": {
-          "@type": "Offer",
-          "price": "0",
-          "priceCurrency": "USD"
-        },
-        "description": "A free scratch off simulator and scratch lottery simulator with real-world ticket presets, a custom ticket builder, probability tuning, and expected value (RTP) analysis."
-      },
-      {
-        "@type": "FAQPage",
-        "mainEntity": [
-          {
-            "@type": "Question",
-            "name": "How do scratch lottery odds actually work?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "Scratch lottery tickets have pre-printed fixed distributions. While overall win rates are around 1 in 4, most winning tickets only break even. Jackpot odds range from 1 in 200,000 to 1 in several millions."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "What is Return to Player (RTP) in scratch-off lotteries?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "State scratch lotteries typically retain an RTP of 50% to 70%, meaning players mathematically lose 30% to 50% of total wagered money on average over time."
-            }
-          },
-          {
-            "@type": "Question",
-            "name": "Does buying a whole pack guarantee a profit?",
-            "acceptedAnswer": {
-              "@type": "Answer",
-              "text": "No. Packs contain a guaranteed number of low-tier prizes, but the total payout almost never exceeds the purchase price of the pack."
-            }
-          }
-        ]
-      }
-    ]
+{
+  "@context": "https://schema.org",
+  "@type": "WebApplication",
+  "@id": "https://saramjh.github.io/scratchLottery/#app",
+  "name": "Scratch Off Simulator",
+  "url": "https://saramjh.github.io/scratchLottery/",
+  "image": "https://saramjh.github.io/scratchLottery/docs/og-image.png",
+  "description": "A free scratch off simulator, scratch card simulator and scratch ticket simulator with sourced lottery odds, custom probability tools, fast simulations and expected value (RTP) analysis.",
+  "applicationCategory": "GameApplication",
+  "operatingSystem": "All",
+  "inLanguage": "en",
+  "isAccessibleForFree": true,
+  "browserRequirements": "Requires JavaScript and a modern web browser.",
+  "featureList": [
+    "Scratch-off ticket simulation",
+    "Official published prize-distribution presets where available",
+    "Fast batch and budget simulations",
+    "Exact multi-ticket scratch-off odds calculator",
+    "Return to Player (RTP) and long-run loss calculations",
+    "Custom top-prize probability mode"
+  ],
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
   }
+}
   </script>
 
   <!-- 모달: 문서 흐름과 무관하게 뷰포트 위에 뜨는 오버레이 -->
-  <div id="jackpotModal" class="modal">
+  <div id="jackpotModal" class="modal" role="dialog" aria-modal="true" aria-label="Scratch ticket result" aria-describedby="jackpotMessage" aria-hidden="true">
     <div class="modal-content">
-      <button type="button" class="modal-close-btn" aria-label="Close">&times;</button>
+      <button type="button" class="modal-close-btn" aria-label="Close">
+        <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6L6 18"></path></svg>
+      </button>
       <div class="modal-badge" id="modalBadge"></div>
       <h2>Result</h2>
       <p id="jackpotMessage"></p>
       <button type="button" id="modalPlayAgainBtn" class="btn-primary">Play Again</button>
+      <button type="button" id="modalExperimentBtn" class="text-link-btn">Compare 10-ticket odds</button>
     </div>
   </div>
 
@@ -486,10 +694,14 @@
   <div id="appToast" class="app-toast" role="status" aria-live="polite" hidden></div>
 
   <footer>
-    <p>Scratch Lottery Simulator — Play responsibly. This is a simulation.</p>
+    <p>Scratch Off Simulator. Play responsibly. This is a simulation.</p>
     <a href="https://saramjh.github.io/">&copy; 2024 saramjh</a>
   </footer>
 
+
+  <script src="js/verified-lottery-models.js" defer></script>
+  <script src="js/lottery-math-core.js" defer></script>
+  <script src="js/analytics.js" defer></script>
   <script src="js/script.js" defer></script>
 </body>
 

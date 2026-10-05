@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-4DYFKSNFBG"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag() { dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-4DYFKSNFBG');
+  </script>
+  <script type="text/javascript">
+    (function (c, l, a, r, i, t, y) {
+      c[a] = c[a] || function () { (c[a].q = c[a].q || []).push(arguments) };
+      t = l.createElement(r); t.async = 1; t.src = "https://www.clarity.ms/tag/" + i;
+      y = l.getElementsByTagName(r)[0]; y.parentNode.insertBefore(t, y);
+    })(window, document, "clarity", "script", "yiij6vbnl0");
+  </script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="max-image-preview:large">
+  <meta name="description" content="Interactive visual guide to scratch-off lottery probability, expected value, RTP, variance, repeated trials and the law of large numbers using a sourced Texas Lottery example.">
+  <meta name="author" content="Saramjh">
+  <link rel="canonical" href="https://saramjh.github.io/scratchLottery/math/">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://saramjh.github.io/scratchLottery/math/">
+  <meta property="og:title" content="Scratch-Off Lottery Math: Probability, Expected Value &amp; Variance">
+  <meta property="og:description" content="See expected value, variance and repeated-trial probability move in interactive visuals built from a sourced scratch-off issue model.">
+  <meta property="og:locale" content="en_US">
+  <meta property="og:site_name" content="Scratch Off Simulator">
+  <meta property="og:image" content="https://saramjh.github.io/scratchLottery/docs/og-image.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Scratch Off Simulator interface with sourced lottery odds and probability tools">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Scratch-Off Lottery Math: Probability, Expected Value &amp; Variance">
+  <meta name="twitter:description" content="Interactive visual explanations of expected value, variance, repeated trials and independent lottery outcomes.">
+  <meta name="twitter:image" content="https://saramjh.github.io/scratchLottery/docs/og-image.png">
+  <title>Scratch-Off Lottery Math: Probability, Expected Value &amp; Variance</title>
+  <link rel="icon" type="image/svg+xml" href="../favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="../css/style.css">
+  <link rel="stylesheet" href="../css/math.css">
+</head>
+
+<body class="math-page">
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand math-brand">
+        <a class="brand-home" href="../">Scratch Off Simulator</a>
+        <p>Probability explained with the same sourced issue model used by the simulator.</p>
+      </div>
+      <button type="button" id="navToggle" class="nav-toggle-btn" aria-expanded="false" aria-controls="topbarNav" aria-label="Open menu">
+        <span class="nav-toggle-line" aria-hidden="true"></span>
+        <span class="nav-toggle-line" aria-hidden="true"></span>
+        <span class="nav-toggle-line" aria-hidden="true"></span>
+      </button>
+      <nav class="topbar-nav" id="topbarNav" aria-label="Math page sections">
+        <a href="../">Simulator</a>
+        <a href="#expectedValueLesson">Expected value</a>
+        <a href="#largeNumbersLesson">Large numbers</a>
+        <a href="#independenceLesson">Independence</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="site-main math-main">
+    <section class="math-intro" aria-labelledby="mathTitle">
+      <p class="math-kicker">Interactive probability guide</p>
+      <h1 id="mathTitle">The Math of Scratch-Off Lotteries</h1>
+      <p class="math-lede">A scratch ticket can win often and still lose money on average. A short lucky run can sit far above the long-run return. A losing streak does not make the next independent simulation “due.” The visuals below make those three ideas observable instead of asking you to accept them as slogans.</p>
+      <p class="math-model-source">Worked example: Texas Lottery Game 2755, a $5 ticket with 5,472,750 printed tickets. Its published issue distribution implies a $3.23 expected payout per ticket, a −$1.77 expected net, and 64.6% RTP. <a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698616.html" target="_blank" rel="noopener">Texas Lottery source</a>.</p>
+    </section>
+
+    <section class="math-lesson" id="expectedValueLesson" aria-labelledby="expectedValueTitle">
+      <header class="math-lesson-head">
+        <p class="math-concept">Expected value</p>
+        <h2 id="expectedValueTitle">Winning sometimes is not the same as breaking even on average</h2>
+        <p>Expected value weights every possible payout by its probability. For the printed Game 2755 issue, the expected payout is about $3.23 on a $5 ticket. That does not predict the next ticket; it describes the average payout across repeated draws from the issue distribution.</p>
+      </header>
+
+      <div class="math-equation" aria-label="Expected payout equals the sum of each outcome probability multiplied by its payout">
+        <span>E[payout]</span>
+        <span>=</span>
+        <span>Σ probability × payout</span>
+      </div>
+
+      <div class="ev-visual">
+        <div class="ev-track" aria-hidden="true">
+          <span class="ev-cost-line"></span>
+          <span class="ev-payout-bar" id="evPayoutBar"></span>
+        </div>
+        <div class="math-measures">
+          <div><span>Ticket cost</span><strong>$5.00</strong></div>
+          <div><span>Expected payout</span><strong id="evPayoutValue">$3.23</strong></div>
+          <div><span>Expected net</span><strong id="evNetValue">−$1.77</strong></div>
+          <div><span>RTP</span><strong id="evRtpValue">64.6%</strong></div>
+        </div>
+        <button type="button" class="btn-secondary math-action" id="replayEvMotion">Replay the comparison</button>
+        <p class="math-status" id="evStatus" aria-live="polite">The expected payout fills 64.6% of the $5 cost line.</p>
+      </div>
+
+      <p class="math-bridge"><a href="../#oddsCard" data-math-to-simulator="expected_value">Open the sourced prize table in the simulator</a> to inspect every tier behind this average.</p>
+    </section>
+
+    <section class="math-lesson" id="largeNumbersLesson" aria-labelledby="largeNumbersTitle">
+      <header class="math-lesson-head">
+        <p class="math-concept">Variance and the law of large numbers</p>
+        <h2 id="largeNumbersTitle">More plays make the average clearer, not more profitable</h2>
+        <p>Rare high payouts create large short-run swings. The printed Game 2755 issue model has an outcome standard deviation of about $86.49 per ticket even though its expected payout is only $3.23. As the sample grows, the running average tends to move toward the 64.6% theoretical RTP, while any finite run can still finish above or below it.</p>
+      </header>
+
+      <div class="math-trial-controls" aria-label="Choose number of simulated tickets">
+        <button type="button" class="math-trial-btn" data-trials="10">10</button>
+        <button type="button" class="math-trial-btn" data-trials="100" aria-pressed="true">100</button>
+        <button type="button" class="math-trial-btn" data-trials="1000">1,000</button>
+        <button type="button" class="math-trial-btn" data-trials="10000">10,000</button>
+      </div>
+
+      <div class="math-chart-frame">
+        <svg id="runningReturnChart" class="math-chart" viewBox="0 0 640 240" role="img" aria-label="Running return chart">
+          <title>Running average payout as a percentage of ticket cost compared with the 64.6% theoretical RTP</title>
+          <line id="theoreticalReturnLine" class="math-chart-reference" x1="36" y1="120" x2="620" y2="120"></line>
+          <path id="observedReturnPath" class="math-chart-path" d=""></path>
+        </svg>
+        <div class="math-chart-key" aria-hidden="true">
+          <span class="math-key-observed">Observed running RTP</span>
+          <span class="math-key-theoretical">Theoretical RTP 64.6%</span>
+        </div>
+      </div>
+      <p class="math-status" id="largeNumbersStatus" aria-live="polite">Run 100 tickets to compare one reproducible sample with the theoretical return.</p>
+      <p class="math-bridge"><a href="../#simCard" data-math-to-simulator="large_numbers">Run the full simulator</a> when you want a fresh random batch rather than the reproducible teaching sequence.</p>
+    </section>
+
+    <section class="math-lesson" id="independenceLesson" aria-labelledby="independenceTitle">
+      <header class="math-lesson-head">
+        <p class="math-concept">Independent trials and streaks</p>
+        <h2 id="independenceTitle">A losing streak does not make the next simulated ticket due</h2>
+        <p>In this simulator's independent-draw issue model, the next draw always uses the same printed distribution. Game 2755's any-prize probability is about 26.52%, so five previous simulated losses do not raise the next simulated draw above 26.52%. The probability of seeing a whole losing streak can be small while the conditional probability of the next draw remains unchanged.</p>
+      </header>
+
+      <div class="math-trial-controls" aria-label="Choose completed losing streak length">
+        <button type="button" class="math-streak-btn" data-losses="0">0 losses</button>
+        <button type="button" class="math-streak-btn" data-losses="1">1 loss</button>
+        <button type="button" class="math-streak-btn" data-losses="5" aria-pressed="true">5 losses</button>
+        <button type="button" class="math-streak-btn" data-losses="10">10 losses</button>
+      </div>
+
+      <div class="independence-visual" id="independenceSequence" role="img" aria-label="Independent trial sequence"></div>
+      <div class="independence-readout">
+        <div><span>Next simulated draw: any prize</span><strong id="nextPrizeChance">26.52%</strong></div>
+        <div><span id="streakProbabilityLabel">Chance of 5 losses from the start</span><strong id="streakProbability">21.42%</strong></div>
+      </div>
+      <p class="math-status" id="independenceStatus" aria-live="polite">After five simulated losses, the next independent draw is still 26.52% for any prize.</p>
+      <p class="math-caveat"><strong>Physical inventory is different from this model.</strong> Scratch tickets come from a finite issue, and complete live unsold-ticket inventory is not published here. Recent real-world losses therefore do not justify claiming that a winner is “due,” and this page does not estimate current remaining-ticket odds.</p>
+      <p class="math-bridge"><a href="../#simCard" data-math-to-simulator="independence">Test repeated batches in the simulator</a>.</p>
+    </section>
+
+    <section class="math-sources" aria-labelledby="mathSourcesTitle">
+      <h2 id="mathSourcesTitle">Sources and scope</h2>
+      <p>The numerical example uses the same verified Texas Lottery Game 2755 printed issue distribution as the simulator. The page explains probability concepts; it does not recommend tickets or infer current expected value from unclaimed prizes.</p>
+      <ul>
+        <li><a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698616.html" target="_blank" rel="noopener">Texas Lottery Game 2755 printed distribution and published odds</a></li>
+        <li><a href="https://www.nber.org/papers/w3769" target="_blank" rel="noopener">Clotfelter &amp; Cook: The “Gambler's Fallacy” in Lottery Play</a></li>
+        <li><a href="https://ubplj.org/index.php/jgbe/article/view/2741" target="_blank" rel="noopener">Using Scratch-Off Lottery Tickets to Teach Binomial Probabilities and Expected Value</a></li>
+      </ul>
+    </section>
+  </main>
+
+  <footer>
+    <p>Scratch Off Simulator. Probability education and simulation only; no real money.</p>
+    <a href="../">&larr; Back to the simulator</a>
+  </footer>
+
+  <script src="../js/verified-lottery-models.js" defer></script>
+  <script src="../js/lottery-math-core.js" defer></script>
+  <script src="../js/analytics.js" defer></script>
+  <script src="../js/math-of-lottery.js" defer></script>
+</body>
+
+</html>

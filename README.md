@@ -18,6 +18,9 @@ Try it → <https://saramjh.github.io/scratchLottery/>
 - Each cell scratches independently via its own `<canvas>`, so you can drag across multiple cells and scratch them in one continuous motion.
 - The odds engine draws a single result per ticket from a CDF (cumulative distribution), so a single ticket can never win multiple prize tiers at once, and a jackpot can never get silently overwritten by a lower prize. Choosing "Custom Odds" lets you build your own ticket with any jackpot probability you want.
 - Every scratch is logged to a time-series chart; clicking a node shows that ticket's full detail. Fast-forward simulations (10x/100x/1,000x) let you watch the law of large numbers converge on the theoretical odds table in real time.
+- Experiment Lab turns a completed result into a follow-up question using the same exact-odds, simulation, budget-risk and long-run tools. My Lab can save experiment setups locally on this device for later reruns.
+- The Math of Scratch-Off Lotteries page explains expected value, variance/law of large numbers and independent trials with interactive visuals driven by the same verified Texas Game 2755 issue model as the simulator.
+- Official Prize Tracker keeps a bounded three-game Texas $5 watchlist from Texas Lottery published printed-prize/claimed-prize tables. Changed snapshots are archived automatically; the tracker does not infer unsold-ticket odds or current EV.
 - Cost / winnings / profit / attempt count are saved to your device automatically, so your record picks up where you left off next time you visit.
 
 ### Screenshots
@@ -32,7 +35,7 @@ Try it → <https://saramjh.github.io/scratchLottery/>
 
 ### How odds/RTP are calculated
 
-Each preset only defines a jackpot probability (`p1`) and a prize table (`rewards`) per tier. The ratio between tiers' marginal probabilities follows a fixed Fibonacci-like shape shared across all presets. On every scratch, `drawLotteryResult` draws a single random number in [0, 1) and matches it against the cumulative probability ranges to pick a result — the same mechanism a real printed lottery ticket relies on (a fixed, predetermined probability distribution). Lower-tier prize amounts are calibrated so the resulting RTP lands in the range real lotteries typically use (roughly 50–70%).
+Presets with a verified full issue table use the operator's published ticket count and winning-ticket count for each prize tier. The simulator converts those counts into cumulative probability ranges, and drawLotteryResult samples exactly one outcome from that distribution. RTP is calculated from each tier's marginal probability × prize amount divided by ticket cost. Presets without a verified full distribution, including Custom Odds, are explicitly treated as simulator models rather than official lower-tier distributions.
 
 ### Tech stack
 
@@ -41,6 +44,9 @@ No build tools or frameworks — plain HTML/CSS/JS, deployed as-is via GitHub Pa
 - `index.html` — page structure (SEO meta, ticket UI, odds/simulation panels, FAQ)
 - `css/style.css` — all styling
 - `js/script.js` — odds engine, ticket generation/rendering, scratch interaction, charts, localStorage persistence, GA4 event tracking
+- `math/index.html` + `js/math-of-lottery.js` — interactive probability-learning page and state-driven teaching visuals
+- `js/verified-lottery-models.js` + `js/lottery-math-core.js` — shared verified issue data and probability primitives consumed by both the simulator and math page
+- `scripts/update_live_content.py` + `data/live/texas-scratch-watch.json` — stdlib-only official Texas claimed-prize snapshot updater/archive, run by the scheduled GitHub Action
 
 ### Running locally
 
@@ -77,6 +83,9 @@ This project is licensed under the [MIT License](LICENSE).
 - 자리마다 독립된 `<canvas>`로 은박을 긁는 방식이라, 여러 칸을 한 번에 드래그해서 연속으로 긁을 수 있습니다.
 - 확률 엔진은 CDF(누적분포) 기반 단일 추첨이라 한 장이 여러 등수에 동시 당첨되거나 잭팟이 다른 당첨으로 덮어써지는 일이 없습니다. "Custom Odds"를 고르면 원하는 1등 확률로 직접 나만의 티켓을 만들 수도 있습니다.
 - 스크래치할 때마다 결과가 로터리 로그(시계열 차트)에 쌓이고, 노드를 클릭하면 그 티켓의 상세 정보를 볼 수 있습니다. 빠른 시뮬레이션(10x/100x/1,000x)으로 대수의 법칙이 실제로 확률표에 수렴하는 과정도 확인할 수 있습니다.
+- Experiment Lab은 한 결과에서 다음 질문으로 이어지도록 기존 정확 확률·시뮬레이션·예산 위험·장기 예측 도구를 연결합니다. My Lab에는 실험 조건을 현재 기기에만 저장해 나중에 다시 실행할 수 있습니다.
+- The Math of Scratch-Off Lotteries 페이지는 기대값, 분산/큰수의 법칙, 독립시행을 인터랙티브 시각 자료로 설명하며 시뮬레이터와 동일한 검증된 Texas Game 2755 발행 분포를 사용합니다.
+- Official Prize Tracker는 Texas Lottery가 공개한 발행 당첨권 수와 청구 당첨권 수를 바탕으로 텍사스 $5 게임 3개만 제한적으로 추적합니다. 실제 수치가 바뀐 스냅샷만 누적하며, 미판매 티켓 수·현재 당첨확률·EV를 추정하지 않습니다.
 - 비용/당첨금/손익/횟수는 기기에 자동 저장되어 다시 방문해도 이어집니다.
 
 ### 스크린샷
@@ -91,7 +100,7 @@ This project is licensed under the [MIT License](LICENSE).
 
 ### 확률/RTP는 어떻게 계산되나요
 
-각 프리셋은 1등 확률(`p1`)과 등수별 상금표(`rewards`)만 정의합니다. 등수별 한계확률(marginal probability)의 비율은 모든 프리셋이 공유하는 고정된 피보나치 비율 형태이고, 스크래치할 때마다 `drawLotteryResult`가 0~1 사이 난수를 한 번 뽑아 그 값이 어느 등수의 누적확률 구간에 속하는지로 결과를 정합니다 — 실제 인쇄복권의 고정된 확률 분포와 같은 방식입니다. 낮은 등수 상금은 이 확률 모델에서 계산되는 실제 RTP가 진짜 복권 수준(대략 50~70%)이 되도록 보정되어 있습니다.
+전체 발행표가 공식적으로 검증된 프리셋은 운영사가 공개한 총 발행매수와 등수별 당첨매수를 그대로 사용합니다. 시뮬레이터는 이 수치를 누적확률 구간으로 변환하고, drawLotteryResult가 그 분포에서 정확히 하나의 결과를 추출합니다. RTP는 등수별 한계확률 × 당첨금의 합을 티켓 가격으로 나누어 계산합니다. 전체 분포가 독립적으로 검증되지 않은 프리셋과 Custom Odds는 공식 하위등수 분포가 아니라 시뮬레이터 모델임을 명시합니다.
 
 ### 기술 스택
 
@@ -100,6 +109,9 @@ This project is licensed under the [MIT License](LICENSE).
 - `index.html` — 페이지 구조 (SEO 메타, 티켓 UI, 확률/시뮬레이션 패널, FAQ)
 - `css/style.css` — 스타일 전체
 - `js/script.js` — 확률 엔진, 티켓 생성/렌더링, 스크래치 인터랙션, 차트, localStorage 영속화, GA4 이벤트 트래킹
+- `math/index.html` + `js/math-of-lottery.js` — 인터랙티브 확률 학습 페이지와 상태 기반 설명 시각화
+- `js/verified-lottery-models.js` + `js/lottery-math-core.js` — 시뮬레이터와 수학 페이지가 함께 사용하는 검증된 발행 데이터와 확률 공용 함수
+- `scripts/update_live_content.py` + `data/live/texas-scratch-watch.json` — 표준 라이브러리만 사용하는 Texas 공식 claimed-prize 스냅샷 갱신/아카이브. 예약 GitHub Action이 실행합니다.
 
 ### 로컬에서 열어보기
 

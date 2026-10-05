@@ -1,0 +1,83 @@
+name: Refresh official prize tracker
+
+on:
+  schedule:
+    - cron: "17 14 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Refresh bounded official watchlist
+        run: python3 scripts/update_live_content.py
+      - name: Verify generated site
+        run: |
+          node scripts/verify.js
+          node scripts/verify_math_page.js
+          node scripts/verify_architecture.js
+          git diff --check
+      - name: Check generated scope
+        id: changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(git status --porcelain --untracked-files=all)"
+          printf "%s\n" "$status"
+          unexpected="$(printf "%s\n" "$status" | awk '{print $2}' | grep -Ev '^(index.html|sitemap.xml|data/live/texas-scratch-watch.json)$' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "Updater touched unexpected paths:" >&2
+            printf "%s\n" "$unexpected" >&2
+            exit 1
+          fi
+          if [ -n "$(git status --porcelain -- index.html sitemap.xml data/live/texas-scratch-watch.json)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+      - name: Commit official snapshot
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html sitemap.xml data/live/texas-scratch-watch.json
+          git commit -m "chore(data): refresh Texas prize tracker"
+          git push origin HEAD:main
+      - uses: actions/configure-pages@v5
+        if: steps.changes.outputs.changed == 'true'
+      - uses: actions/upload-pages-artifact@v3
+        if: steps.changes.outputs.changed == 'true'
+        with:
+          path: "."
+
+  deploy:
+    if: needs.refresh.outputs.changed == 'true'
+    needs: refresh
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

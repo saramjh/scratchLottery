@@ -7,9 +7,32 @@ const no_luck = "No luck!"
 const lottery_logs = "Lottery Logs"
 
 function trackEvent(name, params = {}) {
-	if (typeof gtag === "function") {
-		gtag("event", name, params)
-	}
+	ScratchAnalytics.track(name, params)
+}
+
+let growthToolStarted = false
+
+function currentGrowthPreset() {
+	return document.getElementById("lotteryPreset")?.value || "unknown"
+}
+
+function trackToolStarted(mode) {
+	// Activation is session-level: the first meaningful interaction separates
+	// passive landing visits from visitors who actually use the simulator.
+	if (growthToolStarted) return
+	growthToolStarted = true
+	trackEvent("tool_started", {
+		mode,
+		preset_name: currentGrowthPreset(),
+	})
+}
+
+function trackValueCompleted(mode, params = {}) {
+	trackEvent("value_completed", {
+		mode,
+		preset_name: currentGrowthPreset(),
+		...params,
+	})
 }
 
 /* 브라우저 기본 alert() 대신 사이트 톤에 맞춘 알림을 쓴다 — 이 함수 하나로 전부 통일 */
@@ -149,8 +172,276 @@ if ($soundToggle) {
 	$soundToggle.addEventListener("click", toggleSound)
 }
 
+const $navToggle = document.getElementById("navToggle")
+const $topbarNav = document.getElementById("topbarNav")
+
+function setMobileNavOpen(open) {
+	if (!$navToggle || !$topbarNav) return
+	$navToggle.setAttribute("aria-expanded", String(open))
+	$navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu")
+	$topbarNav.classList.toggle("is-open", open)
+}
+
+if ($navToggle && $topbarNav) {
+	$navToggle.addEventListener("click", () => {
+		setMobileNavOpen($navToggle.getAttribute("aria-expanded") !== "true")
+	})
+	$topbarNav.querySelectorAll("a").forEach((link) => {
+		link.addEventListener("click", () => setMobileNavOpen(false))
+	})
+}
+
+const motionPreference = typeof window.matchMedia === "function" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null
+const MOTION_EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)"
+const MOTION_EASE_STANDARD = "cubic-bezier(0.2, 0.8, 0.2, 1)"
+
+function motionEnabled() {
+	return !(motionPreference && motionPreference.matches)
+}
+
+function runMotion(el, keyframes, options = {}) {
+	if (!el || !motionEnabled() || typeof el.animate !== "function") return null
+	return el.animate(keyframes, {
+		duration: 220,
+		easing: MOTION_EASE_OUT,
+		fill: "none",
+		...options,
+	})
+}
+
+function setMetricText(el, nextText) {
+	if (!el) return
+	const changed = el.textContent !== nextText
+	el.textContent = nextText
+	if (changed) {
+		runMotion(
+			el,
+			[
+				{ opacity: 0.35, transform: "translateY(4px)" },
+				{ opacity: 1, transform: "translateY(0)" },
+			],
+			{ duration: 190 }
+		)
+	}
+}
+
+function animateTicketRefresh() {
+	const ticketArt = document.querySelector(".ticket-art")
+	const grid = document.getElementById("yourNumbersGrid")
+	runMotion(
+		ticketArt,
+		[
+			{ opacity: 0.72, transform: "translateY(8px) scale(0.994)" },
+			{ opacity: 1, transform: "translateY(0) scale(1)" },
+		],
+		{ duration: 280 }
+	)
+	if (!grid || !motionEnabled()) return
+	grid.querySelectorAll(".play-cell, .symbol-game").forEach((cell, index) => {
+		runMotion(
+			cell,
+			[
+				{ opacity: 0.25, transform: "translateY(5px)" },
+				{ opacity: 1, transform: "translateY(0)" },
+			],
+			{ duration: 180, delay: Math.min(index, 14) * 12 }
+		)
+	})
+}
+
+function animatePresetRefresh() {
+	for (const el of [document.getElementById("oddsCard"), document.getElementById("resultPanel")]) {
+		runMotion(
+			el,
+			[
+				{ opacity: 0.55, transform: "translateY(5px)" },
+				{ opacity: 1, transform: "translateY(0)" },
+			],
+			{ duration: 230 }
+		)
+	}
+}
+
+function animateSimulationOutput() {
+	const result = document.getElementById("fastSimResult")
+	const chart = document.getElementById("fastSimChart")
+	runMotion(result, [{ opacity: 0, transform: "translateY(7px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 240 })
+	runMotion(chart, [{ opacity: 0.45, transform: "translateY(7px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 300 })
+
+	const path = chart?.querySelector(".lottery-log-line")
+	if (path && motionEnabled() && typeof path.getTotalLength === "function") {
+		const length = path.getTotalLength()
+		path.style.strokeDasharray = String(length)
+		path.style.strokeDashoffset = String(length)
+		const animation = path.animate(
+			[{ strokeDashoffset: length }, { strokeDashoffset: 0 }],
+			{ duration: 420, easing: MOTION_EASE_STANDARD, fill: "forwards" }
+		)
+		animation.addEventListener("finish", () => {
+			path.style.strokeDasharray = ""
+			path.style.strokeDashoffset = ""
+		})
+	}
+
+	chart?.querySelectorAll(".lottery-log-point").forEach((point, index) => {
+		runMotion(point, [{ opacity: 0 }, { opacity: 1 }], {
+			duration: 150,
+			delay: Math.min(index, 24) * 8 + 80,
+		})
+	})
+}
+
+function animateSelectedDetail(el) {
+	runMotion(el, [{ opacity: 0.45, transform: "translateY(4px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 180 })
+}
+
+function setDisclosureOpen(root, open, { focusTrigger = false } = {}) {
+	if (!root) return
+	const trigger = root.querySelector(":scope > .disclosure-trigger")
+	if (!trigger) return
+	const panelId = trigger.getAttribute("aria-controls")
+	const panel = panelId ? document.getElementById(panelId) : null
+	if (!panel) return
+
+	panel.getAnimations?.().forEach((animation) => animation.cancel())
+	trigger.setAttribute("aria-expanded", String(open))
+	root.classList.toggle("is-open", open)
+
+	if (open) {
+		panel.hidden = false
+		runMotion(
+			panel,
+			[
+				{ opacity: 0, transform: "translateY(-4px)" },
+				{ opacity: 1, transform: "translateY(0)" },
+			],
+			{ duration: 180 }
+		)
+	} else {
+		const animation = runMotion(
+			panel,
+			[
+				{ opacity: 1, transform: "translateY(0)" },
+				{ opacity: 0, transform: "translateY(-4px)" },
+			],
+			{ duration: 140 }
+		)
+		if (animation) {
+			animation.addEventListener("finish", () => {
+				if (trigger.getAttribute("aria-expanded") === "false") panel.hidden = true
+			}, { once: true })
+		} else {
+			panel.hidden = true
+		}
+	}
+	if (focusTrigger) trigger.focus()
+}
+
+function initDisclosures() {
+	document.querySelectorAll("[data-disclosure]").forEach((root) => {
+		const trigger = root.querySelector(":scope > .disclosure-trigger")
+		if (!trigger) return
+		trigger.addEventListener("click", () => {
+			setDisclosureOpen(root, trigger.getAttribute("aria-expanded") !== "true")
+		})
+		trigger.addEventListener("keydown", (event) => {
+			if (event.key !== "Escape" || trigger.getAttribute("aria-expanded") !== "true") return
+			event.preventDefault()
+			setDisclosureOpen(root, false, { focusTrigger: true })
+		})
+	})
+}
+
+function initCustomSelect(root) {
+	const stateId = root?.dataset.customSelect
+	const state = stateId ? document.getElementById(stateId) : null
+	const trigger = root?.querySelector(".custom-select-trigger")
+	const menu = root?.querySelector(".custom-select-menu")
+	const valueEl = root?.querySelector("#taxCountryValue")
+	const options = menu ? Array.from(menu.querySelectorAll(".custom-select-option")) : []
+	if (!root || !state || !trigger || !menu || !valueEl || !options.length) return
+
+	const selectedIndex = () => Math.max(0, options.findIndex((option) => option.getAttribute("aria-selected") === "true"))
+
+	const close = ({ focusTrigger = false } = {}) => {
+		root.classList.remove("is-open")
+		trigger.setAttribute("aria-expanded", "false")
+		menu.hidden = true
+		if (focusTrigger) trigger.focus()
+	}
+
+	const open = (focusIndex = selectedIndex()) => {
+		root.classList.add("is-open")
+		trigger.setAttribute("aria-expanded", "true")
+		menu.hidden = false
+		runMotion(menu, [{ opacity: 0, transform: "translateY(-4px)" }, { opacity: 1, transform: "translateY(0)" }], { duration: 150 })
+		requestAnimationFrame(() => options[Math.max(0, Math.min(options.length - 1, focusIndex))]?.focus())
+	}
+
+	const choose = (option) => {
+		if (!option) return
+		options.forEach((candidate) => candidate.setAttribute("aria-selected", String(candidate === option)))
+		state.value = option.dataset.value || ""
+		valueEl.textContent = option.textContent.trim()
+		close({ focusTrigger: true })
+		state.dispatchEvent(new Event("change", { bubbles: true }))
+	}
+
+	trigger.addEventListener("click", () => {
+		if (trigger.getAttribute("aria-expanded") === "true") close()
+		else open()
+	})
+	trigger.addEventListener("keydown", (event) => {
+		if (!["ArrowDown", "ArrowUp", "Enter", " "].includes(event.key)) return
+		event.preventDefault()
+		open(event.key === "ArrowUp" ? options.length - 1 : selectedIndex())
+	})
+	options.forEach((option, index) => {
+		option.addEventListener("click", () => choose(option))
+		option.addEventListener("keydown", (event) => {
+			if (event.key === "Escape") {
+				event.preventDefault()
+				close({ focusTrigger: true })
+				return
+			}
+			if (event.key === "Enter" || event.key === " ") {
+				event.preventDefault()
+				choose(option)
+				return
+			}
+			let next = null
+			if (event.key === "ArrowDown") next = (index + 1) % options.length
+			if (event.key === "ArrowUp") next = (index - 1 + options.length) % options.length
+			if (event.key === "Home") next = 0
+			if (event.key === "End") next = options.length - 1
+			if (next !== null) {
+				event.preventDefault()
+				options[next].focus()
+			}
+		})
+	})
+	document.addEventListener("pointerdown", (event) => {
+		if (!root.contains(event.target)) close()
+	})
+}
+
+function parseNumericField(el, { min = -Infinity, max = Infinity, integer = false } = {}) {
+	if (!el) return null
+	const raw = String(el.value || "").replace(/,/g, "").trim()
+	if (!raw) return null
+	const value = Number(raw)
+	if (!Number.isFinite(value)) return null
+	const normalized = integer ? Math.trunc(value) : value
+	if (normalized < min || normalized > max) return null
+	return normalized
+}
+
+initDisclosures()
+document.querySelectorAll("[data-custom-select]").forEach(initCustomSelect)
+
 // 당첨 시 짧은 컨페티 연출 — 이미 정해진 결과를 확인해주는 순수 시각 효과
 function triggerWinConfetti() {
+	if (typeof window.matchMedia === "function" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return
 	const grid = document.getElementById("yourNumbersGrid")
 	if (!grid) return
 	const colors = ["#ffd700", "#ff6b6b", "#4ade80", "#60a5fa", "#fff"]
@@ -173,6 +464,15 @@ const closeModal = document.querySelector(".modal-close-btn")
 const modalBadge = document.getElementById("modalBadge")
 const jackpotMessage = document.getElementById("jackpotMessage")
 const prizeVTScroll = document.getElementById("prizeVTScroll")
+let modalReturnFocus = null
+let modalCloseTimer = null
+
+function modalFocusableElements() {
+	if (!modal) return []
+	return Array.from(
+		modal.querySelectorAll('button:not([disabled]), a[href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])')
+	).filter((el) => !el.hidden)
+}
 
 /* ============================================================
    상태 영속화 (localStorage)
@@ -182,7 +482,7 @@ const prizeVTScroll = document.getElementById("prizeVTScroll")
    비현실적인 누적 총액(예: 억 단위 당첨금)이 지금 코드로 고쳐도 그대로 남아있던 문제가 있었다.
    버전이 다르면 "그 시절 숫자"는 지금 확률/상금표와 앞뒤가 안 맞으므로 누적치만 정직하게 리셋한다. */
 const STORAGE_KEY = "scratchLotteryState"
-const STATE_VERSION = 2
+const STATE_VERSION = 3
 
 function loadState() {
 	try {
@@ -240,7 +540,7 @@ function paintCellFoil(ctx, w, h) {
 	ctx.lineWidth = 1
 	ctx.stroke()
 
-	ctx.font = `bold ${Math.round(Math.min(w, h) * 0.55)}px -apple-system, sans-serif`
+	ctx.font = `700 ${Math.round(Math.min(w, h) * 0.55)}px "IBM Plex Sans", sans-serif`
 	ctx.fillStyle = "rgba(180, 140, 40, 0.5)"
 	ctx.textAlign = "center"
 	ctx.textBaseline = "middle"
@@ -268,6 +568,7 @@ function scratchAtClientPoint(clientX, clientY) {
 document.addEventListener("mousedown", (event) => {
 	if (!event.target.closest || !event.target.closest(".play-scratch-canvas")) return
 	event.preventDefault() // 드래그 중 텍스트가 선택되는 것을 막는다
+	trackToolStarted("scratch")
 	scratchPointerActive = true
 	scratchAtClientPoint(event.clientX, event.clientY)
 })
@@ -283,6 +584,7 @@ document.addEventListener(
 	(event) => {
 		if (!event.target.closest || !event.target.closest(".play-scratch-canvas")) return
 		event.preventDefault()
+		trackToolStarted("scratch")
 		scratchPointerActive = true
 		const touch = event.touches[0]
 		scratchAtClientPoint(touch.clientX, touch.clientY)
@@ -363,6 +665,8 @@ let ticketCost = 1000 // 기본 티켓 가격
    반복되지 않도록: 당첨번호 개수/플레이 자리 수/한 줄에 몇 칸인지/몇 개 맞아야 당첨으로 보여줄지가
    게임별로 다르다. 실제 당첨 확률·등수(drawLotteryResult)는 이 포맷과 무관하게 그대로 정직하다 —
    여기서 정하는 건 오직 "그 결과를 몇 개의 자리로 어떻게 나눠 보여줄지"뿐이다. */
+const VERIFIED_TEXAS_2755 = window.VerifiedLotteryModels.texas2755
+
 const LOTTERY_PRESETS = {
 	custom: {
 		name: "Custom Odds",
@@ -378,19 +682,12 @@ const LOTTERY_PRESETS = {
 		howTo: "Match any of YOUR NUMBERS to a WINNING NUMBER to win the prize shown for that number.",
 	},
 	us_scratch5: {
-		name: "US $5 Scratch-Off",
-		ticketCost: 5,
-		p1: "0.0004", // 1 in 250,000 (0.0004%)
-		currency: "$",
-		// 하위 등수 상금은 이 사이트의 확률 모델(등수별 확률 비율이 프리셋과 무관하게 고정)에서
-		// 계산되는 실제 RTP가 진짜 복권 수준(50~70%)이 되도록 보정한 값이다 — 등수 확률과
-		// 무관하게 조 단위 상금을 그대로 넣으면 RTP가 수천 %로 폭발한다(실제로 발견된 버그).
-		rewards: [100000, 40, 15, 10, 5, 5, 5, 5],
-		// 미국의 밀도 높은 즉석복권 형식: 당첨번호 5개, 플레이 자리 15개(5x3)
+		...VERIFIED_TEXAS_2755,
+		// Outcome probabilities and prizes use the shared verified issue model. The scratch grid is this site's
+		// simulation interface, not a reproduction of the licensed ticket artwork or official play mechanic.
 		ticketFormat: { winningCount: 5, playCount: 15, columns: 5, minWinMatches: 2, matchesByRank: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 3, 6: 3, 7: 2, 8: 2 } },
-		// 색 테마: 전형적인 미국 즉석복권의 남색 + 골드
 		theme: { bg1: "#0d2b4d", bg2: "#122238", accent: "#d4a94a", accentContrast: "#191305" },
-		howTo: "Match any of YOUR NUMBERS to a WINNING NUMBER to win the prize shown for that number.",
+		howTo: "Simulation interface: match YOUR NUMBERS to a WINNING NUMBER. Outcome probabilities use Texas Lottery Game 2755's printed prize distribution.",
 	},
 	powerball: {
 		name: "Powerball Jackpot Tier",
@@ -419,7 +716,19 @@ const LOTTERY_PRESETS = {
 		ticketCost: 1000,
 		p1: "0.00002", // 1 in 5,000,000 (0.00002%)
 		currency: "₩",
-		rewards: [500000000, 5000, 2000, 1500, 800, 800, 800, 800],
+		rewards: [500000000, 20000000, 10000, 5000, 1000],
+		issuedTickets: 5000000,
+		officialTiers: [
+			{ rewardMoney: 500000000, count: 1 },
+			{ rewardMoney: 20000000, count: 5 },
+			{ rewardMoney: 10000, count: 27500 },
+			{ rewardMoney: 5000, count: 125000 },
+			{ rewardMoney: 1000, count: 1500000 },
+		],
+		evidence: {
+			label: "Official Donghaeng Lottery distribution · 5,000,000-ticket issue · published payout 60.0%",
+			url: "https://www.dhlottery.co.kr/st/st10Intro",
+		},
 		// 실제 스피또1000 실물 사진 기준: LUCKY NUMBER(행운숫자)와 MY NUMBER(나의숫자)가
 		// 세로로 짝을 이룬 열이 나란히 배치된 형식 — columns=5, 2행(위/아래) 구조로 재현.
 		ticketFormat: { winningCount: 5, playCount: 10, columns: 5, minWinMatches: 2, matchesByRank: { 1: 5, 2: 5, 3: 4, 4: 4, 5: 3, 6: 3, 7: 2, 8: 2 }, pairedRows: true },
@@ -430,22 +739,30 @@ const LOTTERY_PRESETS = {
 	speetto2000: {
 		name: "Speetto 2000",
 		ticketCost: 2000,
-		// 실제 공식 발표 확률을 확인하지 못해 확률 수치를 "실제 오즈"로 표기하지 않는다 —
-		// 이 사이트의 RTP 계산 모델에서 합리적인 범위가 되도록 내부적으로만 보정한 값.
-		p1: "0.00007",
+		p1: "0.00002", // 1 in 5,000,000 (0.00002%)
 		currency: "₩",
-		// rank1(십억원)만 실물 사진 속 진짜 최고 상금과 일치시키고, 나머지 등수는 다른 프리셋과
-		// 같은 방식으로 소액 보정(그렇지 않으면 RTP가 수천 %로 폭발한다 — 이번 세션에서 이미 겪은 버그).
-		rewards: [1000000000, 6000, 2500, 1500, 800, 800, 800, 800],
+		rewards: [1000000000, 100000000, 10000000, 20000, 4000, 2000],
+		issuedTickets: 5000000,
+		officialTiers: [
+			{ rewardMoney: 1000000000, count: 1 },
+			{ rewardMoney: 100000000, count: 3 },
+			{ rewardMoney: 10000000, count: 25 },
+			{ rewardMoney: 20000, count: 13750 },
+			{ rewardMoney: 4000, count: 350000 },
+			{ rewardMoney: 2000, count: 1400000 },
+		],
+		evidence: {
+			label: "Official Donghaeng Lottery distribution · 5,000,000-ticket issue · published payout 60.3%",
+			url: "https://www.dhlottery.co.kr/st/st20Intro",
+		},
 		// 실제 스피또2000 실물 사진 기준: "게임별 행운그림 2개가 모두 일치하면 당첨" — 6개의
 		// 게임칸, 각 칸에 심볼 2개(각각 따로 긁음). 사진 속 표시 상금(장식용, 실제 지급액은
 		// jackpotLevel.rewardMoney)을 그대로 사용. rank1만 실제로 사진의 "일십억원" 칸과 일치.
 		ticketFormat: {
 			symbolMatch: true,
 			gameCount: 6,
-			gameFaceValues: [10000000, 100000000, 20000, 4000, 1000000000, 100000000],
-			rankToGameIndex: { 1: 4 }, // rank1(진짜 1등)만 "일십억원" 칸에 표시, 나머지 등수는 소액 소비자 상 취급
-			consolationGameIndex: 3, // rank2~8(소액 당첨)은 "사천원" 칸에 표시
+			gameFaceValues: [10000000, 100000000, 20000, 4000, 1000000000, 2000],
+			rankToGameIndex: { 1: 4, 2: 1, 3: 0, 4: 2, 5: 3, 6: 5 },
 			playCount: 12,
 			columns: 6,
 		},
@@ -468,6 +785,16 @@ const LOTTERY_PRESETS = {
 		howTo: "Match any of YOUR NUMBERS to a WINNING NUMBER to win the prize shown for that number.",
 	},
 }
+const MODELED_PRIZE_TEMPLATE = [
+	{ rank: 1, rewardMoney: 100000, threshold: 0.000004 },
+	{ rank: 2, rewardMoney: 10000, threshold: 0.007 },
+	{ rank: 3, rewardMoney: 1000, threshold: 0.021 },
+	{ rank: 4, rewardMoney: 250, threshold: 0.042 },
+	{ rank: 5, rewardMoney: 100, threshold: 0.078 },
+	{ rank: 6, rewardMoney: 50, threshold: 0.137 },
+	{ rank: 7, rewardMoney: 20, threshold: 0.232 },
+	{ rank: 8, rewardMoney: 5, threshold: 0.384 },
+]
 
 function calculatePrizeProbabilities(P1, rewardsArray) {
 	const remainingProbability = 1 - parseFloat(P1) // 나머지 확률
@@ -493,16 +820,26 @@ function calculatePrizeProbabilities(P1, rewardsArray) {
 }
 
 // 등수별 확률계산
-let prizeThresholds = [
-	{ rank: 1, rewardMoney: 100000, threshold: 0.000004 },
-	{ rank: 2, rewardMoney: 10000, threshold: 0.007 },
-	{ rank: 3, rewardMoney: 1000, threshold: 0.021 },
-	{ rank: 4, rewardMoney: 250, threshold: 0.042 },
-	{ rank: 5, rewardMoney: 100, threshold: 0.078 },
-	{ rank: 6, rewardMoney: 50, threshold: 0.137 },
-	{ rank: 7, rewardMoney: 20, threshold: 0.232 },
-	{ rank: 8, rewardMoney: 5, threshold: 0.384 },
-]
+let prizeThresholds = MODELED_PRIZE_TEMPLATE.map((tier) => ({ ...tier }))
+
+function configureModeledPrizeModel(preset, topPrizeProbability = p1) {
+	prizeThresholds = MODELED_PRIZE_TEMPLATE.map((tier) => ({ ...tier }))
+	calculatePrizeProbabilities(topPrizeProbability, preset ? preset.rewards : undefined)
+}
+
+function configurePrizeModel(preset, topPrizeProbability = p1) {
+	if (preset && preset.officialTiers && preset.issuedTickets) {
+		let cumulativeProbability = 0
+		prizeThresholds = preset.officialTiers.map((tier, index) => {
+			cumulativeProbability += tier.count / preset.issuedTickets
+			if (jackpot[index]) jackpot[index].rewardMoney = tier.rewardMoney
+			return { rank: index + 1, rewardMoney: tier.rewardMoney, threshold: cumulativeProbability }
+		})
+		return
+	}
+
+	configureModeledPrizeModel(preset, topPrizeProbability)
+}
 
 // prizeThresholds는 오름차순 누적확률 구간(CDF)이다: [0, threshold[0])은 1등, [threshold[0], threshold[1])은 2등, ...
 // 이렇게 하면 한 장이 여러 등수에 동시 당첨되거나 고액 당첨이 저액 당첨에 덮어써지는 일이 없다.
@@ -667,12 +1004,16 @@ function makeNumberCell(play) {
 	return cell
 }
 
-// 스피또2000 게임칸의 심볼 자리 하나 — 숫자 대신 CSS 도형(clip-path)을 보여준다
+// 스피또2000 게임칸의 심볼 자리 하나. 단순 기하는 CSS로, 별은 명시적 SVG 기하로 그린다.
 function makeSymbolCell(play) {
 	const cell = document.createElement("div")
 	cell.className = "play-cell symbol-cell"
+	const symbolMarkup =
+		play.symbol === "star"
+			? '<svg class="symbol-shape symbol-shape-star" viewBox="0 0 100 100" aria-hidden="true" focusable="false"><polygon points="50,0 61,35 98,35 68,57 79,91 50,70 21,91 32,57 2,35 39,35"></polygon></svg>'
+			: `<div class="symbol-shape symbol-shape-${play.symbol}"></div>`
 	cell.innerHTML = `
-		<div class="symbol-shape symbol-shape-${play.symbol}"></div>
+		${symbolMarkup}
 		<canvas class="play-scratch-canvas"></canvas>
 	`
 	return cell
@@ -770,6 +1111,11 @@ function settleTicket() {
 		reward_money: currentTicket.jackpotLevel ? currentTicket.jackpotLevel.rewardMoney : 0,
 		total_attempts: totalAttempts,
 	})
+	trackValueCompleted("scratch", {
+		is_winner: !!currentTicket.jackpotLevel,
+		total_attempts: totalAttempts,
+	})
+	setNextExperimentContext("scratch")
 }
 
 // 확률 엔진에서 새 결과를 뽑고, 그 결과를 반영한 새 티켓을 만들어 렌더링한다.
@@ -779,12 +1125,23 @@ function startNewTicket() {
 	revealedPlayCount = 0
 	ticketSettled = false
 	renderTicket(currentTicket)
+	animateTicketRefresh()
 	return jackpotLevel
 }
 
 /* ============================================================
    확률 표시, 결과 모달, 리셋
    ============================================================ */
+function formatTierProbability(probability) {
+	if (!Number.isFinite(probability) || probability <= 0) return "—"
+	const percent = probability * 100
+	if (percent < 0.01) {
+		return `1 in ${Math.round(1 / probability).toLocaleString()}`
+	}
+	const decimals = percent >= 10 ? 1 : percent >= 1 ? 2 : percent >= 0.1 ? 3 : 4
+	return `${Number(percent.toFixed(decimals)).toLocaleString()}%`
+}
+
 function displayPrizeProbabilities(prizeThresholds) {
 	// 'div.prize-tier' 요소 선택
 	const prizeTierDiv = document.querySelector("div.prize-tier")
@@ -825,11 +1182,9 @@ function displayPrizeProbabilities(prizeThresholds) {
 		rankCell.textContent = `${tier.rank}`
 
 		const probabilityCell = document.createElement("td")
-		const probability = (tier.threshold - previousThreshold) * 100
+		const probability = tier.threshold - previousThreshold
 		previousThreshold = tier.threshold
-		const formattedProbability = probability % 1 === 0 ? probability.toFixed(0) : probability.toString().split(".")[1]?.length > 10 ? probability.toFixed(10) : probability
-
-		probabilityCell.textContent = `${formattedProbability}%`
+		probabilityCell.textContent = formatTierProbability(probability)
 
 		const rewardCell = document.createElement("td")
 		rewardCell.innerHTML = `${currencySymbol} ${tier.rewardMoney.toLocaleString()}` // 금액을 천 단위로 구분하여 표시
@@ -844,43 +1199,61 @@ function displayPrizeProbabilities(prizeThresholds) {
 	prizeTierDiv.appendChild(table) // 생성한 테이블을 'div.prize-tier'에 추가
 }
 
-// 등수별 당첨확률계산
-calculatePrizeProbabilities(p1) // 20% 당첨확률 입력 초기값
-// 당첨확률에 따라 첫 티켓을 생성
-startNewTicket()
-
-displayPrizeProbabilities(prizeThresholds)
-applyProbability()
-
-function applyProbability() {
-	const probabilityInput = document.getElementById("probabilityInput").value
-	// 사용자 입력값을 calculatePrizeProbabilities 함수에 전달
-	p1 = parseFloat(probabilityInput) / 100
-	if (isNaN(p1) || p1 <= 0 || p1 >= 1) {
+// Startup initialization is centralized at DEFAULT_PRESET_KEY near the end of this file.
+ // Do not render a temporary Custom ticket here: that used to build canvases/tables twice
+ // before immediately replacing them with the fixed Texas search landing.
+function applyProbability({ activateCustom = true } = {}) {
+	const probabilityInputEl = document.getElementById("probabilityInput")
+	const probabilityPercent = parseNumericField(probabilityInputEl, { min: 0, max: 100 })
+	if (probabilityPercent === null || probabilityPercent <= 0 || probabilityPercent >= 100) {
 		showToast("Enter a valid number between 0 and 99.")
 		return
 	}
+	const requestedP1 = probabilityPercent / 100
 
-	// 새로운 확률로 당첨 확률 계산
-	calculatePrizeProbabilities(p1)
-	// 업데이트된 확률로 당첨 확률표 업데이트
+	// 수동 확률은 실물/공식 프리셋 위에 덮어쓰지 않는다.
+	// Custom preset의 상금표·티켓가격·통화와 결합해 공식 데이터와 가상 모델이 섞이지 않도록 한다.
+	const customPreset = LOTTERY_PRESETS.custom
+	p1 = requestedP1
+	ticketCost = customPreset.ticketCost
+	currencySymbol = customPreset.currency
+	currentTicketFormat = customPreset.ticketFormat || DEFAULT_TICKET_FORMAT
+	configureModeledPrizeModel(customPreset, p1)
+
+	if (activateCustom) {
+		clearSimulationOutputs()
+		const presetSelect = document.getElementById("lotteryPreset")
+		if (presetSelect) presetSelect.value = "custom"
+		updateProbabilityComparison("custom")
+		updatePresetEvidence("custom", true)
+		updateTicketBanner("custom")
+		applyTicketTheme("custom")
+		highlightSelectedGameCard("custom")
+		updateSimulationBudgetHint()
+	}
+
 	displayPrizeProbabilities(prizeThresholds)
-
-	// 다음 복권 준비
+	updateOddsSummary()
 	startNewTicket()
-
 	closeJackpotModal()
 
 	trackEvent("apply_probability", {
-		probability_percent: parseFloat(probabilityInput),
+		probability_percent: probabilityPercent,
+		model: "custom",
 	})
 }
 
-// 이벤트 핸들러 추가: 사용자가 버튼을 클릭했을 때 실행
-document.getElementById("applyProbability").addEventListener("click", applyProbability)
+// 버튼 클릭은 명시적으로 Custom 모델로 전환한다. 초기 부트스트랩은 hidden preset state만 유지한다.
+document.getElementById("applyProbability").addEventListener("click", () => applyProbability({ activateCustom: true }))
 
 const $longRunApply = document.getElementById("longRunApply")
-if ($longRunApply) $longRunApply.addEventListener("click", updateLongRunProjection)
+const $longRunSave = document.getElementById("longRunSaveBtn")
+if ($longRunApply) $longRunApply.addEventListener("click", () => updateLongRunProjection({ track: true }))
+if ($longRunSave) {
+	$longRunSave.addEventListener("click", () => {
+		if (latestLongRunSnapshot) saveExperiment(latestLongRunSnapshot)
+	})
+}
 
 const $taxCalculate = document.getElementById("taxCalculate")
 const $taxCountry = document.getElementById("taxCountry")
@@ -899,14 +1272,16 @@ function updateDisplay() {
 	const prizeDisplay = document.getElementById("prizeDisplay")
 	const profitDisplay = document.getElementById("profitDisplay")
 	const attemptsDisplay = document.getElementById("attemptsDisplay")
+	const shareButton = document.getElementById("shareCardBtn")
 
-	if (costDisplay) costDisplay.textContent = `${currencySymbol}${totalCost.toLocaleString()}`
-	if (prizeDisplay) prizeDisplay.textContent = `${currencySymbol}${totalPrize.toLocaleString()}`
-	if (attemptsDisplay) attemptsDisplay.textContent = totalAttempts.toLocaleString()
+	setMetricText(costDisplay, `${currencySymbol}${totalCost.toLocaleString()}`)
+	setMetricText(prizeDisplay, `${currencySymbol}${totalPrize.toLocaleString()}`)
+	setMetricText(attemptsDisplay, totalAttempts.toLocaleString())
+	if (shareButton) shareButton.hidden = totalAttempts === 0
 
 	const totalProfit = totalPrize - totalCost
 	if (profitDisplay) {
-		profitDisplay.textContent = `${currencySymbol}${totalProfit.toLocaleString()}`
+		setMetricText(profitDisplay, `${currencySymbol}${totalProfit.toLocaleString()}`)
 		profitDisplay.classList.toggle("stat-profit-pos", totalProfit >= 0)
 		profitDisplay.classList.toggle("stat-profit-neg", totalProfit < 0)
 	}
@@ -953,12 +1328,46 @@ function showJackpotModal(jackpotLevel) {
 	vibrate(jackpotLevel ? [40, 30, 40, 30, 80] : [30])
 	if (jackpotLevel) triggerWinConfetti()
 
+	if (document.activeElement && document.activeElement !== document.body) {
+		modalReturnFocus = document.activeElement
+	}
+	clearTimeout(modalCloseTimer)
+	modalCloseTimer = null
 	modal.style.display = "flex"
+	modal.setAttribute("aria-hidden", "false")
+	modal.classList.remove("is-closing")
+	requestAnimationFrame(() => {
+		modal.classList.add("is-open")
+		const primaryAction = document.getElementById("modalPlayAgainBtn")
+		;(primaryAction || closeModal)?.focus()
+	})
 }
 
 // 모달을 닫는 함수
 function closeJackpotModal() {
-	modal.style.display = "none"
+	if (!modal) return
+	const wasOpen = modal.getAttribute("aria-hidden") === "false"
+	const fallback = document.getElementById("nextLottery")
+	const target = modalReturnFocus && modalReturnFocus.isConnected ? modalReturnFocus : fallback
+
+	const finishClose = () => {
+		modal.classList.remove("is-open", "is-closing")
+		modal.style.display = "none"
+		modal.setAttribute("aria-hidden", "true")
+		modalCloseTimer = null
+		if (wasOpen) requestAnimationFrame(() => target?.focus())
+	}
+
+	modalReturnFocus = null
+	clearTimeout(modalCloseTimer)
+	if (!wasOpen || !motionEnabled()) {
+		finishClose()
+		return
+	}
+
+	modal.classList.remove("is-open")
+	modal.classList.add("is-closing")
+	modalCloseTimer = setTimeout(finishClose, 190)
 }
 
 // 모달 닫기 버튼 클릭 시 모달 닫기
@@ -968,6 +1377,34 @@ closeModal.addEventListener("click", closeJackpotModal)
 window.addEventListener("click", (event) => {
 	if (event.target === modal) {
 		closeJackpotModal()
+	}
+})
+
+document.addEventListener("keydown", (event) => {
+	if ($navToggle && event.key === "Escape" && $navToggle.getAttribute("aria-expanded") === "true") {
+		setMobileNavOpen(false)
+		$navToggle.focus()
+		return
+	}
+
+	if (!modal || modal.getAttribute("aria-hidden") !== "false") return
+	if (event.key === "Escape") {
+		event.preventDefault()
+		closeJackpotModal()
+		return
+	}
+	if (event.key !== "Tab") return
+
+	const focusables = modalFocusableElements()
+	if (!focusables.length) return
+	const first = focusables[0]
+	const last = focusables[focusables.length - 1]
+	if (event.shiftKey && document.activeElement === first) {
+		event.preventDefault()
+		last.focus()
+	} else if (!event.shiftKey && document.activeElement === last) {
+		event.preventDefault()
+		first.focus()
 	}
 })
 
@@ -982,7 +1419,8 @@ $scratchButton.addEventListener("click", () => {
 
 // 리셋 버튼 이벤트 핸들러
 // wipeLedger=false는 페이지 최초 로드시 "새 티켓만 준비"하고 복원된 누적 장부는 건드리지 않기 위함
-function resetLottery(wipeLedger = true) {
+function resetLottery(wipeLedger = true, trackReset = true) {
+	clearSimulationOutputs()
 	if (wipeLedger) {
 		lotteryRecord = [] // 기록 초기화
 		totalAttempts = 0 // 총 시도 횟수 초기화
@@ -998,17 +1436,43 @@ function resetLottery(wipeLedger = true) {
 	// 현재 설정된 프리셋 보존하면서 확률 계산
 	const currentPresetKey = document.getElementById("lotteryPreset")?.value || "custom"
 	const presetObj = LOTTERY_PRESETS[currentPresetKey]
-	calculatePrizeProbabilities(p1, presetObj ? presetObj.rewards : undefined)
+	configurePrizeModel(presetObj, p1)
 
 	// 새 티켓 생성
 	startNewTicket()
 	displayPrizeProbabilities(prizeThresholds)
 	closeJackpotModal()
 
-	trackEvent("reset_lottery")
+	if (trackReset) trackEvent("reset_lottery")
 }
 
-document.getElementById("resetLottery").addEventListener("click", resetLottery)
+const $resetLottery = document.getElementById("resetLottery")
+let resetConfirmTimer = null
+
+function clearResetConfirmation() {
+	if (!$resetLottery) return
+	clearTimeout(resetConfirmTimer)
+	resetConfirmTimer = null
+	$resetLottery.classList.remove("is-confirming")
+	$resetLottery.textContent = "Reset play totals"
+	$resetLottery.removeAttribute("aria-label")
+}
+
+function requestResetLottery() {
+	if (!$resetLottery) return
+	if (!$resetLottery.classList.contains("is-confirming")) {
+		$resetLottery.classList.add("is-confirming")
+		$resetLottery.textContent = "Confirm reset"
+		$resetLottery.setAttribute("aria-label", "Confirm clearing saved scratch totals and log")
+		showToast("This clears your scratch totals and log. My Lab stays saved. Select Confirm reset to continue.")
+		resetConfirmTimer = setTimeout(clearResetConfirmation, 6000)
+		return
+	}
+	clearResetConfirmation()
+	resetLottery(true)
+}
+
+if ($resetLottery) $resetLottery.addEventListener("click", requestResetLottery)
 
 function goToNextTicket() {
 	if (!ticketSettled) {
@@ -1170,7 +1634,15 @@ function renderLotteryLogDetail(index) {
 // 접근성 대안: 같은 데이터를 표(table)로도 볼 수 있게 — 색/좌표에 의존하지 않는 뷰
 function renderLotteryLogTable() {
 	const table = document.getElementById("lotteryLogTable")
+	const toggle = document.getElementById("lotteryLogTableToggle")
+	const chart = document.getElementById("lotteryLogChart")
 	if (!table) return
+	if (toggle) toggle.hidden = lotteryRecord.length === 0
+	if (!lotteryRecord.length) {
+		table.hidden = true
+		if (chart) chart.hidden = false
+		if (toggle) toggle.textContent = "View as table"
+	}
 	const rows = lotteryRecord
 		.slice()
 		.reverse()
@@ -1197,42 +1669,85 @@ if ($lotteryLogTableToggle) {
    프리셋 적용 & 오즈 요약 — 비교, 배너, 테마, RTP, 장기 예측
    ============================================================ */
 
-function applyPreset(presetKey, wipeLedger = true) {
+function applyPreset(presetKey, wipeLedger = true, trackSelection = true) {
 	const preset = LOTTERY_PRESETS[presetKey]
 	if (!preset) return
 
+	const probabilityInputEl = document.getElementById("probabilityInput")
 	if (presetKey !== "custom") {
-		document.getElementById("probabilityInput").value = preset.p1
+		if (probabilityInputEl) probabilityInputEl.value = preset.p1
 		p1 = parseFloat(preset.p1) / 100
-		ticketCost = preset.ticketCost
-		currencySymbol = preset.currency
 	} else {
-		ticketCost = 1000
+		const enteredP1 = probabilityInputEl ? parseFloat(probabilityInputEl.value) / 100 : NaN
+		if (Number.isFinite(enteredP1) && enteredP1 > 0 && enteredP1 < 1) {
+			p1 = enteredP1
+		} else {
+			p1 = parseFloat(preset.p1) / 100
+			if (probabilityInputEl) probabilityInputEl.value = preset.p1
+		}
 	}
+	ticketCost = preset.ticketCost
+	currencySymbol = preset.currency
 
-	calculatePrizeProbabilities(p1, preset.rewards)
+	configurePrizeModel(preset, p1)
 	currentTicketFormat = preset.ticketFormat || DEFAULT_TICKET_FORMAT
-	resetLottery(wipeLedger)
+	resetLottery(wipeLedger, false)
 	updateProbabilityComparison(presetKey)
+	updatePresetEvidence(presetKey)
 	updateTicketBanner(presetKey)
 	applyTicketTheme(presetKey)
 	updateOddsSummary()
+	updateSimulationBudgetHint()
 	highlightSelectedGameCard(presetKey)
+	animatePresetRefresh()
 
-	trackEvent("select_preset", {
-		preset_name: presetKey,
-		p1: p1,
-		ticket_cost: ticketCost,
-	})
+	if (trackSelection) {
+		trackEvent("select_preset", {
+			preset_name: presetKey,
+			p1: p1,
+			ticket_cost: ticketCost,
+		})
+	}
+}
+function updatePresetEvidence(presetKey, hasCustomOverride = false) {
+	const el = document.getElementById("presetEvidence")
+	if (!el) return
+	const preset = LOTTERY_PRESETS[presetKey]
+	if (!preset) {
+		el.textContent = ""
+		return
+	}
+
+	if (hasCustomOverride) {
+		el.textContent = "Custom probability model active. The top-prize probability is user-defined; lower-tier probabilities and prizes are simulator assumptions, not an official lottery distribution."
+		return
+	}
+
+	if (preset.evidence) {
+		const mathLink =
+			presetKey === "us_scratch5"
+				? ' <a href="math/">Learn why RTP, variance and repeated trials behave this way.</a>'
+				: ""
+		el.innerHTML = `${preset.evidence.label}. <a href="${preset.evidence.url}" target="_blank" rel="noopener">Official source</a>.${mathLink}`
+		return
+	}
+
+	if (presetKey === "powerball") {
+		el.innerHTML = 'Official jackpot odds are used for the top tier; lower prize tiers and displayed RTP are simulator-modeled, not the official Powerball prize distribution. <a href="https://www.powerball.com/powerball-prize-chart" target="_blank" rel="noopener">Official source</a>.'
+		return
+	}
+
+
+	if (presetKey === "custom" || presetKey === "lucky_fun") {
+		el.textContent = "Simulation-defined odds. This preset is not presented as an official lottery distribution."
+		return
+	}
+
+	el.textContent = ""
 }
 
 /* 확률 체감 비교 — 실제로 공신력 있는 출처가 확인된 통계만 사용 (Anti-slop: no invented substance) */
 const PROBABILITY_COMPARISONS = {
-	us_scratch5: {
-		text: "This top-prize odds (1 in 250,000) is actually more common than being dealt a royal flush in poker (1 in 649,740 for five-card draw).",
-		sourceLabel: "Upswing Poker",
-		sourceUrl: "https://upswingpoker.com/odds-of-royal-flush/",
-	},
 	powerball: {
 		text: "You are far more likely to be struck by lightning in your lifetime (1 in 15,300, over 80 years) than to hit this top prize (1 in 292,201,338).",
 		sourceLabel: "US National Weather Service",
@@ -1291,13 +1806,14 @@ function applyTicketTheme(presetKey) {
    updateOddsSummary와 "장기 오즈 예측"이 같은 계산을 중복하지 않도록 공용 함수로 뺐다. */
 function computeTheoreticalReturn() {
 	let previousThreshold = 0
-	let expectedReturnPerTicket = 0
-	prizeThresholds.forEach((tier) => {
-		const marginalProbability = tier.threshold - previousThreshold
+	const outcomes = prizeThresholds.map((tier) => {
+		const probability = tier.threshold - previousThreshold
 		previousThreshold = tier.threshold
-		expectedReturnPerTicket += marginalProbability * tier.rewardMoney
+		return { probability, payout: tier.rewardMoney }
 	})
-	const overallReturnPercent = ticketCost > 0 ? (expectedReturnPerTicket / ticketCost) * 100 : 0
+	if (previousThreshold < 1) outcomes.push({ probability: 1 - previousThreshold, payout: 0 })
+	const expectedReturnPerTicket = LotteryMathCore.expectedPayout(outcomes)
+	const overallReturnPercent = ticketCost > 0 ? LotteryMathCore.returnToPlayer(ticketCost, outcomes) * 100 : 0
 	return { expectedReturnPerTicket, overallReturnPercent }
 }
 
@@ -1317,6 +1833,78 @@ function updateOddsSummary() {
 	returnEl.textContent = `${overallReturnPercent.toFixed(1)}%`
 
 	updateLongRunProjection()
+	updateExactMultiTicketOdds(false)
+}
+
+const EXACT_ODDS_MAX_TICKETS = 1000000
+
+function formatChancePercent(probability) {
+	const percent = probability * 100
+	if (percent >= 0.01) return percent.toFixed(2) + "%"
+	if (percent >= 0.000001) return percent.toFixed(6) + "%"
+	return percent.toExponential(2) + "%"
+}
+
+function updateExactMultiTicketOdds(track = true) {
+	const input = document.getElementById("exactOddsTicketsInput")
+	const result = document.getElementById("exactOddsResult")
+	if (!input || !result || !prizeThresholds.length) return false
+
+	const count = parseNumericField(input, { min: 1, max: EXACT_ODDS_MAX_TICKETS, integer: true })
+	if (count === null) {
+		if (track) showToast(`Use 1–${EXACT_ODDS_MAX_TICKETS.toLocaleString()} tickets.`)
+		return false
+	}
+	input.value = String(count)
+
+	const topPrizeProbability = prizeThresholds[0].threshold
+	const anyPrizeProbability = prizeThresholds[prizeThresholds.length - 1].threshold
+	const chanceTopPrize = LotteryMathCore.atLeastOne(topPrizeProbability, count)
+	const chanceAnyPrize = LotteryMathCore.atLeastOne(anyPrizeProbability, count)
+	const { expectedReturnPerTicket } = computeTheoreticalReturn()
+	const totalCostForCount = count * ticketCost
+	const expectedPayout = count * expectedReturnPerTicket
+	const expectedNet = expectedPayout - totalCostForCount
+	const expectedNetClass = expectedNet >= 0 ? "stat-profit-pos" : "stat-profit-neg"
+	const preset = LOTTERY_PRESETS[currentGrowthPreset()]
+	const modelLabel = preset?.name || "Current model"
+
+	result.innerHTML = `
+		<div class="exact-odds-heading"><strong>${count.toLocaleString()} tickets · ${currencySymbol}${totalCostForCount.toLocaleString()} total cost</strong></div>
+		<div class="exact-odds-grid">
+			<div><span class="stat-label">≥1 any prize</span><strong>${formatChancePercent(chanceAnyPrize)}</strong></div>
+			<div><span class="stat-label">≥1 top prize</span><strong>${formatChancePercent(chanceTopPrize)}</strong></div>
+			<div><span class="stat-label">Expected payout</span><strong>${currencySymbol}${expectedPayout.toFixed(2)}</strong></div>
+			<div><span class="stat-label">Expected net</span><strong class="${expectedNetClass}">${expectedNet >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(expectedNet).toFixed(2)}</strong></div>
+		</div>
+		<p class="sim-budget-hint">Exact for this simulator's independent-draw ${modelLabel} model: chance of at least one result = 1 − (1 − p)<sup>n</sup>. This does not estimate remaining live tickets or predict a future ticket.</p>
+	`
+
+	if (track) {
+		trackToolStarted("exact_odds")
+		trackEvent("calculate_exact_odds", {
+			ticket_count: count,
+			chance_any_prize_percent: Number((chanceAnyPrize * 100).toFixed(6)),
+			chance_top_prize_percent: Number((chanceTopPrize * 100).toFixed(9)),
+		})
+		trackValueCompleted("exact_odds", { ticket_count: count })
+		offerExperimentSave(result, {
+			type: "exact_odds",
+			params: { count },
+			summary: `${count.toLocaleString()} tickets · ≥1 any prize ${formatChancePercent(chanceAnyPrize)} · expected net ${expectedNet >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(expectedNet).toFixed(2)}`,
+		})
+		setNextExperimentContext("exact")
+	}
+	return true
+}
+
+const $exactOddsCalculate = document.getElementById("exactOddsCalculateBtn")
+const $exactOddsTicketsInput = document.getElementById("exactOddsTicketsInput")
+if ($exactOddsCalculate) $exactOddsCalculate.addEventListener("click", () => updateExactMultiTicketOdds(true))
+if ($exactOddsTicketsInput) {
+	$exactOddsTicketsInput.addEventListener("keydown", (event) => {
+		if (event.key === "Enter") updateExactMultiTicketOdds(true)
+	})
 }
 
 /* "내 실제 RTP vs 이론적 RTP" — 표본이 너무 적으면 우연에 의한 극단값이 과장돼 보이므로
@@ -1338,7 +1926,9 @@ function updatePersonalRtpRecap() {
 
 /* "장기 오즈 예측" — 지금 게임의 진짜 확률/RTP를 몇 주/몇 년치로 그대로 투영만 한다.
    여기서도 확률 엔진(p1, prizeThresholds)은 그대로 가져다 쓸 뿐 새로 지어내지 않는다. */
-function updateLongRunProjection() {
+let latestLongRunSnapshot = null
+
+function updateLongRunProjection({ track = false } = {}) {
 	const ticketsInput = document.getElementById("longRunPerWeek")
 	const yearsInput = document.getElementById("longRunYears")
 	const ticketsEl = document.getElementById("longRunTickets")
@@ -1347,20 +1937,42 @@ function updateLongRunProjection() {
 	const jackpotChanceEl = document.getElementById("longRunJackpotChance")
 	if (!ticketsInput || !yearsInput || !ticketsEl || !spentEl || !lossEl || !jackpotChanceEl) return
 
-	const perWeek = Math.max(1, parseInt(ticketsInput.value, 10) || 1)
-	const years = Math.max(1, parseInt(yearsInput.value, 10) || 1)
+	const perWeek = parseNumericField(ticketsInput, { min: 1, max: 1000, integer: true })
+	const years = parseNumericField(yearsInput, { min: 1, max: 80, integer: true })
+	if (perWeek === null || years === null) {
+		showToast("Use 1–1,000 tickets per week and 1–80 years.")
+		return
+	}
+	ticketsInput.value = String(perWeek)
+	yearsInput.value = String(years)
 	const totalTickets = perWeek * 52 * years
 	const totalSpent = totalTickets * ticketCost
 	const { overallReturnPercent } = computeTheoreticalReturn()
 	const expectedReturn = totalSpent * (overallReturnPercent / 100)
 	const expectedLoss = totalSpent - expectedReturn
 	const topPrizeProbability = prizeThresholds[0].threshold
-	const jackpotChance = 1 - Math.pow(1 - topPrizeProbability, totalTickets)
+	const jackpotChance = LotteryMathCore.atLeastOne(topPrizeProbability, totalTickets)
 
 	ticketsEl.textContent = totalTickets.toLocaleString()
 	spentEl.textContent = `${currencySymbol}${Math.round(totalSpent).toLocaleString()}`
 	lossEl.textContent = `${currencySymbol}${Math.round(expectedLoss).toLocaleString()}`
 	jackpotChanceEl.textContent = `${(jackpotChance * 100).toFixed(2)}%`
+
+	latestLongRunSnapshot = {
+		type: "long_run",
+		params: { perWeek, years },
+		summary: `${perWeek.toLocaleString()}/week × ${years} ${years === 1 ? "year" : "years"} · expected loss ${currencySymbol}${Math.round(expectedLoss).toLocaleString()} · top-prize chance ${(jackpotChance * 100).toFixed(2)}%`,
+		...experimentPresetContext(),
+	}
+
+	if (track) {
+		trackToolStarted("long_run")
+		trackEvent("calculate_long_run", { tickets_per_week: perWeek, years, total_tickets: totalTickets })
+		trackValueCompleted("long_run", { tickets_per_week: perWeek, years, total_tickets: totalTickets })
+		const saveButton = document.getElementById("longRunSaveBtn")
+		if (saveButton) saveButton.hidden = false
+		setNextExperimentContext("long_run")
+	}
 }
 
 /* ============================================================
@@ -1476,7 +2088,11 @@ function updateTaxCalculator() {
 
 	const rule = LOTTERY_TAX_RULES[countrySelect.value]
 	if (!rule) return
-	const amount = Math.max(0, parseFloat(amountInput.value) || 0)
+	const amount = parseNumericField(amountInput, { min: 0 })
+	if (amount === null) {
+		showToast("Enter a valid jackpot amount.")
+		return
+	}
 	const { withheld, note, finalEstimate } = rule.compute(amount)
 	const net = amount - withheld
 
@@ -1499,22 +2115,26 @@ function updateTaxCalculator() {
 updateTaxCalculator()
 
 /* ============================================================
-   게임 선택 카드 & 오늘의 추천 프리셋
+   게임 선택 카드
    ============================================================ */
-/* "Choose a Game" 카드 — 실제로는 기존 <select id="lotteryPreset">를 그대로 조작한다 (로직 중복 없음) */
+/* "Choose a Game" cards write to one hidden preset state so rendered controls and probability logic stay synchronized. */
 const GAME_CARD_DESCRIPTIONS = {
 	custom: "Make your own scratch ticket — set any top-prize probability by hand.",
-	us_scratch5: "A typical US instant scratch-off ticket.",
+	us_scratch5: "Official Texas Lottery Game 2755 printed prize distribution.",
 	powerball: "Multi-state jackpot draw game — astronomically low odds.",
 	speetto1000: "South Korea's high-denomination instant ticket.",
 	speetto2000: "South Korea's icon-matching instant ticket.",
 	lucky_fun: "A high-win demo mode — not modeled on any real game.",
 }
 
+const SECONDARY_PRESET_KEYS = new Set(["custom", "lucky_fun"])
+
 function renderGameChoiceCards() {
-	const container = document.getElementById("gameChoiceGrid")
-	if (!container || !$presetSelect) return
-	container.innerHTML = ""
+	const primaryContainer = document.getElementById("gameChoiceGrid")
+	const secondaryContainer = document.getElementById("secondaryGameChoiceGrid")
+	if (!primaryContainer || !secondaryContainer || !$presetState) return
+	primaryContainer.innerHTML = ""
+	secondaryContainer.innerHTML = ""
 	Object.keys(LOTTERY_PRESETS).forEach((key) => {
 		const preset = LOTTERY_PRESETS[key]
 		const card = document.createElement("button")
@@ -1523,63 +2143,25 @@ function renderGameChoiceCards() {
 		card.dataset.presetKey = key
 		card.innerHTML = `<span class="game-card-name">${preset.name}</span><span class="game-card-desc">${GAME_CARD_DESCRIPTIONS[key] || ""}</span>`
 		card.addEventListener("click", () => {
-			markPresetUserPicked()
-			$presetSelect.value = key
+			$presetState.value = key
 			applyPreset(key)
 		})
-		container.appendChild(card)
+		;(SECONDARY_PRESET_KEYS.has(key) ? secondaryContainer : primaryContainer).appendChild(card)
 	})
 }
 
 function highlightSelectedGameCard(presetKey) {
-	const container = document.getElementById("gameChoiceGrid")
-	if (!container) return
-	container.querySelectorAll(".game-card").forEach((card) => {
+	document.querySelectorAll("#gameChoiceGrid .game-card, #secondaryGameChoiceGrid .game-card").forEach((card) => {
 		card.classList.toggle("selected", card.dataset.presetKey === presetKey)
 	})
-}
-
-/* 오늘의 프리셋 룰렛 — 날짜 기반 결정적 시드라 같은 날은 모든 방문자에게 동일하게 노출됨(무작위 아님) */
-const FEATURED_PRESET_KEYS = ["us_scratch5", "powerball", "speetto1000"]
-const USER_PICKED_PRESET_KEY = "scratchLotteryUserPickedPreset"
-
-function getTodaysFeaturedPresetKey() {
-	const today = new Date()
-	const dateSeed = today.getFullYear() * 372 + today.getMonth() * 31 + today.getDate()
-	return FEATURED_PRESET_KEYS[dateSeed % FEATURED_PRESET_KEYS.length]
-}
-
-function markPresetUserPicked() {
-	try {
-		localStorage.setItem(USER_PICKED_PRESET_KEY, "1")
-	} catch (e) {
-		// 저장 실패 무시
+	if (SECONDARY_PRESET_KEYS.has(presetKey)) {
+		setDisclosureOpen(document.querySelector(".alternate-game-modes"), true)
 	}
-	const label = document.getElementById("todaysTicketLabel")
-	if (label) label.textContent = ""
 }
 
-function applyDailyFeaturedPresetIfNeeded() {
-	let userPicked = false
-	try {
-		userPicked = localStorage.getItem(USER_PICKED_PRESET_KEY) === "1"
-	} catch (e) {
-		// 접근 불가하면 매번 오늘의 티켓을 보여줌 — 안전한 기본값
-	}
-	if (userPicked || !$presetSelect) return
-	const featuredKey = getTodaysFeaturedPresetKey()
-	$presetSelect.value = featuredKey
-	const label = document.getElementById("todaysTicketLabel")
-	if (label) label.textContent = `Today's Featured Ticket: ${LOTTERY_PRESETS[featuredKey].name}`
-}
+const DEFAULT_PRESET_KEY = "us_scratch5"
 
-const $presetSelect = document.getElementById("lotteryPreset")
-if ($presetSelect) {
-	$presetSelect.addEventListener("change", (e) => {
-		markPresetUserPicked()
-		applyPreset(e.target.value)
-	})
-}
+const $presetState = document.getElementById("lotteryPreset")
 renderGameChoiceCards()
 
 /* ============================================================
@@ -1693,18 +2275,51 @@ function renderFastSimDetail(index) {
 		<div class="lottery-log-detail-row"><span class="stat-label">Prize</span><span>${currencySymbol}${ticket.rewardMoney.toLocaleString()}</span></div>
 		<div class="lottery-log-detail-row"><span class="stat-label">Net</span><span class="${ticket.net >= 0 ? "stat-profit-pos" : "stat-profit-neg"}">${ticket.net >= 0 ? "+" : ""}${currencySymbol}${ticket.net.toLocaleString()}</span></div>
 	`
+	animateSelectedDetail(detail)
 }
 
 // Fast Simulation Engine (Monte Carlo)
-function runFastSimulation(count) {
-	let simCost = count * ticketCost
+function clearSimulationOutputs() {
+	const fastResult = document.getElementById("fastSimResult")
+	const riskResult = document.getElementById("budgetRiskResult")
+	const chart = document.getElementById("fastSimChart")
+	const detail = document.getElementById("fastSimDetail")
+	if (fastResult) {
+		fastResult.style.display = "none"
+		fastResult.innerHTML = ""
+	}
+	if (riskResult) {
+		riskResult.hidden = true
+		riskResult.innerHTML = ""
+	}
+	if (chart) chart.innerHTML = `<p class="lottery-log-empty">Run a simulation to see results here.</p>`
+	if (detail) detail.innerHTML = ""
+	fastSimTicketsFull = []
+	fastSimSampledTickets = []
+	selectedFastSimIndex = null
+}
+
+const FAST_SIM_MAX_TICKETS = 100000
+const BUDGET_RISK_RUNS = 500
+const BUDGET_RISK_MAX_TOTAL_DRAWS = 1000000
+const BUDGET_RISK_MIN_RUNS = 50
+
+function runFastSimulation(count, options = {}) {
+	if (!Number.isInteger(count) || count < 1 || count > FAST_SIM_MAX_TICKETS) {
+		showToast(`Choose between 1 and ${FAST_SIM_MAX_TICKETS.toLocaleString()} tickets.`)
+		return false
+	}
+
+	const growthMode = options.source === "budget" ? "budget_simulation" : "fast_simulation"
+	trackToolStarted(growthMode)
+
+	const simCost = count * ticketCost
 	let simPrize = 0
 	const tierHits = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0, 6: 0, 7: 0, 8: 0, lose: 0 }
 	const tickets = [] // 티켓별 상세(등수/상금/순손익) — 차트/클릭 상세보기용 실측값, 집계 아님
 	selectedFastSimIndex = null // 새 배치를 돌리면 이전 선택은 초기화
 
 	for (let i = 0; i < count; i++) {
-		// evaluate ticket
 		const wonRank = drawLotteryResult(prizeThresholds)
 		if (wonRank) {
 			tierHits[wonRank.rank]++
@@ -1717,24 +2332,55 @@ function runFastSimulation(count) {
 	}
 
 	const netProfit = simPrize - simCost
-	const rtp = simCost > 0 ? ((simPrize / simCost) * 100).toFixed(1) : 0
+	const observedReturnPercent = simCost > 0 ? (simPrize / simCost) * 100 : 0
+	const { expectedReturnPerTicket, overallReturnPercent: theoreticalReturnPercent } = computeTheoreticalReturn()
+	const expectedPrize = expectedReturnPerTicket * count
+	const returnGap = observedReturnPercent - theoreticalReturnPercent
 	const profitClass = netProfit >= 0 ? "stat-profit-pos" : "stat-profit-neg"
+	const requestedBudget = Number(options.requestedBudget)
+	const unusedBudget = Number.isFinite(requestedBudget) ? Math.max(0, requestedBudget - simCost) : null
 
 	const resultDiv = document.getElementById("fastSimResult")
 	if (resultDiv) {
 		resultDiv.style.display = "block"
 		resultDiv.innerHTML = `
-			<div><strong>Simulated ${count.toLocaleString()} Tickets:</strong></div>
+			<div><strong>Simulated ${count.toLocaleString()} Tickets</strong>${options.source === "budget" ? " from your budget" : ""}</div>
 			<div>Total Spent: ${currencySymbol} ${simCost.toLocaleString()}</div>
+			${unusedBudget !== null ? `<div>Unused Budget: ${currencySymbol} ${unusedBudget.toLocaleString()}</div>` : ""}
 			<div>Total Won: ${currencySymbol} ${simPrize.toLocaleString()}</div>
 			<div>Net Profit: <span class="${profitClass}">${currencySymbol} ${netProfit.toLocaleString()}</span></div>
-			<div>Estimated Return (RTP): <strong>${rtp}%</strong></div>
-			<div style="margin-top: 6px; font-size: 0.8rem; color: #bbb;">
+			<div>Observed Return: <strong>${observedReturnPercent.toFixed(1)}%</strong></div>
+			<div>Theoretical Return (current model): <strong>${theoreticalReturnPercent.toFixed(1)}%</strong></div>
+			<div>Expected Payout at Theoretical Return: ${currencySymbol} ${Math.round(expectedPrize).toLocaleString()}</div>
+			<div>Observed vs. Theoretical: <strong>${returnGap >= 0 ? "+" : ""}${returnGap.toFixed(1)} pp</strong></div>
+			<div class="fast-sim-tier-summary">
 				1st Prize: ${tierHits[1]} | 2nd: ${tierHits[2]} | 3rd: ${tierHits[3]} | 4th+: ${tierHits[4] + tierHits[5] + tierHits[6] + tierHits[7] + tierHits[8]} | No luck: ${tierHits.lose}
 			</div>
+			<div class="sim-result-actions">
+				<button type="button" class="text-link-btn" data-share-fast-sim>Share this simulation</button>
+			</div>
 		`
+		const shareFastSim = resultDiv.querySelector("[data-share-fast-sim]")
+		if (shareFastSim) {
+			shareFastSim.addEventListener("click", () => {
+				shareSimulationResult({
+					count,
+					simCost,
+					simPrize,
+					netProfit,
+					observedReturnPercent,
+					theoreticalReturnPercent,
+				})
+			})
+		}
+		offerExperimentSave(resultDiv, {
+			type: "fast_simulation",
+			params: { count },
+			summary: `${count.toLocaleString()} tickets · net ${netProfit >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(netProfit).toLocaleString()} · observed ${observedReturnPercent.toFixed(1)}% vs ${theoreticalReturnPercent.toFixed(1)}% theoretical`,
+		})
 	}
 	renderFastSimChart(tickets)
+	animateSimulationOutput()
 
 	// Update cumulative balance as well
 	totalCost += simCost
@@ -1747,33 +2393,709 @@ function runFastSimulation(count) {
 		ticket_count: count,
 		total_cost: simCost,
 		total_prize: simPrize,
-		rtp_percent: parseFloat(rtp),
+		observed_return_percent: Number(observedReturnPercent.toFixed(1)),
+		theoretical_return_percent: Number(theoreticalReturnPercent.toFixed(1)),
+		simulation_source: options.source || "fixed_batch",
 	})
+	trackValueCompleted(growthMode, {
+		ticket_count: count,
+		observed_return_percent: Number(observedReturnPercent.toFixed(1)),
+	})
+	setNextExperimentContext("fast")
+	return true
+}
+
+function updateSimulationBudgetHint() {
+	const input = document.getElementById("simBudgetInput")
+	const hint = document.getElementById("simBudgetHint")
+	if (!input || !hint) return
+	input.placeholder = (ticketCost * 100).toLocaleString()
+	hint.textContent = `Current ticket cost: ${currencySymbol}${ticketCost.toLocaleString()}. Budget runs are capped at ${FAST_SIM_MAX_TICKETS.toLocaleString()} tickets.`
+}
+
+function getBudgetTicketCount(budget) {
+	if (!Number.isFinite(budget) || budget <= 0) {
+		showToast("Enter a budget greater than zero.")
+		return null
+	}
+	const count = Math.floor(budget / ticketCost)
+	if (count < 1) {
+		showToast(`That budget cannot buy one ${currencySymbol}${ticketCost.toLocaleString()} ticket.`)
+		return null
+	}
+	if (count > FAST_SIM_MAX_TICKETS) {
+		showToast(`That budget buys ${count.toLocaleString()} tickets. The fast-simulation limit is ${FAST_SIM_MAX_TICKETS.toLocaleString()}.`)
+		return null
+	}
+	return count
+}
+
+function runBudgetSimulation() {
+	const input = document.getElementById("simBudgetInput")
+	if (!input) return
+	const budget = parseNumericField(input, { min: 0.01 })
+	const count = getBudgetTicketCount(budget)
+	if (!count) return
+	if (runFastSimulation(count, { source: "budget", requestedBudget: budget })) {
+		trackEvent("run_budget_simulation", {
+			requested_budget: budget,
+			ticket_count: count,
+			ticket_cost: ticketCost,
+		})
+	}
+}
+
+function percentileFromSorted(values, percentile) {
+	if (!values.length) return 0
+	const index = Math.min(values.length - 1, Math.max(0, Math.round((values.length - 1) * percentile)))
+	return values[index]
+}
+
+function simulateBudgetNet(count) {
+	let payout = 0
+	for (let i = 0; i < count; i++) {
+		const result = drawLotteryResult(prizeThresholds)
+		if (result) payout += result.rewardMoney
+	}
+	return payout - count * ticketCost
+}
+
+function runBudgetRiskAnalysis() {
+	const input = document.getElementById("simBudgetInput")
+	const resultDiv = document.getElementById("budgetRiskResult")
+	if (!input || !resultDiv) return
+	const budget = parseNumericField(input, { min: 0.01 })
+	const count = getBudgetTicketCount(budget)
+	if (!count) return
+	trackToolStarted("budget_risk")
+
+	const runs = Math.min(BUDGET_RISK_RUNS, Math.floor(BUDGET_RISK_MAX_TOTAL_DRAWS / count))
+	if (runs < BUDGET_RISK_MIN_RUNS) {
+		const maxTickets = Math.floor(BUDGET_RISK_MAX_TOTAL_DRAWS / BUDGET_RISK_MIN_RUNS)
+		showToast(`Risk analysis supports up to ${maxTickets.toLocaleString()} tickets per budget so it can run at least ${BUDGET_RISK_MIN_RUNS} independent budgets.`)
+		return
+	}
+
+	const nets = new Array(runs)
+	let profitable = 0
+	let breakevenOrBetter = 0
+	let netSum = 0
+	for (let run = 0; run < runs; run++) {
+		const net = simulateBudgetNet(count)
+		nets[run] = net
+		netSum += net
+		if (net > 0) profitable++
+		if (net >= 0) breakevenOrBetter++
+	}
+	nets.sort((a, b) => a - b)
+
+	const { expectedReturnPerTicket, overallReturnPercent } = computeTheoreticalReturn()
+	const spent = count * ticketCost
+	const expectedNet = count * (expectedReturnPerTicket - ticketCost)
+	const topPrizeProbability = prizeThresholds.length ? prizeThresholds[0].threshold : 0
+	const anyPrizeProbability = prizeThresholds.length ? prizeThresholds[prizeThresholds.length - 1].threshold : 0
+	const chanceTopPrize = LotteryMathCore.atLeastOne(topPrizeProbability, count)
+	const chanceAnyPrize = LotteryMathCore.atLeastOne(anyPrizeProbability, count)
+	const formatMoney = (value) => `${value >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(Math.round(value)).toLocaleString()}`
+
+	resultDiv.hidden = false
+	resultDiv.innerHTML = `
+		<div class="budget-risk-heading"><strong>${runs.toLocaleString()} independent budget runs</strong> · ${count.toLocaleString()} tickets each · ${currencySymbol}${spent.toLocaleString()} spent per run</div>
+		<div class="budget-risk-grid">
+			<div><span class="stat-label">Profit frequency</span><strong>${((profitable / runs) * 100).toFixed(1)}%</strong></div>
+			<div><span class="stat-label">Break-even or better</span><strong>${((breakevenOrBetter / runs) * 100).toFixed(1)}%</strong></div>
+			<div><span class="stat-label">Median net</span><strong>${formatMoney(percentileFromSorted(nets, 0.5))}</strong></div>
+			<div><span class="stat-label">10th–90th percentile net</span><strong>${formatMoney(percentileFromSorted(nets, 0.1))} to ${formatMoney(percentileFromSorted(nets, 0.9))}</strong></div>
+			<div><span class="stat-label">Mean simulated net</span><strong>${formatMoney(netSum / runs)}</strong></div>
+			<div><span class="stat-label">Theoretical expected net</span><strong>${formatMoney(expectedNet)}</strong></div>
+			<div><span class="stat-label">≥1 prize chance</span><strong>${(chanceAnyPrize * 100).toFixed(2)}%</strong></div>
+			<div><span class="stat-label">≥1 top prize chance</span><strong>${(chanceTopPrize * 100).toFixed(6)}%</strong></div>
+		</div>
+		<p class="sim-budget-hint">Monte Carlo frequencies and percentile ranges are estimates from ${runs.toLocaleString()} independent runs. The theoretical return (${overallReturnPercent.toFixed(1)}%) and exact “at least one” probabilities come directly from the current prize model; none predicts a future ticket.</p>
+		<div class="sim-result-actions">
+			<button type="button" class="text-link-btn" data-share-budget-risk>Share this analysis</button>
+		</div>
+	`
+	const shareBudgetRisk = resultDiv.querySelector("[data-share-budget-risk]")
+	if (shareBudgetRisk) {
+		shareBudgetRisk.addEventListener("click", () => {
+			shareBudgetRiskResult({
+				budget: spent,
+				count,
+				runs,
+				profitFrequency: profitable / runs,
+				breakevenFrequency: breakevenOrBetter / runs,
+				medianNet: percentileFromSorted(nets, 0.5),
+				expectedNet,
+			})
+		})
+	}
+	offerExperimentSave(resultDiv, {
+		type: "budget_risk",
+		params: { budget },
+		summary: `${runs.toLocaleString()} runs · ${count.toLocaleString()} tickets each · profit ${((profitable / runs) * 100).toFixed(1)}% · median ${formatMoney(percentileFromSorted(nets, 0.5))}`,
+	})
+
+	trackEvent("run_budget_risk_analysis", {
+		requested_budget: budget,
+		ticket_count: count,
+		runs,
+		profit_frequency_percent: Number(((profitable / runs) * 100).toFixed(1)),
+		breakeven_frequency_percent: Number(((breakevenOrBetter / runs) * 100).toFixed(1)),
+	})
+	trackValueCompleted("budget_risk", {
+		ticket_count: count,
+		runs,
+	})
+	setNextExperimentContext("budget_risk")
 }
 
 const $sim10 = document.getElementById("sim10Btn")
 const $sim100 = document.getElementById("sim100Btn")
 const $sim1000 = document.getElementById("sim1000Btn")
+const $simBudget = document.getElementById("simBudgetBtn")
+const $simBudgetRisk = document.getElementById("simBudgetRiskBtn")
 
 if ($sim10) $sim10.addEventListener("click", () => runFastSimulation(10))
 if ($sim100) $sim100.addEventListener("click", () => runFastSimulation(100))
 if ($sim1000) $sim1000.addEventListener("click", () => runFastSimulation(1000))
-
-// Initial load preset application — 복원된 누적 장부(totalCost/totalPrize/lotteryRecord)는 유지한 채 새 티켓만 준비
-applyDailyFeaturedPresetIfNeeded()
-if ($presetSelect && $presetSelect.value) {
-	applyPreset($presetSelect.value, false)
-}
+if ($simBudget) $simBudget.addEventListener("click", runBudgetSimulation)
+if ($simBudgetRisk) $simBudgetRisk.addEventListener("click", runBudgetRiskAnalysis)
+updateSimulationBudgetHint()
 
 /* ============================================================
-   결과 공유 카드
+   Experiment Lab — route existing verified tools into follow-up questions.
+   No separate probability engine and no server-backed fake community data.
    ============================================================ */
-/* 결과 공유 카드 — 이미 추적 중인 실제 세션 데이터만 사용, 가짜 수치/업적 없음 */
-function generateShareCard() {
+const EXPERIMENT_LAB_STORAGE_KEY = "scratchLotteryExperimentsV1"
+const EXPERIMENT_LAB_MAX_SAVED = 12
+const EXPERIMENT_LABELS = Object.freeze({
+	exact_odds: "Exact multi-ticket odds",
+	fast_simulation: "Fast simulation",
+	budget_risk: "Budget risk",
+	long_run: "Long-run projection",
+})
+
+const NEXT_EXPERIMENT_CONTEXTS = Object.freeze({
+	initial: {
+		question: "What changes when one ticket becomes ten?",
+		reason: "Start with exact probability, then compare it with a noisy simulated batch.",
+		actions: [
+			{ id: "exact10", label: "Calculate 10-ticket odds", primary: true },
+			{ id: "fast100", label: "Run 100 tickets" },
+		],
+	},
+	scratch: {
+		question: "What changes when one ticket becomes ten?",
+		reason: "Move from one random result to exact multi-ticket probability before drawing broader conclusions.",
+		actions: [
+			{ id: "exact10", label: "Calculate 10-ticket odds", primary: true },
+			{ id: "fast100", label: "Run 100 tickets" },
+		],
+	},
+	exact: {
+		question: "Does the exact expectation show up in one random batch?",
+		reason: "A simulated batch shows how far a short run can land from the exact expectation.",
+		actions: [
+			{ id: "fast100", label: "Run 100 tickets", primary: true },
+			{ id: "budget10x500", label: "Repeat a 10-ticket budget 500 times" },
+		],
+	},
+	fast: {
+		question: "Was that batch typical, or just sampling noise?",
+		reason: "Repeat the same-sized budget hundreds of times to see a distribution instead of one outcome.",
+		actions: [
+			{ id: "budget10x500", label: "Analyze 500 budget runs", primary: true },
+			{ id: "exact10", label: "Check exact 10-ticket odds" },
+		],
+	},
+	budget_risk: {
+		question: "What does the same math look like over a real playing schedule?",
+		reason: "Project a weekly habit into total spend, expected loss and top-prize probability.",
+		actions: [
+			{ id: "long5x1", label: "Project 5 tickets/week for 1 year", primary: true },
+			{ id: "exact10", label: "Check exact 10-ticket odds" },
+		],
+	},
+	long_run: {
+		question: "How different can a short run look from that long-run expectation?",
+		reason: "Run one finite batch, then compare its observed return with the model average.",
+		actions: [
+			{ id: "fast100", label: "Run 100 tickets", primary: true },
+			{ id: "budget10x500", label: "Analyze 500 budget runs" },
+		],
+	},
+})
+
+function experimentPresetContext() {
+	const presetKey = currentGrowthPreset()
+	return {
+		presetKey,
+		presetName: LOTTERY_PRESETS[presetKey]?.name || "Current model",
+		customProbabilityPercent: presetKey === "custom" ? Number((p1 * 100).toFixed(8)) : null,
+	}
+}
+
+function normalizeSavedExperiment(item) {
+	if (!item || typeof item !== "object" || !EXPERIMENT_LABELS[item.type]) return null
+	if (!item.params || typeof item.params !== "object") return null
+	if (!LOTTERY_PRESETS[item.presetKey]) return null
+	return {
+		id: typeof item.id === "string" ? item.id : "",
+		version: 1,
+		type: item.type,
+		params: item.params,
+		summary: typeof item.summary === "string" ? item.summary : "",
+		presetKey: item.presetKey,
+		presetName: typeof item.presetName === "string" ? item.presetName : LOTTERY_PRESETS[item.presetKey].name,
+		customProbabilityPercent:
+			item.customProbabilityPercent !== null &&
+			item.customProbabilityPercent !== "" &&
+			Number.isFinite(Number(item.customProbabilityPercent))
+				? Number(item.customProbabilityPercent)
+				: null,
+		savedAt: typeof item.savedAt === "string" ? item.savedAt : "",
+	}
+}
+
+function readSavedExperiments() {
+	try {
+		const raw = localStorage.getItem(EXPERIMENT_LAB_STORAGE_KEY)
+		if (!raw) return []
+		const parsed = JSON.parse(raw)
+		if (!Array.isArray(parsed)) return []
+		return parsed
+			.map(normalizeSavedExperiment)
+			.filter(Boolean)
+			.slice(0, EXPERIMENT_LAB_MAX_SAVED)
+	} catch {
+		return []
+	}
+}
+
+function persistSavedExperiments(items) {
+	try {
+		localStorage.setItem(EXPERIMENT_LAB_STORAGE_KEY, JSON.stringify(items.slice(0, EXPERIMENT_LAB_MAX_SAVED)))
+		return true
+	} catch {
+		showToast("This browser could not save My Lab.")
+		return false
+	}
+}
+
+function enrichExperimentSnapshot(snapshot) {
+	const context = snapshot.presetKey ? snapshot : { ...snapshot, ...experimentPresetContext() }
+	return {
+		...context,
+		id: context.id || "exp-" + Date.now().toString(36) + "-" + Math.random().toString(36).slice(2, 7),
+		version: 1,
+		savedAt: context.savedAt || new Date().toISOString(),
+	}
+}
+
+function saveExperiment(snapshot) {
+	if (!snapshot || !EXPERIMENT_LABELS[snapshot.type]) return false
+	const saved = enrichExperimentSnapshot(snapshot)
+	const items = readSavedExperiments().filter((item) => item.id !== saved.id)
+	items.unshift(saved)
+	if (!persistSavedExperiments(items)) return false
+	renderSavedExperiments()
+	trackEvent("experiment_saved", {
+		experiment_type: saved.type,
+		preset_name: saved.presetKey,
+	})
+	showToast("Saved to My Lab on this device.")
+	return true
+}
+
+function formatSavedExperimentDate(value) {
+	const date = new Date(value)
+	if (Number.isNaN(date.getTime())) return "Saved locally"
+	return "Saved " + date.toLocaleDateString("en-US", { year: "numeric", month: "short", day: "numeric" })
+}
+
+function renderSavedExperiments() {
+	const list = document.getElementById("savedExperimentList")
+	const count = document.getElementById("labSavedCount")
+	const clear = document.getElementById("clearSavedExperiments")
+	if (!list || !count || !clear) return
+
+	const items = readSavedExperiments()
+	count.textContent = items.length === 1 ? "1 saved on this device" : items.length + " saved on this device"
+	clear.hidden = items.length === 0
+	list.replaceChildren()
+
+	if (!items.length) {
+		const empty = document.createElement("p")
+		empty.className = "lottery-log-empty"
+		empty.textContent = "No saved experiments yet."
+		list.appendChild(empty)
+		return
+	}
+
+	items.forEach((item) => {
+		const row = document.createElement("div")
+		row.className = "saved-experiment-row"
+
+		const copy = document.createElement("div")
+		copy.className = "saved-experiment-copy"
+
+		const title = document.createElement("strong")
+		title.textContent = EXPERIMENT_LABELS[item.type]
+
+		const meta = document.createElement("span")
+		meta.className = "saved-experiment-meta"
+		meta.textContent = item.presetName + " · " + formatSavedExperimentDate(item.savedAt)
+
+		const summary = document.createElement("span")
+		summary.className = "saved-experiment-summary"
+		summary.textContent = item.summary
+
+		copy.append(title, meta, summary)
+
+		const actions = document.createElement("div")
+		actions.className = "saved-experiment-actions"
+
+		const restore = document.createElement("button")
+		restore.type = "button"
+		restore.className = "text-link-btn"
+		restore.textContent = "Run again"
+		restore.addEventListener("click", () => {
+			runExperimentSnapshot(item, "saved")
+		})
+
+		const remove = document.createElement("button")
+		remove.type = "button"
+		remove.className = "text-link-btn"
+		remove.textContent = "Remove"
+		remove.addEventListener("click", () => {
+			const next = readSavedExperiments().filter((saved) => saved.id !== item.id)
+			if (!persistSavedExperiments(next)) return
+			renderSavedExperiments()
+			trackEvent("experiment_removed", { experiment_type: item.type })
+		})
+
+		actions.append(restore, remove)
+		row.append(copy, actions)
+		list.appendChild(row)
+	})
+}
+
+function offerExperimentSave(container, snapshot) {
+	if (!container || !snapshot || !EXPERIMENT_LABELS[snapshot.type]) return
+	const existing = container.querySelector("[data-save-experiment]")
+	if (existing) existing.remove()
+
+	let actions = container.querySelector(".sim-result-actions")
+	if (!actions) {
+		actions = document.createElement("div")
+		actions.className = "sim-result-actions"
+		container.appendChild(actions)
+	}
+
+	const captured = enrichExperimentSnapshot({ ...snapshot, ...experimentPresetContext(), id: "", savedAt: "" })
+	const button = document.createElement("button")
+	button.type = "button"
+	button.className = "text-link-btn"
+	button.dataset.saveExperiment = captured.type
+	button.textContent = "Save to My Lab"
+	button.addEventListener("click", () => {
+		if (!saveExperiment(captured)) return
+		button.textContent = "Saved"
+		button.disabled = true
+	})
+	actions.appendChild(button)
+}
+
+function restoreExperimentPreset(snapshot) {
+	const presetKey = snapshot.presetKey
+	if (!LOTTERY_PRESETS[presetKey]) return false
+
+	if (presetKey === "custom" && Number.isFinite(snapshot.customProbabilityPercent)) {
+		const input = document.getElementById("probabilityInput")
+		const currentProbabilityPercent = p1 * 100
+		const alreadyCurrent =
+			currentGrowthPreset() === "custom" &&
+			Math.abs(currentProbabilityPercent - snapshot.customProbabilityPercent) < 1e-10
+		if (input) input.value = String(snapshot.customProbabilityPercent)
+		if (alreadyCurrent) return true
+		if ($presetState) $presetState.value = "custom"
+		applyProbability({ activateCustom: true })
+		return true
+	}
+
+	if (currentGrowthPreset() !== presetKey) {
+		if ($presetState) $presetState.value = presetKey
+		applyPreset(presetKey, false, false)
+	}
+	return true
+}
+
+function scrollExperimentTarget(id) {
+	const target = document.getElementById(id)
+	if (!target) return
+	target.scrollIntoView({
+		behavior: typeof motionEnabled === "function" && motionEnabled() ? "smooth" : "auto",
+		block: "start",
+	})
+}
+
+function runExperimentSnapshot(snapshot, source = "lab") {
+	if (!snapshot || !EXPERIMENT_LABELS[snapshot.type]) return false
+	if (!restoreExperimentPreset(snapshot)) return false
+
+	let ran = false
+	let targetId = "experimentLab"
+
+	if (snapshot.type === "exact_odds") {
+		const input = document.getElementById("exactOddsTicketsInput")
+		const count = Number(snapshot.params.count)
+		if (input && Number.isInteger(count) && count > 0) input.value = String(count)
+		ran = updateExactMultiTicketOdds(true)
+		targetId = "simCard"
+	} else if (snapshot.type === "fast_simulation") {
+		const count = Number(snapshot.params.count)
+		ran = Number.isInteger(count) ? runFastSimulation(count) : false
+		targetId = "simCard"
+	} else if (snapshot.type === "budget_risk") {
+		const input = document.getElementById("simBudgetInput")
+		const budget = Number(snapshot.params.budget)
+		if (input && Number.isFinite(budget) && budget > 0) input.value = String(budget)
+		if (Number.isFinite(budget) && budget > 0) {
+			runBudgetRiskAnalysis()
+			ran = true
+		}
+		targetId = "simCard"
+	} else if (snapshot.type === "long_run") {
+		const perWeekInput = document.getElementById("longRunPerWeek")
+		const yearsInput = document.getElementById("longRunYears")
+		const perWeek = Number(snapshot.params.perWeek)
+		const years = Number(snapshot.params.years)
+		if (perWeekInput && Number.isInteger(perWeek) && perWeek > 0) perWeekInput.value = String(perWeek)
+		if (yearsInput && Number.isInteger(years) && years > 0) yearsInput.value = String(years)
+		if (Number.isInteger(perWeek) && Number.isInteger(years)) {
+			updateLongRunProjection({ track: true })
+			ran = true
+		}
+		targetId = "longRunCard"
+	}
+
+	if (!ran) return false
+
+	trackEvent("experiment_run", {
+		experiment_type: snapshot.type,
+		experiment_source: source,
+		preset_name: currentGrowthPreset(),
+	})
+	scrollExperimentTarget(targetId)
+	return true
+}
+
+function curatedExperimentSnapshot(id) {
+	if (id === "exact10") return { type: "exact_odds", params: { count: 10 } }
+	if (id === "fast100") return { type: "fast_simulation", params: { count: 100 } }
+	if (id === "budget10x500") return { type: "budget_risk", params: { budget: ticketCost * 10 } }
+	if (id === "long5x1") return { type: "long_run", params: { perWeek: 5, years: 1 } }
+	return null
+}
+
+function runCuratedExperiment(id, source = "lab") {
+	const snapshot = curatedExperimentSnapshot(id)
+	if (!snapshot) return false
+	trackEvent("experiment_selected", {
+		experiment_id: id,
+		experiment_source: source,
+		preset_name: currentGrowthPreset(),
+	})
+	return runExperimentSnapshot({ ...snapshot, ...experimentPresetContext() }, source)
+}
+
+function setNextExperimentContext(context) {
+	const config = NEXT_EXPERIMENT_CONTEXTS[context] || NEXT_EXPERIMENT_CONTEXTS.initial
+	const question = document.getElementById("nextExperimentQuestion")
+	const reason = document.getElementById("nextExperimentReason")
+	const actions = document.getElementById("nextExperimentActions")
+	if (!question || !reason || !actions) return
+
+	question.textContent = config.question
+	reason.textContent = config.reason
+	actions.replaceChildren()
+
+	config.actions.forEach((action) => {
+		const button = document.createElement("button")
+		button.type = "button"
+		button.className = action.primary ? "btn-secondary" : "text-link-btn"
+		button.dataset.experimentId = action.id
+		button.dataset.experimentSource = "next"
+		button.textContent = action.label
+		actions.appendChild(button)
+	})
+}
+
+let clearSavedExperimentsTimer = null
+
+function resetClearSavedExperimentsButton() {
+	const button = document.getElementById("clearSavedExperiments")
+	if (!button) return
+	clearTimeout(clearSavedExperimentsTimer)
+	clearSavedExperimentsTimer = null
+	button.classList.remove("is-confirming")
+	button.textContent = "Clear saved"
+}
+
+function requestClearSavedExperiments() {
+	const button = document.getElementById("clearSavedExperiments")
+	if (!button) return
+
+	if (!button.classList.contains("is-confirming")) {
+		button.classList.add("is-confirming")
+		button.textContent = "Confirm clear"
+		clearSavedExperimentsTimer = setTimeout(resetClearSavedExperimentsButton, 6000)
+		return
+	}
+
+	resetClearSavedExperimentsButton()
+	try {
+		localStorage.removeItem(EXPERIMENT_LAB_STORAGE_KEY)
+		renderSavedExperiments()
+		trackEvent("experiment_lab_cleared")
+		showToast("My Lab was cleared on this device.")
+	} catch {
+		showToast("This browser could not clear My Lab.")
+	}
+}
+
+function initExperimentLab() {
+	const lab = document.getElementById("experimentLab")
+	if (lab) {
+		lab.addEventListener("click", (event) => {
+			const button = event.target.closest("[data-experiment-id]")
+			if (!button || !lab.contains(button)) return
+			runCuratedExperiment(button.dataset.experimentId, button.dataset.experimentSource || "lab")
+		})
+	}
+
+	const clear = document.getElementById("clearSavedExperiments")
+	if (clear) clear.addEventListener("click", requestClearSavedExperiments)
+
+	const modalExperiment = document.getElementById("modalExperimentBtn")
+	if (modalExperiment) {
+		modalExperiment.addEventListener("click", () => {
+			modalReturnFocus = document.getElementById("exactOddsTicketsInput")
+			closeJackpotModal()
+			runCuratedExperiment("exact10", "result_modal")
+		})
+	}
+
+	setNextExperimentContext("initial")
+	renderSavedExperiments()
+}
+
+// Search landing stays on the proven scratch-off intent. Attributable share links may
+// restore a known non-custom preset so recipients see the context that was shared.
+if ($presetState) {
+	const requestedPreset = new URLSearchParams(window.location.search).get("preset")
+	const landingPreset =
+		requestedPreset && requestedPreset !== "custom" && LOTTERY_PRESETS[requestedPreset]
+			? requestedPreset
+			: DEFAULT_PRESET_KEY
+	$presetState.value = landingPreset
+	applyPreset(landingPreset, false, false)
+}
+initExperimentLab()
+
+/* ============================================================
+   결과 공유 — 가치 순간에서 바로 공유하고, 데스크톱에서는 링크를 복사한다.
+   ============================================================ */
+const SHARE_BASE_URL = "https://saramjh.github.io/scratchLottery/"
+
+function shareReferralUrl(campaign) {
+	const presetKey = currentGrowthPreset()
+	const shareablePreset = presetKey !== "custom" && LOTTERY_PRESETS[presetKey] ? presetKey : null
+	const presetParam = shareablePreset ? `preset=${encodeURIComponent(shareablePreset)}&` : ""
+	return `${SHARE_BASE_URL}?${presetParam}utm_source=share&utm_medium=referral&utm_campaign=${encodeURIComponent(campaign)}&utm_content=${encodeURIComponent(presetKey)}`
+}
+
+async function copyShareText(text) {
+	if (navigator.clipboard && typeof navigator.clipboard.writeText === "function") {
+		await navigator.clipboard.writeText(text)
+		return true
+	}
+	const textarea = document.createElement("textarea")
+	textarea.value = text
+	textarea.setAttribute("readonly", "")
+	textarea.style.position = "fixed"
+	textarea.style.opacity = "0"
+	document.body.appendChild(textarea)
+	textarea.select()
+	const copied = document.execCommand("copy")
+	textarea.remove()
+	return copied
+}
+
+async function shareResult({ text, campaign, blob = null, filename = "scratch-lottery-summary.png" }) {
+	const url = shareReferralUrl(campaign)
+	const presetName = currentGrowthPreset()
+	trackEvent("share_attempt", { campaign, preset_name: presetName })
+
+	try {
+		if (blob && typeof File === "function" && navigator.share && navigator.canShare) {
+			const file = new File([blob], filename, { type: blob.type || "image/png" })
+			const fileData = { files: [file], title: "Scratch Off Simulator", text, url }
+			if (navigator.canShare(fileData)) {
+				await navigator.share(fileData)
+				trackEvent("share_completed", { campaign, method: "native_file", preset_name: presetName })
+				return true
+			}
+		}
+
+		if (navigator.share) {
+			await navigator.share({ title: "Scratch Off Simulator", text, url })
+			trackEvent("share_completed", { campaign, method: "native_link", preset_name: presetName })
+			return true
+		}
+
+		const copied = await copyShareText(`${text}\n${url}`)
+		if (copied) {
+			showToast("Result and referral link copied.")
+			trackEvent("share_completed", { campaign, method: "clipboard", preset_name: presetName })
+			return true
+		}
+	} catch (error) {
+		if (error?.name === "AbortError") {
+			trackEvent("share_cancelled", { campaign, preset_name: presetName })
+			return false
+		}
+	}
+
+	showToast("Sharing is unavailable in this browser.")
+	trackEvent("share_failed", { campaign, preset_name: presetName })
+	return false
+}
+
+function currentPresetDisplayName() {
+	const preset = LOTTERY_PRESETS[currentGrowthPreset()]
+	return preset?.name || "current scratch-off model"
+}
+
+function shareSimulationResult({ count, simCost, simPrize, netProfit, observedReturnPercent, theoreticalReturnPercent }) {
+	const sign = netProfit >= 0 ? "+" : "−"
+	const text = `I simulated ${count.toLocaleString()} ${currentPresetDisplayName()} tickets: spent ${currencySymbol}${simCost.toLocaleString()}, won ${currencySymbol}${simPrize.toLocaleString()}, net ${sign}${currencySymbol}${Math.abs(netProfit).toLocaleString()}, observed return ${observedReturnPercent.toFixed(1)}% vs ${theoreticalReturnPercent.toFixed(1)}% theoretical. Simulation only — no real money.`
+	void shareResult({ text, campaign: "simulation_result" })
+}
+
+function shareBudgetRiskResult({ budget, count, runs, profitFrequency, breakevenFrequency, medianNet, expectedNet }) {
+	const money = (value) => `${value >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(Math.round(value)).toLocaleString()}`
+	const text = `I tested ${runs.toLocaleString()} independent ${currencySymbol}${budget.toLocaleString()} budgets on ${currentPresetDisplayName()} (${count.toLocaleString()} tickets each): profit in ${(profitFrequency * 100).toFixed(1)}% of runs, break-even or better in ${(breakevenFrequency * 100).toFixed(1)}%, median net ${money(medianNet)}, theoretical expected net ${money(expectedNet)}. Simulation only — no real money.`
+	void shareResult({ text, campaign: "budget_risk_result" })
+}
+
+async function generateShareCard() {
 	const cardCanvas = document.createElement("canvas")
 	cardCanvas.width = 600
 	cardCanvas.height = 400
 	const ctx = cardCanvas.getContext("2d")
+	if (!ctx) return
 
 	ctx.fillStyle = "#111"
 	ctx.fillRect(0, 0, 600, 400)
@@ -1782,46 +3104,35 @@ function generateShareCard() {
 	ctx.strokeRect(10, 10, 580, 380)
 
 	ctx.fillStyle = "#e0b847"
-	ctx.font = "bold 26px sans-serif"
+	ctx.font = '700 26px "IBM Plex Sans", sans-serif'
 	ctx.textAlign = "center"
-	ctx.fillText("Scratch Lottery Simulator", 300, 60)
+	ctx.fillText("Scratch Off Simulator", 300, 60)
 	ctx.font = "15px sans-serif"
 	ctx.fillStyle = "#aaa"
-	ctx.fillText("My Session Summary", 300, 88)
+	ctx.fillText(currentPresetDisplayName(), 300, 88)
 
 	ctx.textAlign = "left"
 	ctx.font = "20px sans-serif"
 	ctx.fillStyle = "#fff"
 	const totalProfit = totalPrize - totalCost
 	const lines = [
-		`Tickets Scratched: ${totalAttempts.toLocaleString()}`,
-		`Total Spent: ${currencySymbol} ${totalCost.toLocaleString()}`,
-		`Total Won: ${currencySymbol} ${totalPrize.toLocaleString()}`,
-		`Net Profit: ${currencySymbol} ${totalProfit.toLocaleString()}`,
-		`Best Win: ${bestWinAmount > 0 ? `${bestWinLabel} — ${currencySymbol} ${bestWinAmount.toLocaleString()}` : "—"}`,
+		`Tickets Simulated: ${totalAttempts.toLocaleString()}`,
+		`Total Spent: ${currencySymbol}${totalCost.toLocaleString()}`,
+		`Total Won: ${currencySymbol}${totalPrize.toLocaleString()}`,
+		`Net: ${totalProfit >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(totalProfit).toLocaleString()}`,
+		`Best Win: ${bestWinAmount > 0 ? `${bestWinLabel} — ${currencySymbol}${bestWinAmount.toLocaleString()}` : "—"}`,
 	]
 	lines.forEach((line, i) => ctx.fillText(line, 60, 150 + i * 40))
 
 	ctx.font = "13px sans-serif"
 	ctx.fillStyle = "#777"
 	ctx.textAlign = "center"
-	ctx.fillText("saramjh.github.io/scratchLottery", 300, 370)
+	ctx.fillText("Simulation only · no real money · saramjh.github.io/scratchLottery", 300, 370)
 
-	cardCanvas.toBlob((blob) => {
-		if (!blob) return
-		const file = new File([blob], "scratch-lottery-summary.png", { type: "image/png" })
-		if (navigator.share && navigator.canShare && navigator.canShare({ files: [file] })) {
-			navigator.share({ files: [file], title: "Scratch Lottery Simulator", text: "My scratch lottery simulation result" }).catch(() => {})
-		} else {
-			const link = document.createElement("a")
-			link.download = "scratch-lottery-summary.png"
-			link.href = URL.createObjectURL(blob)
-			link.click()
-			setTimeout(() => URL.revokeObjectURL(link.href), 5000)
-		}
-	})
-
+	const blob = await new Promise((resolve) => cardCanvas.toBlob(resolve, "image/png"))
+	const text = `My ${currentPresetDisplayName()} simulation session: ${totalAttempts.toLocaleString()} tickets, ${currencySymbol}${totalCost.toLocaleString()} spent, ${currencySymbol}${totalPrize.toLocaleString()} won, net ${totalProfit >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(totalProfit).toLocaleString()}. Simulation only — no real money.`
 	trackEvent("share_result_card", { total_attempts: totalAttempts })
+	await shareResult({ text, campaign: "session_result", blob })
 }
 
 const $shareCardBtn = document.getElementById("shareCardBtn")
