@@ -104,6 +104,33 @@ if (seoGeoCoherent) {
 	fail("SEO/GEO pre-deploy coherence contract failed")
 }
 
+// AdSense/search-quality contract: the product owns exactly one manual ad, placed
+// inside the long static reference run rather than beside controls. Auto ads are
+// excluded for this product path in AdSense so they cannot re-inject around the app.
+const manualAdCount = (html.match(/class="adsbygoogle"/g) || []).length
+const manualAdIndex = html.indexOf('data-ad-placement="static-reference-break"')
+const oddsComparisonIndex = html.indexOf("<h2>Odds Comparison</h2>")
+const worldOddsIndex = html.indexOf('id="worldOddsCard"')
+const longRunIndex = html.indexOf('id="longRunCard"')
+const monetizationAndTrustCoherent =
+	manualAdCount === 1 &&
+	manualAdIndex > oddsComparisonIndex &&
+	manualAdIndex < worldOddsIndex &&
+	worldOddsIndex < longRunIndex &&
+	html.includes('<div class="ad-label">SPONSORED</div>') &&
+	css.includes(".ad-slot-wrapper {") &&
+	css.includes("min-height: 250px;") &&
+	!html.includes('class="perspective-list"') &&
+	!html.includes("shark attack") &&
+	!html.includes("fireworks accident") &&
+	html.includes("Last checked 2026-10.")
+
+if (monetizationAndTrustCoherent) {
+	ok("AdSense placement is controlled, measurable and separated from interactions; non-core risk filler is removed")
+} else {
+	fail("AdSense/search-quality placement contract failed")
+}
+
 // Startup must have a single real-data initialization path, not temporary Custom renders.
 const startupIsSinglePath =
 	js.includes('new URLSearchParams(window.location.search).get("preset")') &&

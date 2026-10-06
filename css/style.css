@@ -1150,23 +1150,6 @@ summary:focus-visible,
 	margin-bottom: var(--space-2);
 }
 
-.perspective-list {
-	list-style: none;
-	padding: 12px 0 0;
-	margin: var(--space-2) 0;
-	background: transparent;
-	border: 0;
-	border-top: 1px solid var(--border);
-	border-radius: 0;
-	color: var(--text-dim);
-	font-size: 0.85rem;
-	line-height: 1.6;
-}
-
-.perspective-list li + li {
-	margin-top: var(--space-1);
-}
-
 .probability-comparison a {
 	color: var(--accent);
 	text-decoration: underline;
@@ -1733,7 +1716,7 @@ summary:focus-visible,
 	line-height: 1.55;
 }
 
-/* 광고: 슬롯 1개, CLS 방지, SPONSORED 라벨 — 인터랙션 영역과 분리 */
+/* 광고: 슬롯 1개, CLS 방지, SPONSORED 라벨 — 정적 reference 구간 안에서 인터랙션과 분리 */
 .ad-safe-container {
 	text-align: center;
 }
