@@ -2,18 +2,32 @@
    Math of Lottery — explanatory motion tied to mathematical state changes.
    No scroll-reveal or decorative loops; every visual answers a probability question.
    ============================================================ */
-.math-page .brand-home {
-	display: inline-block;
-	color: var(--text);
-	font-family: var(--font-display);
-	font-size: 1.25rem;
-	font-weight: 700;
+.math-flow {
+	width: 100%;
+	min-width: 0;
 }
 
-.math-main {
-	max-width: 940px;
-	margin: 0 auto;
-	padding: 48px 16px 72px;
+.math-local-nav {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 8px 18px;
+	margin-top: 24px;
+	padding: 14px 0;
+	border-top: 1px solid var(--border);
+	border-bottom: 1px solid var(--border);
+	font-size: 0.82rem;
+}
+
+.math-local-nav span {
+	color: var(--text-dim);
+	font-weight: 600;
+}
+
+.math-local-nav a {
+	color: var(--text);
+	text-decoration: underline;
+	text-underline-offset: 0.18em;
 }
 
 .math-intro {
@@ -338,10 +352,6 @@
 }
 
 @media (max-width: 700px) {
-	.math-main {
-		padding-top: 30px;
-	}
-
 	.math-measures {
 		grid-template-columns: repeat(2, minmax(0, 1fr));
 	}

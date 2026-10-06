@@ -39,6 +39,7 @@ if (openCount === closeCount) {
 // 3) JS의 모든 getElementById(...)가 HTML의 id="..."와 대응하는지 확인
 const html = fs.readFileSync(path.join(root, "index.html"), "utf8")
 const js = fs.readFileSync(path.join(root, "js/script.js"), "utf8")
+const navigationJs = fs.readFileSync(path.join(root, "js/navigation.js"), "utf8")
 const htmlIds = new Set([...html.matchAll(/id="([^"]+)"/g)].map((m) => m[1]))
 const referencedIds = [...js.matchAll(/getElementById\("([^"]+)"\)/g)].map((m) => m[1])
 const missingIds = referencedIds.filter((id) => !htmlIds.has(id))
@@ -477,7 +478,8 @@ if (trackerSnapshotsValid && trackerHoustonAligned && trackerMarkupValid && trac
 const impeccableRefinementPresent =
 	html.includes('id="navToggle" class="nav-toggle-btn" aria-expanded="false"') &&
 	html.includes('id="topbarNav"') &&
-	js.includes("function setMobileNavOpen(open)") &&
+	navigationJs.includes("function setProductNavOpen(open") &&
+	navigationJs.includes('event.key !== "Escape"') &&
 	html.includes('role="dialog" aria-modal="true"') &&
 	js.includes('event.key === "Escape"') &&
 	js.includes("function modalFocusableElements()") &&

@@ -26,6 +26,7 @@ jobs:
           node scripts/verify.js
           node scripts/verify_math_page.js
           node scripts/verify_architecture.js
+          node scripts/verify_shell.js
 
   deploy:
     needs: verify

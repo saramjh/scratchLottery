@@ -48,30 +48,39 @@
 <body class="math-page">
   <header class="topbar">
     <div class="topbar-inner">
-      <div class="brand math-brand">
-        <a class="brand-home" href="../">Scratch Off Simulator</a>
-        <p>Probability explained with the same sourced issue model used by the simulator.</p>
+      <div class="brand">
+        <a class="brand-title" href="../">Scratch Off Simulator</a>
+        <p>Free scratch card and scratch ticket simulator with odds, RTP and no real money.</p>
       </div>
       <button type="button" id="navToggle" class="nav-toggle-btn" aria-expanded="false" aria-controls="topbarNav" aria-label="Open menu">
         <span class="nav-toggle-line" aria-hidden="true"></span>
         <span class="nav-toggle-line" aria-hidden="true"></span>
         <span class="nav-toggle-line" aria-hidden="true"></span>
       </button>
-      <nav class="topbar-nav" id="topbarNav" aria-label="Math page sections">
-        <a href="../">Simulator</a>
-        <a href="#expectedValueLesson">Expected value</a>
-        <a href="#largeNumbersLesson">Large numbers</a>
-        <a href="#independenceLesson">Independence</a>
+      <nav class="topbar-nav" id="topbarNav" aria-label="Primary">
+        <a href="../#ticketPanel">Play</a>
+        <a href="../#oddsCard">Odds</a>
+        <a href="../#simCard">Simulate</a>
+        <a href="./" aria-current="page">Math</a>
+        <a href="../#experimentLab">Lab</a>
+        <a href="../#prizeTracker">Tracker</a>
       </nav>
     </div>
   </header>
 
-  <main class="site-main math-main">
+  <main class="site-main">
+    <div class="math-flow">
     <section class="math-intro" aria-labelledby="mathTitle">
       <p class="math-kicker">Interactive probability guide</p>
       <h1 id="mathTitle">The Math of Scratch-Off Lotteries</h1>
       <p class="math-lede">A scratch ticket can win often and still lose money on average. A short lucky run can sit far above the long-run return. A losing streak does not make the next independent simulation “due.” The visuals below make those three ideas observable instead of asking you to accept them as slogans.</p>
       <p class="math-model-source">Worked example: Texas Lottery Game 2755, a $5 ticket with 5,472,750 printed tickets. Its published issue distribution implies a $3.23 expected payout per ticket, a −$1.77 expected net, and 64.6% RTP. <a href="https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698616.html" target="_blank" rel="noopener">Texas Lottery source</a>.</p>
+      <nav class="math-local-nav" aria-label="Math concepts">
+        <span>On this page</span>
+        <a href="#expectedValueLesson">Expected value</a>
+        <a href="#largeNumbersLesson">Large numbers</a>
+        <a href="#independenceLesson">Independence</a>
+      </nav>
     </section>
 
     <section class="math-lesson" id="expectedValueLesson" aria-labelledby="expectedValueTitle">
@@ -167,6 +176,7 @@
         <li><a href="https://ubplj.org/index.php/jgbe/article/view/2741" target="_blank" rel="noopener">Using Scratch-Off Lottery Tickets to Teach Binomial Probabilities and Expected Value</a></li>
       </ul>
     </section>
+    </div>
   </main>
 
   <footer>
@@ -177,6 +187,7 @@
   <script src="../js/verified-lottery-models.js" defer></script>
   <script src="../js/lottery-math-core.js" defer></script>
   <script src="../js/analytics.js" defer></script>
+  <script src="../js/navigation.js" defer></script>
   <script src="../js/math-of-lottery.js" defer></script>
 </body>
 

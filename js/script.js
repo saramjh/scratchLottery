@@ -172,25 +172,6 @@ if ($soundToggle) {
 	$soundToggle.addEventListener("click", toggleSound)
 }
 
-const $navToggle = document.getElementById("navToggle")
-const $topbarNav = document.getElementById("topbarNav")
-
-function setMobileNavOpen(open) {
-	if (!$navToggle || !$topbarNav) return
-	$navToggle.setAttribute("aria-expanded", String(open))
-	$navToggle.setAttribute("aria-label", open ? "Close menu" : "Open menu")
-	$topbarNav.classList.toggle("is-open", open)
-}
-
-if ($navToggle && $topbarNav) {
-	$navToggle.addEventListener("click", () => {
-		setMobileNavOpen($navToggle.getAttribute("aria-expanded") !== "true")
-	})
-	$topbarNav.querySelectorAll("a").forEach((link) => {
-		link.addEventListener("click", () => setMobileNavOpen(false))
-	})
-}
-
 const motionPreference = typeof window.matchMedia === "function" ? window.matchMedia("(prefers-reduced-motion: reduce)") : null
 const MOTION_EASE_OUT = "cubic-bezier(0.22, 1, 0.36, 1)"
 const MOTION_EASE_STANDARD = "cubic-bezier(0.2, 0.8, 0.2, 1)"
@@ -1381,12 +1362,6 @@ window.addEventListener("click", (event) => {
 })
 
 document.addEventListener("keydown", (event) => {
-	if ($navToggle && event.key === "Escape" && $navToggle.getAttribute("aria-expanded") === "true") {
-		setMobileNavOpen(false)
-		$navToggle.focus()
-		return
-	}
-
 	if (!modal || modal.getAttribute("aria-hidden") !== "false") return
 	if (event.key === "Escape") {
 		event.preventDefault()

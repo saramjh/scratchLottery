@@ -25,24 +25,6 @@ function formatPercent(value, digits = 1) {
 	return (value * 100).toFixed(digits) + "%"
 }
 
-function setupNav() {
-	const toggle = document.getElementById("navToggle")
-	const nav = document.getElementById("topbarNav")
-	if (!toggle || !nav) return
-	toggle.addEventListener("click", () => {
-		const open = toggle.getAttribute("aria-expanded") !== "true"
-		toggle.setAttribute("aria-expanded", String(open))
-		toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu")
-		nav.classList.toggle("is-open", open)
-	})
-	nav.addEventListener("click", (event) => {
-		if (!event.target.closest("a")) return
-		toggle.setAttribute("aria-expanded", "false")
-		toggle.setAttribute("aria-label", "Open menu")
-		nav.classList.remove("is-open")
-	})
-}
-
 function setupOutboundMeasurement() {
 	document.addEventListener("click", (event) => {
 		const link = event.target.closest("[data-math-to-simulator]")
@@ -226,7 +208,6 @@ function renderIndependence(losses, shouldTrack = true) {
 }
 
 function initMathPage() {
-	setupNav()
 	setupOutboundMeasurement()
 	renderExpectedValue()
 

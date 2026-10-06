@@ -117,7 +117,8 @@ for (const [name, workflow] of [
 	expect(
 		workflow.includes("node scripts/verify.js") &&
 			workflow.includes("node scripts/verify_math_page.js") &&
-			workflow.includes("node scripts/verify_architecture.js"),
+			workflow.includes("node scripts/verify_architecture.js") &&
+			workflow.includes("node scripts/verify_shell.js"),
 		name + " workflow runs all repository contract verifiers"
 	)
 }

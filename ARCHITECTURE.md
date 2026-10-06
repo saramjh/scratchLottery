@@ -12,9 +12,10 @@
 - `js/verified-lottery-models.js`: verified shared lottery issue models.
 - `js/lottery-math-core.js`: side-effect-free shared probability math.
 - `js/analytics.js`: the only GA4/Clarity event-dispatch adapter.
+- `js/navigation.js`: shared product-navigation behavior for every page shell.
 - `data/live/texas-scratch-watch.json`: bounded official claimed-prize snapshots.
 - `scripts/update_live_content.py`: only writer for generated prize-tracker HTML/data updates.
-- `css/style.css`: global tokens, base styles and flagship/shared component styles.
+- `css/style.css`: global tokens, product shell, base styles and flagship/shared component styles.
 - `css/math.css`: math-page-only styles.
 - `scripts/verify*.js`: behavior/data/architecture release contracts.
 
@@ -61,6 +62,7 @@ Shared domain/core modules do not import page code or mutate DOM.
 8. Deploy, CI and refresh workflows run all repository verifiers.
 9. No synonym landing pages or root-blog duplication of simulator/math intent.
 10. Refactors preserve public URLs, persisted state, analytics names and visible behavior unless separately approved.
+11. Global navigation behavior and outer container geometry have one shared owner; page modules may add local content navigation but cannot create a second product shell.
 
 ## Intentionally retained debt
 - `js/script.js` is large, but it remains one flagship application owner. It should be split only when a responsibility can move behind a stable contract without creating cross-module state synchronization.
