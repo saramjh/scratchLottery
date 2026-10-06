@@ -1716,7 +1716,7 @@ summary:focus-visible,
 	line-height: 1.55;
 }
 
-/* 광고: 슬롯 1개, CLS 방지, SPONSORED 라벨 — 정적 reference 구간 안에서 인터랙션과 분리 */
+/* 광고: 수동 슬롯 2개, CLS 방지, SPONSORED 라벨 — 정적 reading break에서만 인터랙션과 분리 */
 .ad-safe-container {
 	text-align: center;
 }

@@ -104,29 +104,43 @@ if (seoGeoCoherent) {
 	fail("SEO/GEO pre-deploy coherence contract failed")
 }
 
-// AdSense/search-quality contract: the product owns exactly one manual ad, placed
-// inside the long static reference run rather than beside controls. Auto ads are
-// excluded for this product path in AdSense so they cannot re-inject around the app.
+// AdSense/search-quality contract: the product owns exactly two manual ads,
+// both inside static reading breaks and away from controls. Auto ads remain
+// excluded for this product path so they cannot re-inject around the app.
 const manualAdCount = (html.match(/class="adsbygoogle"/g) || []).length
-const manualAdIndex = html.indexOf('data-ad-placement="static-reference-break"')
+const manualAdSlots = [...html.matchAll(/data-ad-slot="(\d+)"/g)].map((match) => match[1])
+const trackerAdIndex = html.indexOf('data-ad-placement="tracker-reference-break"')
+const referenceAdIndex = html.indexOf('data-ad-placement="static-reference-break"')
+const experimentLabIndex = html.indexOf('id="experimentLab"')
+const prizeTrackerIndex = html.indexOf('id="prizeTracker"')
+const oddsEngineIndex = html.indexOf("<h2>How the Odds Engine Works</h2>")
 const oddsComparisonIndex = html.indexOf("<h2>Odds Comparison</h2>")
 const worldOddsIndex = html.indexOf('id="worldOddsCard"')
 const longRunIndex = html.indexOf('id="longRunCard"')
+const sponsoredLabelCount = (html.match(/<div class="ad-label">SPONSORED<\/div>/g) || []).length
 const monetizationAndTrustCoherent =
-	manualAdCount === 1 &&
-	manualAdIndex > oddsComparisonIndex &&
-	manualAdIndex < worldOddsIndex &&
+	manualAdCount === 2 &&
+	manualAdSlots.length === 2 &&
+	new Set(manualAdSlots).size === 2 &&
+	sponsoredLabelCount === 2 &&
+	experimentLabIndex < prizeTrackerIndex &&
+	prizeTrackerIndex < trackerAdIndex &&
+	trackerAdIndex < oddsEngineIndex &&
+	oddsEngineIndex < oddsComparisonIndex &&
+	oddsComparisonIndex < referenceAdIndex &&
+	referenceAdIndex < worldOddsIndex &&
 	worldOddsIndex < longRunIndex &&
-	html.includes('<div class="ad-label">SPONSORED</div>') &&
 	css.includes(".ad-slot-wrapper {") &&
 	css.includes("min-height: 250px;") &&
+	html.includes('data-ad-placement="tracker-reference-break"') &&
+	html.includes('data-ad-placement="static-reference-break"') &&
 	!html.includes('class="perspective-list"') &&
 	!html.includes("shark attack") &&
 	!html.includes("fireworks accident") &&
 	html.includes("Last checked 2026-10.")
 
 if (monetizationAndTrustCoherent) {
-	ok("AdSense placement is controlled, measurable and separated from interactions; non-core risk filler is removed")
+	ok("two manual AdSense placements are distinct, ordered and limited to static reading breaks")
 } else {
 	fail("AdSense/search-quality placement contract failed")
 }
@@ -249,11 +263,19 @@ try {
 // 6) Current external odds and budget simulator regression contracts.
 if (
 	html.includes("<td>1 in 290,472,336</td>") &&
-	html.includes("https://www.megamillions.com/How-To-Play.aspx")
+	html.includes("https://www.megamillions.com/How-To-Play.aspx") &&
+	html.includes("<td>1 in 292,201,338</td>") &&
+	html.includes("https://www.powerball.com/powerball-prize-chart") &&
+	html.includes("<td>1 in 139,838,160</td>") &&
+	html.includes("https://www.fdj.fr/jeux-de-tirage/euromillions-my-million/statistiques") &&
+	html.includes("<td>1 in 45,057,474</td>") &&
+	html.includes("https://www.national-lottery.co.uk/games/lotto/about-lotto") &&
+	html.includes("<td>1 in 8,145,060</td>") &&
+	html.includes("https://www.dhlottery.co.kr/lt645/intro")
 ) {
-	ok("Mega Millions uses the current 1-in-290,472,336 official jackpot odds")
+	ok("current real-world lottery reference odds retain operator-backed sources for all five rows")
 } else {
-	fail("Mega Millions odds/source regressed to an outdated value")
+	fail("major-lottery reference odds/source contract regressed")
 }
 
 const landingPresetAligned =
