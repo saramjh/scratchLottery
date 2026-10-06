@@ -24,42 +24,42 @@
           },
           {
             "amount": 100,
-            "claimed": 19347,
+            "claimed": 19354,
             "printed": 31634,
-            "unclaimed": 12287
+            "unclaimed": 12280
           },
           {
             "amount": 50,
-            "claimed": 120973,
+            "claimed": 121053,
             "printed": 197534,
-            "unclaimed": 76561
+            "unclaimed": 76481
           },
           {
             "amount": 25,
-            "claimed": 301005,
+            "claimed": 301207,
             "printed": 494485,
-            "unclaimed": 193480
+            "unclaimed": 193278
           },
           {
             "amount": 15,
-            "claimed": 180935,
+            "claimed": 181052,
             "printed": 296645,
-            "unclaimed": 115710
+            "unclaimed": 115593
           },
           {
             "amount": 10,
-            "claimed": 597165,
+            "claimed": 597551,
             "printed": 988715,
-            "unclaimed": 391550
+            "unclaimed": 391164
           },
           {
             "amount": 5,
-            "claimed": 934830,
+            "claimed": 935463,
             "printed": 1581468,
-            "unclaimed": 646638
+            "unclaimed": 646005
           }
         ],
-        "sourceDate": "2026-10-04",
+        "sourceDate": "2026-10-05",
         "ticketCount": 14827950,
         "topPrize": {
           "amount": 200000,
@@ -68,9 +68,9 @@
           "unclaimed": 2
         },
         "totalPrizes": {
-          "claimed": 2154801,
+          "claimed": 2156226,
           "printed": 3591364,
-          "unclaimed": 1436563
+          "unclaimed": 1435138
         }
       },
       "gameNumber": "2712",
@@ -218,6 +218,78 @@
             "printed": 3591364,
             "unclaimed": 1436563
           }
+        },
+        {
+          "overallOdds": 4.13,
+          "prizes": [
+            {
+              "amount": 200000,
+              "claimed": 2,
+              "printed": 4,
+              "unclaimed": 2
+            },
+            {
+              "amount": 5000,
+              "claimed": 5,
+              "printed": 8,
+              "unclaimed": 3
+            },
+            {
+              "amount": 500,
+              "claimed": 539,
+              "printed": 871,
+              "unclaimed": 332
+            },
+            {
+              "amount": 100,
+              "claimed": 19354,
+              "printed": 31634,
+              "unclaimed": 12280
+            },
+            {
+              "amount": 50,
+              "claimed": 121053,
+              "printed": 197534,
+              "unclaimed": 76481
+            },
+            {
+              "amount": 25,
+              "claimed": 301207,
+              "printed": 494485,
+              "unclaimed": 193278
+            },
+            {
+              "amount": 15,
+              "claimed": 181052,
+              "printed": 296645,
+              "unclaimed": 115593
+            },
+            {
+              "amount": 10,
+              "claimed": 597551,
+              "printed": 988715,
+              "unclaimed": 391164
+            },
+            {
+              "amount": 5,
+              "claimed": 935463,
+              "printed": 1581468,
+              "unclaimed": 646005
+            }
+          ],
+          "sourceDate": "2026-10-05",
+          "ticketCount": 14827950,
+          "topPrize": {
+            "amount": 200000,
+            "claimed": 2,
+            "printed": 4,
+            "unclaimed": 2
+          },
+          "totalPrizes": {
+            "claimed": 2156226,
+            "printed": 3591364,
+            "unclaimed": 1435138
+          }
         }
       ],
       "name": "50X The Cash",
@@ -260,60 +332,60 @@
           },
           {
             "amount": 200,
-            "claimed": 2257,
+            "claimed": 2260,
             "printed": 2549,
-            "unclaimed": 292
+            "unclaimed": 289
           },
           {
             "amount": 100,
-            "claimed": 16075,
+            "claimed": 16085,
             "printed": 18386,
-            "unclaimed": 2311
+            "unclaimed": 2301
           },
           {
             "amount": 75,
-            "claimed": 6867,
+            "claimed": 6875,
             "printed": 7620,
-            "unclaimed": 753
+            "unclaimed": 745
           },
           {
             "amount": 50,
-            "claimed": 86501,
+            "claimed": 86566,
             "printed": 97590,
-            "unclaimed": 11089
+            "unclaimed": 11024
           },
           {
             "amount": 25,
-            "claimed": 86913,
+            "claimed": 86969,
             "printed": 97606,
-            "unclaimed": 10693
+            "unclaimed": 10637
           },
           {
             "amount": 20,
-            "claimed": 108824,
+            "claimed": 108884,
             "printed": 122214,
-            "unclaimed": 13390
+            "unclaimed": 13330
           },
           {
             "amount": 15,
-            "claimed": 108591,
+            "claimed": 108655,
             "printed": 121807,
-            "unclaimed": 13216
+            "unclaimed": 13152
           },
           {
             "amount": 10,
-            "claimed": 387688,
+            "claimed": 387954,
             "printed": 439176,
-            "unclaimed": 51488
+            "unclaimed": 51222
           },
           {
             "amount": 5,
-            "claimed": 737258,
+            "claimed": 737778,
             "printed": 853679,
-            "unclaimed": 116421
+            "unclaimed": 115901
           }
         ],
-        "sourceDate": "2026-10-04",
+        "sourceDate": "2026-10-05",
         "ticketCount": 7319250,
         "topPrize": {
           "amount": 100000,
@@ -322,9 +394,9 @@
           "unclaimed": 1
         },
         "totalPrizes": {
-          "claimed": 1543338,
+          "claimed": 1544390,
           "printed": 1763295,
-          "unclaimed": 219957
+          "unclaimed": 218905
         }
       },
       "gameNumber": "2751",
@@ -532,6 +604,108 @@
             "printed": 1763295,
             "unclaimed": 219957
           }
+        },
+        {
+          "overallOdds": 4.15,
+          "prizes": [
+            {
+              "amount": 100000,
+              "claimed": 3,
+              "printed": 4,
+              "unclaimed": 1
+            },
+            {
+              "amount": 10000,
+              "claimed": 18,
+              "printed": 20,
+              "unclaimed": 2
+            },
+            {
+              "amount": 1000,
+              "claimed": 196,
+              "printed": 242,
+              "unclaimed": 46
+            },
+            {
+              "amount": 500,
+              "claimed": 696,
+              "printed": 782,
+              "unclaimed": 86
+            },
+            {
+              "amount": 300,
+              "claimed": 1451,
+              "printed": 1620,
+              "unclaimed": 169
+            },
+            {
+              "amount": 200,
+              "claimed": 2260,
+              "printed": 2549,
+              "unclaimed": 289
+            },
+            {
+              "amount": 100,
+              "claimed": 16085,
+              "printed": 18386,
+              "unclaimed": 2301
+            },
+            {
+              "amount": 75,
+              "claimed": 6875,
+              "printed": 7620,
+              "unclaimed": 745
+            },
+            {
+              "amount": 50,
+              "claimed": 86566,
+              "printed": 97590,
+              "unclaimed": 11024
+            },
+            {
+              "amount": 25,
+              "claimed": 86969,
+              "printed": 97606,
+              "unclaimed": 10637
+            },
+            {
+              "amount": 20,
+              "claimed": 108884,
+              "printed": 122214,
+              "unclaimed": 13330
+            },
+            {
+              "amount": 15,
+              "claimed": 108655,
+              "printed": 121807,
+              "unclaimed": 13152
+            },
+            {
+              "amount": 10,
+              "claimed": 387954,
+              "printed": 439176,
+              "unclaimed": 51222
+            },
+            {
+              "amount": 5,
+              "claimed": 737778,
+              "printed": 853679,
+              "unclaimed": 115901
+            }
+          ],
+          "sourceDate": "2026-10-05",
+          "ticketCount": 7319250,
+          "topPrize": {
+            "amount": 100000,
+            "claimed": 3,
+            "printed": 4,
+            "unclaimed": 1
+          },
+          "totalPrizes": {
+            "claimed": 1544390,
+            "printed": 1763295,
+            "unclaimed": 218905
+          }
         }
       ],
       "name": "Azulejos",
@@ -556,42 +730,42 @@
           },
           {
             "amount": 500,
-            "claimed": 324,
+            "claimed": 328,
             "printed": 1159,
-            "unclaimed": 835
+            "unclaimed": 831
           },
           {
             "amount": 100,
-            "claimed": 5876,
+            "claimed": 5969,
             "printed": 20954,
-            "unclaimed": 15078
+            "unclaimed": 14985
           },
           {
             "amount": 50,
-            "claimed": 11670,
+            "claimed": 11884,
             "printed": 42891,
-            "unclaimed": 31221
+            "unclaimed": 31007
           },
           {
             "amount": 20,
-            "claimed": 39635,
+            "claimed": 40305,
             "printed": 145940,
-            "unclaimed": 106305
+            "unclaimed": 105635
           },
           {
             "amount": 10,
-            "claimed": 174649,
+            "claimed": 177737,
             "printed": 656742,
-            "unclaimed": 482093
+            "unclaimed": 479005
           },
           {
             "amount": 5,
-            "claimed": 151526,
+            "claimed": 154161,
             "printed": 583736,
-            "unclaimed": 432210
+            "unclaimed": 429575
           }
         ],
-        "sourceDate": "2026-10-04",
+        "sourceDate": "2026-10-05",
         "ticketCount": 5472750,
         "topPrize": {
           "amount": 100000,
@@ -600,9 +774,9 @@
           "unclaimed": 2
         },
         "totalPrizes": {
-          "claimed": 383684,
+          "claimed": 390388,
           "printed": 1451436,
-          "unclaimed": 1067752
+          "unclaimed": 1061048
         }
       },
       "gameNumber": "2755",
@@ -738,6 +912,72 @@
             "printed": 1451436,
             "unclaimed": 1067752
           }
+        },
+        {
+          "overallOdds": 3.77,
+          "prizes": [
+            {
+              "amount": 100000,
+              "claimed": 2,
+              "printed": 4,
+              "unclaimed": 2
+            },
+            {
+              "amount": 5000,
+              "claimed": 2,
+              "printed": 10,
+              "unclaimed": 8
+            },
+            {
+              "amount": 500,
+              "claimed": 328,
+              "printed": 1159,
+              "unclaimed": 831
+            },
+            {
+              "amount": 100,
+              "claimed": 5969,
+              "printed": 20954,
+              "unclaimed": 14985
+            },
+            {
+              "amount": 50,
+              "claimed": 11884,
+              "printed": 42891,
+              "unclaimed": 31007
+            },
+            {
+              "amount": 20,
+              "claimed": 40305,
+              "printed": 145940,
+              "unclaimed": 105635
+            },
+            {
+              "amount": 10,
+              "claimed": 177737,
+              "printed": 656742,
+              "unclaimed": 479005
+            },
+            {
+              "amount": 5,
+              "claimed": 154161,
+              "printed": 583736,
+              "unclaimed": 429575
+            }
+          ],
+          "sourceDate": "2026-10-05",
+          "ticketCount": 5472750,
+          "topPrize": {
+            "amount": 100000,
+            "claimed": 2,
+            "printed": 4,
+            "unclaimed": 2
+          },
+          "totalPrizes": {
+            "claimed": 390388,
+            "printed": 1451436,
+            "unclaimed": 1061048
+          }
         }
       ],
       "name": "Houston Texans",
@@ -747,5 +987,5 @@
   },
   "provider": "Texas Lottery",
   "schemaVersion": 1,
-  "updatedAt": "2026-10-05T14:37:05+00:00"
+  "updatedAt": "2026-10-06T14:32:11+00:00"
 }
