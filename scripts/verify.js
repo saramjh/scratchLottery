@@ -350,8 +350,8 @@ if (exactOddsMarkupPresent && exactOddsLogicPresent) {
 // 7) Growth instrumentation must target the ScratchLottery GA4 stream and expose
 // one activation event plus a shared value-completion event across core paths.
 const growthInstrumentationPresent =
-	html.includes("gtag/js?id=G-4DYFKSNFBG") &&
-	html.includes("gtag('config', 'G-4DYFKSNFBG')") &&
+	html.includes("gtag/js?id=G-4VEYJCV138") &&
+	html.includes("gtag('config', 'G-4VEYJCV138')") &&
 	!html.includes("G-ERNG0LEKY9") &&
 	html.includes('src="js/analytics.js"') &&
 	js.includes("ScratchAnalytics.track(name, params)") &&
