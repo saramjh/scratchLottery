@@ -118,37 +118,39 @@ if (seoGeoCoherent) {
 const manualAdCount = (html.match(/class="adsbygoogle"/g) || []).length
 const manualAdSlots = [...html.matchAll(/data-ad-slot="(\d+)"/g)].map((match) => match[1])
 const trackerAdIndex = html.indexOf('data-ad-placement="tracker-reference-break"')
-const referenceAdIndex = html.indexOf('data-ad-placement="static-reference-break"')
+const referenceAdIndex = html.indexOf('data-ad-placement="ticket-followup-break"')
 const experimentLabIndex = html.indexOf('id="experimentLab"')
 const prizeTrackerIndex = html.indexOf('id="prizeTracker"')
 const oddsEngineIndex = html.indexOf("<h2>How the Odds Engine Works</h2>")
 const oddsComparisonIndex = html.indexOf("<h2>Odds Comparison</h2>")
+const ticketPanelEndIndex = html.indexOf("</aside>")
 const worldOddsIndex = html.indexOf('id="worldOddsCard"')
 const longRunIndex = html.indexOf('id="longRunCard"')
-const sponsoredLabelCount = (html.match(/<div class="ad-label">SPONSORED<\/div>/g) || []).length
+const adLabelCount = (html.match(/<div class="ad-label">ADVERTISEMENT<\/div>/g) || []).length
 const monetizationAndTrustCoherent =
 	manualAdCount === 2 &&
 	manualAdSlots.length === 2 &&
 	new Set(manualAdSlots).size === 2 &&
-	sponsoredLabelCount === 2 &&
+	adLabelCount === 2 &&
 	experimentLabIndex < prizeTrackerIndex &&
 	prizeTrackerIndex < trackerAdIndex &&
 	trackerAdIndex < oddsEngineIndex &&
 	oddsEngineIndex < oddsComparisonIndex &&
-	oddsComparisonIndex < referenceAdIndex &&
-	referenceAdIndex < worldOddsIndex &&
+	ticketPanelEndIndex < referenceAdIndex &&
+	referenceAdIndex < experimentLabIndex &&
+	oddsComparisonIndex < worldOddsIndex &&
 	worldOddsIndex < longRunIndex &&
 	css.includes(".ad-slot-wrapper {") &&
 	css.includes("min-height: 250px;") &&
 	html.includes('data-ad-placement="tracker-reference-break"') &&
-	html.includes('data-ad-placement="static-reference-break"') &&
+	html.includes('data-ad-placement="ticket-followup-break"') &&
 	!html.includes('class="perspective-list"') &&
 	!html.includes("shark attack") &&
 	!html.includes("fireworks accident") &&
 	html.includes("Last checked 2026-10.")
 
 if (monetizationAndTrustCoherent) {
-	ok("two manual AdSense placements are distinct, ordered and limited to static reading breaks")
+	ok("two manual AdSense placements stay separated from interactive controls")
 } else {
 	fail("AdSense/search-quality placement contract failed")
 }

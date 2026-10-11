@@ -2127,6 +2127,13 @@ footer a:hover {
 	border-top: 1px solid var(--border);
 }
 
+/* A separate ad below all scratch controls; never inside the ticket or near buttons. */
+.ticket-followup-ad {
+	margin-top: 160px;
+	min-width: 0;
+	align-self: stretch;
+}
+
 .analysis-stack {
 	display: flex;
 	flex-direction: column;
@@ -2473,6 +2480,18 @@ footer a:hover {
 		position: sticky;
 		top: 24px;
 		align-self: start;
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.ticket-followup-ad {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	.play-console {
+		grid-column: 2;
+		grid-row: 1 / span 2;
 	}
 
 	.play-console > .two-col {
@@ -2501,6 +2520,18 @@ footer a:hover {
 
 	.ticket-panel {
 		align-self: start;
+		grid-column: 1;
+		grid-row: 1;
+	}
+
+	.ticket-followup-ad {
+		grid-column: 1;
+		grid-row: 2;
+	}
+
+	.play-console {
+		grid-column: 2;
+		grid-row: 1 / span 2;
 	}
 
 	.play-console > .two-col {
