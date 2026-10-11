@@ -139,6 +139,7 @@ const monetizationAndTrustCoherent =
 	ticketPanelEndIndex < referenceAdIndex &&
 	html.includes('<div class="ticket-rail">') &&
 	css.includes('.ticket-rail > .ticket-panel {') &&
+	css.includes('.ticket-followup-ad {\n\tmargin-top: 24px;') &&
 	!css.includes('position: sticky;') &&
 	referenceAdIndex < experimentLabIndex &&
 	oddsComparisonIndex < worldOddsIndex &&
