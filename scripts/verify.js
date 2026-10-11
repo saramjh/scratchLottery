@@ -360,9 +360,9 @@ if (exactOddsMarkupPresent && exactOddsLogicPresent) {
 // 7) Growth instrumentation must target the ScratchLottery GA4 stream and expose
 // one activation event plus a shared value-completion event across core paths.
 const growthInstrumentationPresent =
-	html.includes("gtag/js?id=G-4DYFKSNFBG") &&
-	html.includes("gtag('config', 'G-4DYFKSNFBG')") &&
-	!html.includes("G-ERNG0LEKY9") &&
+	html.includes("gtag/js?id=G-ERNG0LEKY9") &&
+	html.includes("gtag('config', 'G-ERNG0LEKY9')") &&
+	!html.includes("G-4DYFKSNFBG") &&
 	html.includes('src="js/analytics.js"') &&
 	js.includes("ScratchAnalytics.track(name, params)") &&
 	js.includes('trackEvent("tool_started"') &&
@@ -373,7 +373,7 @@ const growthInstrumentationPresent =
 	js.includes('trackValueCompleted("budget_risk"') &&
 	js.includes('trackValueCompleted("exact_odds"')
 if (growthInstrumentationPresent) {
-	ok("growth funnel events target the shared host GA4 stream and mirror into Clarity")
+	ok("growth funnel events target the original dedicated ScratchLottery GA4 stream and mirror into Clarity")
 } else {
 	fail("growth instrumentation contract failed")
 }
