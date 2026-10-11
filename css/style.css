@@ -2153,14 +2153,15 @@ footer a:hover {
 /* Google-approved bounded horizontal ad code keeps the reading break modest
    and avoids visually severing Scratch History from the current ticket. */
 .ticket-followup-ad .ad-slot-wrapper {
-	height: 100px;
-	min-height: 100px;
+	min-height: 150px;
+	height: auto;
+	overflow: visible;
 }
 
 .ticket-followup-ad .ad-slot-wrapper ins.adsbygoogle {
 	width: 100%;
 	max-width: 320px;
-	height: 100px;
+	min-height: 150px;
 }
 
 .analysis-stack {

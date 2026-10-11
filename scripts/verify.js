@@ -150,8 +150,8 @@ const monetizationAndTrustCoherent =
 	css.includes('.ticket-followup-ad {\n\tmargin-top: 24px;') &&
 	css.includes('/* The ad stays directly below the ticket') &&
 	css.includes('.ticket-rail {\n\t\tgrid-column: 1;\n\t\tgrid-row: 1;') &&
-	css.includes('.ticket-followup-ad .ad-slot-wrapper {\n\theight: 100px;\n\tmin-height: 100px;') &&
-	html.includes('style="display:block;width:100%;max-width:320px;height:100px"') &&
+	css.includes('.ticket-followup-ad .ad-slot-wrapper {\n\tmin-height: 150px;\n\theight: auto;\n\toverflow: visible;') &&
+	html.includes('style="display:block;width:100%;max-width:320px;height:150px"') &&
 	!html.includes('data-ad-slot="8896916964"\n             data-ad-format="auto"') &&
 	!css.includes('position: sticky;') &&
 	referenceAdIndex < experimentLabIndex &&
