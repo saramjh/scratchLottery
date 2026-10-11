@@ -2,6 +2,14 @@
    전역 유틸 — 트래킹, 토스트, 사운드/진동
    ============================================================ */
 let currencySymbol = "$"
+// USD retains cents in expected-value calculations; KRW is whole won.
+// This formats amounts within their native game currency, without FX conversion.
+function formatGameMoney(amount, fractionDigits = 0) {
+	const digits = currencySymbol === "₩" ? 0 : fractionDigits
+	return currencySymbol + Number(amount).toLocaleString("en-US", {
+		minimumFractionDigits: digits, maximumFractionDigits: digits,
+	})
+}
 const winning_message = "Congratulations!"
 const no_luck = "No luck!"
 const lottery_logs = "Lottery Logs"
@@ -466,35 +474,96 @@ function modalFocusableElements() {
    비현실적인 누적 총액(예: 억 단위 당첨금)이 지금 코드로 고쳐도 그대로 남아있던 문제가 있었다.
    버전이 다르면 "그 시절 숫자"는 지금 확률/상금표와 앞뒤가 안 맞으므로 누적치만 정직하게 리셋한다. */
 const STORAGE_KEY = "scratchLotteryState"
-const STATE_VERSION = 3
+const STATE_VERSION = 4
+const LEGACY_STATE_BACKUP_KEY = "scratchLotteryStateV3Backup"
+const INITIAL_LEDGER_PRESET = "us_scratch5"
+
+function emptyLedger() {
+	return { totalCost: 0, totalPrize: 0, totalAttempts: 0, lotteryRecord: [], bestWinAmount: 0, bestWinLabel: "" }
+}
+
+// Version 3 stored a single total even though games have USD and KRW prizes.
+// Preserve its original data verbatim. Migrate individually attributable
+// scratches; old batch-simulation totals cannot be assigned to a game safely.
+function migrateLegacyState(parsed, raw) {
+	if (!localStorage.getItem(LEGACY_STATE_BACKUP_KEY)) localStorage.setItem(LEGACY_STATE_BACKUP_KEY, raw)
+	const ledgers = {}
+	const byTicket = {
+		"$:5": "us_scratch5", "$:2": "powerball", "$:10": "lucky_fun",
+		"$:1000": "custom", "₩:1000": "speetto1000", "₩:2000": "speetto2000",
+	}
+	const records = Array.isArray(parsed.lotteryRecord) ? parsed.lotteryRecord : []
+	for (const record of records) {
+		const key = byTicket[String(record.currency) + ":" + record.cost]
+		if (!key || !Number.isFinite(Number(record.rewardMoney))) continue
+		const ledger = ledgers[key] || (ledgers[key] = emptyLedger())
+		ledger.lotteryRecord.push(record)
+		ledger.totalCost += Number(record.cost)
+		ledger.totalPrize += Number(record.rewardMoney)
+		ledger.totalAttempts++
+		if (Number(record.rewardMoney) > ledger.bestWinAmount) {
+			ledger.bestWinAmount = Number(record.rewardMoney)
+			ledger.bestWinLabel = record.rank ? record.rank + " Prize" : ""
+		}
+	}
+	// Combined old batch-simulation totals cannot be attributed reliably.
+	// Do not invent an exchange rate; the untouched v3 backup remains accessible.
+	return { version: STATE_VERSION, ledgers }
+}
 
 function loadState() {
 	try {
 		const raw = localStorage.getItem(STORAGE_KEY)
 		if (!raw) return null
 		const parsed = JSON.parse(raw)
-		if (parsed.version !== STATE_VERSION) return null // 예전 버전 데이터는 신뢰하지 않고 새로 시작
-		return parsed
+		if (parsed.version === STATE_VERSION && parsed.ledgers) return parsed
+		if (parsed.version === 3) return migrateLegacyState(parsed, raw)
+		return null
 	} catch (e) {
-		return null // 프라이빗 브라우징 등으로 접근 불가하면 새 세션으로 시작
-	}
-}
-
-function saveState() {
-	try {
-		localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: STATE_VERSION, totalCost, totalPrize, totalAttempts, lotteryRecord, bestWinAmount, bestWinLabel }))
-	} catch (e) {
-		// storage 저장 실패는 무시 — 메모리 상 상태로는 정상 동작
+		return null
 	}
 }
 
 const savedState = loadState()
-let totalCost = savedState?.totalCost ?? 0
-let totalPrize = savedState?.totalPrize ?? 0
-let totalAttempts = savedState?.totalAttempts ?? 0
-let lotteryRecord = Array.isArray(savedState?.lotteryRecord) ? savedState.lotteryRecord : []
-let bestWinAmount = savedState?.bestWinAmount ?? 0
-let bestWinLabel = savedState?.bestWinLabel ?? ""
+const presetLedgers = savedState?.ledgers || {}
+let activeLedgerPreset = INITIAL_LEDGER_PRESET
+const initialLedger = presetLedgers[INITIAL_LEDGER_PRESET] || emptyLedger()
+let totalCost = initialLedger.totalCost || 0
+let totalPrize = initialLedger.totalPrize || 0
+let totalAttempts = initialLedger.totalAttempts || 0
+let lotteryRecord = Array.isArray(initialLedger.lotteryRecord) ? initialLedger.lotteryRecord : []
+let bestWinAmount = initialLedger.bestWinAmount || 0
+let bestWinLabel = initialLedger.bestWinLabel || ""
+
+function currentLedgerSnapshot() {
+	return { totalCost, totalPrize, totalAttempts, lotteryRecord, bestWinAmount, bestWinLabel }
+}
+
+function saveState() {
+	try {
+		presetLedgers[activeLedgerPreset] = currentLedgerSnapshot()
+		localStorage.setItem(STORAGE_KEY, JSON.stringify({ version: STATE_VERSION, lastPreset: activeLedgerPreset, ledgers: presetLedgers }))
+	} catch (e) {
+		// Private browsing and full storage must not disable gameplay.
+	}
+}
+
+function selectPresetLedger(key) {
+	if (key === activeLedgerPreset) return
+	presetLedgers[activeLedgerPreset] = currentLedgerSnapshot()
+	activeLedgerPreset = key
+	const ledger = presetLedgers[key] || emptyLedger()
+	totalCost = ledger.totalCost || 0
+	totalPrize = ledger.totalPrize || 0
+	totalAttempts = ledger.totalAttempts || 0
+	lotteryRecord = Array.isArray(ledger.lotteryRecord) ? ledger.lotteryRecord : []
+	bestWinAmount = ledger.bestWinAmount || 0
+	bestWinLabel = ledger.bestWinLabel || ""
+	prizeVTScroll.innerHTML = lotteryRecord.length
+		? "<span>" + lotteryRecord[lotteryRecord.length - 1].result + "</span>"
+		: ""
+	saveState()
+}
 
 if (lotteryRecord.length) {
 	prizeVTScroll.innerHTML = `<span>${lotteryRecord[lotteryRecord.length - 1].result}</span>`
@@ -1198,6 +1267,7 @@ function applyProbability({ activateCustom = true } = {}) {
 	// 수동 확률은 실물/공식 프리셋 위에 덮어쓰지 않는다.
 	// Custom preset의 상금표·티켓가격·통화와 결합해 공식 데이터와 가상 모델이 섞이지 않도록 한다.
 	const customPreset = LOTTERY_PRESETS.custom
+	selectPresetLedger("custom")
 	p1 = requestedP1
 	ticketCost = customPreset.ticketCost
 	currencySymbol = customPreset.currency
@@ -1218,6 +1288,8 @@ function applyProbability({ activateCustom = true } = {}) {
 
 	displayPrizeProbabilities(prizeThresholds)
 	updateOddsSummary()
+	updateDisplay()
+	displayLotteryRecord()
 	startNewTicket()
 	closeJackpotModal()
 
@@ -1252,6 +1324,8 @@ if ($taxCountry) {
 }
 
 function updateDisplay() {
+	const logCurrencyNote = document.getElementById("lotteryLogCurrencyNote")
+	if (logCurrencyNote) logCurrencyNote.textContent = currencySymbol === "₩" ? "Values in KRW (₩)." : "Values in USD ($)."
 	const costDisplay = document.getElementById("costDisplay")
 	const prizeDisplay = document.getElementById("prizeDisplay")
 	const profitDisplay = document.getElementById("profitDisplay")
@@ -1708,12 +1782,15 @@ function applyPreset(presetKey, wipeLedger = true, trackSelection = true) {
 			if (probabilityInputEl) probabilityInputEl.value = preset.p1
 		}
 	}
+	// Monetary ledgers belong to each game's native currency and prize model.
+	// Switching games must not relabel or sum prior USD/KRW balances.
+	selectPresetLedger(presetKey)
 	ticketCost = preset.ticketCost
 	currencySymbol = preset.currency
 
 	configurePrizeModel(preset, p1)
 	currentTicketFormat = preset.ticketFormat || DEFAULT_TICKET_FORMAT
-	resetLottery(wipeLedger, false)
+	resetLottery(false, false)
 	updateProbabilityComparison(presetKey)
 	updatePresetEvidence(presetKey)
 	updateTicketBanner(presetKey)
@@ -1896,8 +1973,8 @@ function updateExactMultiTicketOdds(track = true) {
 		<div class="exact-odds-grid">
 			<div><span class="stat-label">≥1 any prize</span><strong>${formatChancePercent(chanceAnyPrize)}</strong></div>
 			<div><span class="stat-label">≥1 top prize</span><strong>${formatChancePercent(chanceTopPrize)}</strong></div>
-			<div><span class="stat-label">Expected payout</span><strong>${currencySymbol}${expectedPayout.toFixed(2)}</strong></div>
-			<div><span class="stat-label">Expected net</span><strong class="${expectedNetClass}">${expectedNet >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(expectedNet).toFixed(2)}</strong></div>
+			<div><span class="stat-label">Expected payout</span><strong>${formatGameMoney(expectedPayout, 2)}</strong></div>
+			<div><span class="stat-label">Expected net</span><strong class="${expectedNetClass}">${expectedNet >= 0 ? "+" : "−"}${formatGameMoney(Math.abs(expectedNet), 2)}</strong></div>
 		</div>
 		<p class="sim-budget-hint">Exact for this simulator's independent-draw ${modelLabel} model: chance of at least one result = 1 − (1 − p)<sup>n</sup>. This does not estimate remaining live tickets or predict a future ticket.</p>
 	`
@@ -1913,7 +1990,7 @@ function updateExactMultiTicketOdds(track = true) {
 		offerExperimentSave(result, {
 			type: "exact_odds",
 			params: { count },
-			summary: `${count.toLocaleString()} tickets · ≥1 any prize ${formatChancePercent(chanceAnyPrize)} · expected net ${expectedNet >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(expectedNet).toFixed(2)}`,
+			summary: `${count.toLocaleString()} tickets · ≥1 any prize ${formatChancePercent(chanceAnyPrize)} · expected net ${expectedNet >= 0 ? "+" : "−"}${formatGameMoney(Math.abs(expectedNet), 2)}`,
 		})
 		setNextExperimentContext("exact")
 	}
@@ -2141,11 +2218,11 @@ updateTaxCalculator()
    ============================================================ */
 /* "Choose a Game" cards write to one hidden preset state so rendered controls and probability logic stay synchronized. */
 const GAME_CARD_DESCRIPTIONS = {
-	custom: "Make your own scratch ticket — set any top-prize probability by hand.",
-	us_scratch5: "Official Texas Lottery Game 2755 printed prize distribution.",
-	powerball: "Multi-state jackpot draw game — astronomically low odds.",
-	speetto1000: "South Korea's high-denomination instant ticket.",
-	speetto2000: "South Korea's icon-matching instant ticket.",
+	custom: "USD ($) custom model — set any top-prize probability by hand.",
+	us_scratch5: "$5 USD · official Texas Lottery Game 2755 distribution.",
+	powerball: "$2 USD · multi-state jackpot draw game.",
+	speetto1000: "₩1,000 KRW · South Korea's instant ticket.",
+	speetto2000: "₩2,000 KRW · South Korea's symbol-matching ticket.",
 	lucky_fun: "A high-win demo mode — not modeled on any real game.",
 }
 
@@ -3020,7 +3097,7 @@ if ($presetState) {
 	const landingPreset =
 		requestedPreset && requestedPreset !== "custom" && LOTTERY_PRESETS[requestedPreset]
 			? requestedPreset
-			: DEFAULT_PRESET_KEY
+			: (savedState?.lastPreset && LOTTERY_PRESETS[savedState.lastPreset] ? savedState.lastPreset : DEFAULT_PRESET_KEY)
 	$presetState.value = landingPreset
 	applyPreset(landingPreset, false, false)
 }

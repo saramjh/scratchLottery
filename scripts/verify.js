@@ -34,6 +34,14 @@ try {
 	fail("ad region telemetry regression: " + (error.stderr?.toString() || error.message))
 }
 
+// 1c) Persisted dollar/won balances must not be mixed by preset switches.
+try {
+	execFileSync(process.execPath, [path.join(root, "scripts/verify_currency_ledger.js")], { stdio: "pipe" })
+	ok("USD/KRW preset ledgers migrate and persist without cross-currency totals")
+} catch (error) {
+	fail("USD/KRW ledger regression: " + (error.stderr?.toString() || error.message))
+}
+
 // 2) CSS 중괄호 균형
 const css = fs.readFileSync(path.join(root, "css/style.css"), "utf8")
 const openCount = (css.match(/{/g) || []).length
@@ -188,7 +196,8 @@ const startupIsSinglePath =
 	js.includes('applyPreset(landingPreset, false, false)') &&
 	js.includes('function applyPreset(presetKey, wipeLedger = true, trackSelection = true)') &&
 	js.includes('function resetLottery(wipeLedger = true, trackReset = true)') &&
-	js.includes('resetLottery(wipeLedger, false)') &&
+	js.includes('selectPresetLedger(presetKey)') &&
+	js.includes('resetLottery(false, false)') &&
 	js.includes('if (trackReset) trackEvent("reset_lottery")') &&
 	js.includes('const DEFAULT_PRESET_KEY = "us_scratch5"') &&
 	!js.includes('calculatePrizeProbabilities(p1) // 20%')
@@ -196,6 +205,26 @@ if (startupIsSinglePath) {
 	ok("startup uses one official default-preset render path")
 } else {
 	fail("startup reintroduced duplicate or temporary preset rendering")
+}
+
+// Monetary amounts must retain their native preset/currency, including across
+// stored sessions. Never treat a Korean ₩ amount as US $ on another game.
+const currenciesAreSeparated =
+	js.includes('const STATE_VERSION = 4') &&
+	js.includes('const LEGACY_STATE_BACKUP_KEY = "scratchLotteryStateV3Backup"') &&
+	js.includes('function selectPresetLedger(key)') &&
+	js.includes('selectPresetLedger(presetKey)') &&
+	js.includes('selectPresetLedger("custom")') &&
+	js.includes('const presetLedgers = savedState?.ledgers || {}') &&
+	js.includes('lastPreset: activeLedgerPreset') &&
+	js.includes('savedState?.lastPreset && LOTTERY_PRESETS[savedState.lastPreset]') &&
+	js.includes('currencySymbol === "₩" ? 0 : fractionDigits') &&
+	html.includes('id="lotteryLogCurrencyNote"') &&
+	html.includes('Your totals are saved separately for each game')
+if (currenciesAreSeparated) {
+	ok("game-specific USD/KRW ledgers and native currency formatting preserved")
+} else {
+	fail("USD/KRW ledger segregation or currency formatting contract failed")
 }
 
 // The fixed default real-data landing must be useful before deferred JS executes.
@@ -262,7 +291,7 @@ try {
 		near(texas.anyPrizeProbability, 1451436 / 5472750) &&
 		near(texas.rtp, 17674350 / (5472750 * 5)) &&
 		presets.us_scratch5.evidence.url === "https://www.texaslottery.com/export/sites/lottery/Games/Scratch_Offs/details.html_252698616.html" &&
-		js.includes("const STATE_VERSION = 3")
+		js.includes("const STATE_VERSION = 4")
 	) {
 		ok("Texas $5 Game 2755 matches official 5,472,750-ticket distribution, 1-in-3.77 overall odds and 64.59% computed RTP")
 	} else {
@@ -317,7 +346,8 @@ if (
 const landingPresetAligned =
 	js.includes('const DEFAULT_PRESET_KEY = "us_scratch5"') &&
 	js.includes('? requestedPreset') &&
-	js.includes(': DEFAULT_PRESET_KEY') &&
+	js.includes('savedState?.lastPreset && LOTTERY_PRESETS[savedState.lastPreset]') &&
+	js.includes(': DEFAULT_PRESET_KEY)') &&
 	js.includes('applyPreset(landingPreset, false, false)') &&
 	!js.includes("FEATURED_PRESET_KEYS") &&
 	html.includes("Default real-data ticket: Texas Lottery Game 2755")
