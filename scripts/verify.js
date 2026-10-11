@@ -163,6 +163,24 @@ if (monetizationAndTrustCoherent) {
 	fail("AdSense/search-quality placement contract failed")
 }
 
+// Both interactive SVG charts must keep circular markers at every viewport width,
+// and reflow coordinates in place rather than stretch a fixed 600px plot.
+const responsiveChartsPreserveGeometry =
+	(js.match(/preserveAspectRatio="xMidYMid meet" role="img"/g) || []).length === 2 &&
+	!js.includes('preserveAspectRatio="none" role="img"') &&
+	(js.match(/const width = chartPlotWidth\(container\)/g) || []).length >= 2 &&
+	js.includes('const chartObserver = new ResizeObserver(') &&
+	js.includes('syncChartPlotWidth(container, lotteryRecord.slice(') &&
+	js.includes('syncChartPlotWidth(container, fastSimSampledTickets.map(') &&
+	css.includes('.lottery-log-point:focus-visible {') &&
+	css.includes('stroke-width: 4;')
+
+if (responsiveChartsPreserveGeometry) {
+	ok("both responsive SVG charts preserve circular markers and resize positions")
+} else {
+	fail("responsive chart geometry or marker focus contract failed")
+}
+
 // Startup must have a single real-data initialization path, not temporary Custom renders.
 const startupIsSinglePath =
 	js.includes('new URLSearchParams(window.location.search).get("preset")') &&

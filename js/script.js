@@ -1521,6 +1521,49 @@ function displayLotteryRecord() {
 	renderLotteryLogTable()
 }
 
+// Keep SVG user units at the rendered CSS pixel scale. A fixed 600x140 viewBox
+// with preserveAspectRatio="none" distorts circles into ellipses on resize.
+const CHART_PLOT_HEIGHT = 140
+const CHART_PLOT_PAD_X = 16
+const CHART_PLOT_PAD_Y = 16
+
+function chartPlotWidth(container) {
+	const style = getComputedStyle(container)
+	const horizontalPadding = parseFloat(style.paddingLeft) + parseFloat(style.paddingRight)
+	return Math.max(48, Math.round(container.clientWidth - horizontalPadding))
+}
+
+function chartPlotCoords(values, width) {
+	const maxAbs = Math.max(1, ...values.map((value) => Math.abs(value)))
+	const midY = CHART_PLOT_HEIGHT / 2
+	const stepX = values.length > 1 ? (width - CHART_PLOT_PAD_X * 2) / (values.length - 1) : 0
+	return values.map((value, index) => ({
+		x: CHART_PLOT_PAD_X + stepX * index,
+		y: midY - (value / maxAbs) * (midY - CHART_PLOT_PAD_Y),
+	}))
+}
+
+function chartLinePath(coords) {
+	return coords.map((point, index) => `${index === 0 ? "M" : "L"} ${point.x.toFixed(1)} ${point.y.toFixed(1)}`).join(" ")
+}
+
+// Resize the coordinates in place; keep existing circle event handlers, selected
+// state and keyboard focus intact even if the user rotates or resizes the screen.
+function syncChartPlotWidth(container, values) {
+	const svg = container?.querySelector(".lottery-log-svg")
+	if (!svg || !values.length) return
+	const width = chartPlotWidth(container)
+	if (Math.abs(svg.viewBox.baseVal.width - width) < 1) return
+	const coords = chartPlotCoords(values, width)
+	svg.setAttribute("viewBox", `0 0 ${width} ${CHART_PLOT_HEIGHT}`)
+	svg.querySelector(".lottery-log-zero-line")?.setAttribute("x2", String(width - CHART_PLOT_PAD_X))
+	svg.querySelector(".lottery-log-line")?.setAttribute("d", chartLinePath(coords))
+	svg.querySelectorAll(".lottery-log-point").forEach((node, index) => {
+		node.setAttribute("cx", coords[index].x.toFixed(1))
+		node.setAttribute("cy", coords[index].y.toFixed(1))
+	})
+}
+
 // 시계열 차트: x축=회차, y축=그 회차의 순손익(상금-비용). 점을 클릭하면 상세 패널에 표시된다.
 function renderLotteryLogChart() {
 	const container = document.getElementById("lotteryLogChart")
@@ -1537,8 +1580,8 @@ function renderLotteryLogChart() {
 	const values = points.map((r) => r.net ?? 0)
 	const maxAbs = Math.max(1, ...values.map((v) => Math.abs(v)))
 
-	const width = 600
-	const height = 140
+	const width = chartPlotWidth(container)
+	const height = CHART_PLOT_HEIGHT
 	const padX = 16
 	const padY = 16
 	const midY = height / 2
@@ -1568,7 +1611,7 @@ function renderLotteryLogChart() {
 		.join("")
 
 	container.innerHTML = `
-		<svg viewBox="0 0 ${width} ${height}" class="lottery-log-svg" preserveAspectRatio="none" role="img" aria-label="Net profit per scratch over time">
+		<svg viewBox="0 0 ${width} ${height}" class="lottery-log-svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Net profit per scratch over time">
 			<line x1="${padX}" y1="${midY}" x2="${width - padX}" y2="${midY}" class="lottery-log-zero-line" />
 			<path d="${linePath}" class="lottery-log-line" fill="none" />
 			${circles}
@@ -2184,8 +2227,8 @@ function renderFastSimChart(tickets) {
 	const values = sampled.map((s) => s.item.net)
 	const maxAbs = Math.max(1, ...values.map((v) => Math.abs(v)))
 
-	const width = 600
-	const height = 140
+	const width = chartPlotWidth(container)
+	const height = CHART_PLOT_HEIGHT
 	const padX = 16
 	const padY = 16
 	const midY = height / 2
@@ -2215,7 +2258,7 @@ function renderFastSimChart(tickets) {
 		.join("")
 
 	container.innerHTML = `
-		<svg viewBox="0 0 ${width} ${height}" class="lottery-log-svg" preserveAspectRatio="none" role="img" aria-label="Net result per simulated ticket">
+		<svg viewBox="0 0 ${width} ${height}" class="lottery-log-svg" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Net result per simulated ticket">
 			<line x1="${padX}" y1="${midY}" x2="${width - padX}" y2="${midY}" class="lottery-log-zero-line" />
 			<path d="${linePath}" class="lottery-log-line" fill="none" />
 			${circles}
@@ -3116,4 +3159,31 @@ async function generateShareCard() {
 
 const $shareCardBtn = document.getElementById("shareCardBtn")
 if ($shareCardBtn) $shareCardBtn.addEventListener("click", generateShareCard)
+
+// Maintain 1:1 CSS-pixel geometry when the viewport or chart column changes.
+// Update only SVG geometry so the selected point and keyboard focus survive resize.
+function refreshResponsiveChartGeometry(container) {
+	if (container.id === "lotteryLogChart") {
+		syncChartPlotWidth(container, lotteryRecord.slice(-LOTTERY_LOG_CHART_MAX_POINTS).map((record) => record.net ?? 0))
+	} else if (container.id === "fastSimChart") {
+		syncChartPlotWidth(container, fastSimSampledTickets.map((sample) => sample.item.net))
+	}
+}
+
+if (typeof ResizeObserver === "function") {
+	const chartObserver = new ResizeObserver((entries) => {
+		for (const entry of entries) refreshResponsiveChartGeometry(entry.target)
+	})
+	for (const id of ["lotteryLogChart", "fastSimChart"]) {
+		const chart = document.getElementById(id)
+		if (chart) chartObserver.observe(chart)
+	}
+} else {
+	window.addEventListener("resize", () => {
+		for (const id of ["lotteryLogChart", "fastSimChart"]) {
+			const chart = document.getElementById(id)
+			if (chart) refreshResponsiveChartGeometry(chart)
+		}
+	})
+}
 

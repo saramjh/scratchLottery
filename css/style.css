@@ -811,8 +811,10 @@ summary:focus-visible,
 }
 
 .lottery-log-point:focus-visible {
-	outline: 2px solid var(--accent);
-	outline-offset: 2px;
+	/* A rectangular CSS outline breaks the round-marker visual language. */
+	outline: none;
+	stroke: var(--accent);
+	stroke-width: 4;
 }
 
 .lottery-log-note,
