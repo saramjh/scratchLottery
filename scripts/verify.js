@@ -137,6 +137,9 @@ const monetizationAndTrustCoherent =
 	trackerAdIndex < oddsEngineIndex &&
 	oddsEngineIndex < oddsComparisonIndex &&
 	ticketPanelEndIndex < referenceAdIndex &&
+	html.includes('<div class="ticket-rail">') &&
+	css.includes('.ticket-rail > .ticket-panel {') &&
+	!css.includes('position: sticky;') &&
 	referenceAdIndex < experimentLabIndex &&
 	oddsComparisonIndex < worldOddsIndex &&
 	worldOddsIndex < longRunIndex &&

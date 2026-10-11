@@ -2127,7 +2127,18 @@ footer a:hover {
 	border-top: 1px solid var(--border);
 }
 
-/* A separate ad below all scratch controls; never inside the ticket or near buttons. */
+/* The ticket and ad move together in one column; no sticky controls above the ad. */
+.ticket-rail {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	align-self: start;
+}
+.ticket-rail > .ticket-panel {
+	position: static;
+	width: 100%;
+	align-self: stretch;
+}
 .ticket-followup-ad {
 	margin-top: 160px;
 	min-width: 0;
@@ -2476,22 +2487,14 @@ footer a:hover {
 		gap: 28px;
 	}
 
-	.ticket-panel {
-		position: sticky;
-		top: 24px;
-		align-self: start;
+	.ticket-rail {
 		grid-column: 1;
 		grid-row: 1;
 	}
 
-	.ticket-followup-ad {
-		grid-column: 1;
-		grid-row: 2;
-	}
-
 	.play-console {
 		grid-column: 2;
-		grid-row: 1 / span 2;
+		grid-row: 1;
 	}
 
 	.play-console > .two-col {
@@ -2518,20 +2521,14 @@ footer a:hover {
 		grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
 	}
 
-	.ticket-panel {
-		align-self: start;
+	.ticket-rail {
 		grid-column: 1;
 		grid-row: 1;
 	}
 
-	.ticket-followup-ad {
-		grid-column: 1;
-		grid-row: 2;
-	}
-
 	.play-console {
 		grid-column: 2;
-		grid-row: 1 / span 2;
+		grid-row: 1;
 	}
 
 	.play-console > .two-col {
