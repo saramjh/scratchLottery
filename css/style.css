@@ -2144,7 +2144,23 @@ footer a:hover {
 .ticket-followup-ad {
 	margin-top: 24px;
 	min-width: 0;
-	align-self: stretch;
+	width: 100%;
+	max-width: 380px;
+	align-self: center;
+	padding: 12px;
+}
+
+/* Google-approved bounded horizontal ad code keeps the reading break modest
+   and avoids visually severing Scratch History from the current ticket. */
+.ticket-followup-ad .ad-slot-wrapper {
+	height: 100px;
+	min-height: 100px;
+}
+
+.ticket-followup-ad .ad-slot-wrapper ins.adsbygoogle {
+	width: 100%;
+	max-width: 320px;
+	height: 100px;
 }
 
 .analysis-stack {
@@ -2483,24 +2499,13 @@ footer a:hover {
 	margin: auto;
 }
 
-/* On wider screens the ad belongs to the complete game section, not
-   only the left rail. Otherwise its height leaves a disconnected void below
-   Current Odds and before Lottery Logs. Mobile keeps ticket -> ad -> tools. */
+/* The ad stays directly below the ticket's finished controls in the
+   left rail, never a full-width barrier before Scratch History. Its 100px
+   format fits the natural column height on desktop/tablet. */
 @media (min-width: 700px) {
 	.ticket-rail {
-		display: contents;
-	}
-
-	.ticket-rail > .ticket-panel {
 		grid-column: 1;
 		grid-row: 1;
-		align-self: start;
-	}
-
-	.ticket-followup-ad {
-		grid-column: 1 / -1;
-		grid-row: 2;
-		margin-top: 0;
 	}
 
 	.play-console {
