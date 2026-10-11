@@ -10,6 +10,9 @@ function trackEvent(name, params = {}) {
 	ScratchAnalytics.track(name, params)
 }
 
+// Reading-break diagnostics never change AdSense's own impression counting.
+ScratchAnalytics.observeAdRegions()
+
 let growthToolStarted = false
 
 function currentGrowthPreset() {
@@ -1449,7 +1452,7 @@ function requestResetLottery() {
 
 if ($resetLottery) $resetLottery.addEventListener("click", requestResetLottery)
 
-function goToNextTicket() {
+function goToNextTicket(source = "ticket_button") {
 	if (!ticketSettled) {
 		showToast("Scratch all the numbers on this ticket first.")
 		return
@@ -1458,6 +1461,7 @@ function goToNextTicket() {
 	updateDisplay()
 	displayPrizeProbabilities(prizeThresholds)
 	trackEvent("next_lottery", {
+		action_source: source,
 		total_cost: totalCost,
 		total_prize: totalPrize,
 		total_profit: totalPrize - totalCost,
@@ -1465,10 +1469,10 @@ function goToNextTicket() {
 	closeJackpotModal()
 }
 
-document.getElementById("nextLottery").onclick = goToNextTicket
+document.getElementById("nextLottery").onclick = () => goToNextTicket("ticket_button")
 
 const $modalPlayAgainBtn = document.getElementById("modalPlayAgainBtn")
-if ($modalPlayAgainBtn) $modalPlayAgainBtn.addEventListener("click", goToNextTicket)
+if ($modalPlayAgainBtn) $modalPlayAgainBtn.addEventListener("click", () => goToNextTicket("result_modal"))
 
 /* ============================================================
    로터리 로그 — 차트 / 상세보기 / 테이블

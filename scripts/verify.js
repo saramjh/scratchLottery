@@ -26,6 +26,14 @@ try {
 	fail(`js/script.js syntax error:\n${e.stderr?.toString() || e.message}`)
 }
 
+// 1b) Ad visibility diagnostics must remain accurate and one-shot.
+try {
+	execFileSync(process.execPath, [path.join(root, "scripts/verify_ad_exposure.js")], { stdio: "pipe" })
+	ok("ad region telemetry is deduplicated, view-time qualified and hidden-tab safe")
+} catch (error) {
+	fail("ad region telemetry regression: " + (error.stderr?.toString() || error.message))
+}
+
 // 2) CSS 중괄호 균형
 const css = fs.readFileSync(path.join(root, "css/style.css"), "utf8")
 const openCount = (css.match(/{/g) || []).length
