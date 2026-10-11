@@ -140,6 +140,10 @@ const monetizationAndTrustCoherent =
 	html.includes('<div class="ticket-rail">') &&
 	css.includes('.ticket-rail > .ticket-panel {') &&
 	css.includes('.ticket-followup-ad {\n\tmargin-top: 24px;') &&
+	css.includes('/* On wider screens the ad belongs to the complete game section') &&
+	css.includes('.ticket-rail {\n\t\tdisplay: contents;') &&
+	css.includes('.ticket-followup-ad {\n\t\tgrid-column: 1 / -1;\n\t\tgrid-row: 2;\n\t\tmargin-top: 0;') &&
+	css.includes('.ticket-rail > .ticket-panel {\n\t\tgrid-column: 1;\n\t\tgrid-row: 1;\n\t\talign-self: start;') &&
 	!css.includes('position: sticky;') &&
 	referenceAdIndex < experimentLabIndex &&
 	oddsComparisonIndex < worldOddsIndex &&

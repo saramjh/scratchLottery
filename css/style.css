@@ -2481,20 +2481,36 @@ footer a:hover {
 	margin: auto;
 }
 
-@media (min-width: 960px) {
-	.play-stage {
-		grid-template-columns: 380px minmax(0, 1fr);
-		gap: 28px;
+/* On wider screens the ad belongs to the complete game section, not
+   only the left rail. Otherwise its height leaves a disconnected void below
+   Current Odds and before Lottery Logs. Mobile keeps ticket -> ad -> tools. */
+@media (min-width: 700px) {
+	.ticket-rail {
+		display: contents;
 	}
 
-	.ticket-rail {
+	.ticket-rail > .ticket-panel {
 		grid-column: 1;
 		grid-row: 1;
+		align-self: start;
+	}
+
+	.ticket-followup-ad {
+		grid-column: 1 / -1;
+		grid-row: 2;
+		margin-top: 0;
 	}
 
 	.play-console {
 		grid-column: 2;
 		grid-row: 1;
+	}
+}
+
+@media (min-width: 960px) {
+	.play-stage {
+		grid-template-columns: 380px minmax(0, 1fr);
+		gap: 28px;
 	}
 
 	.play-console > .two-col {
@@ -2519,16 +2535,6 @@ footer a:hover {
 @media (min-width: 700px) and (max-width: 959px) {
 	.play-stage {
 		grid-template-columns: minmax(280px, 0.9fr) minmax(0, 1.1fr);
-	}
-
-	.ticket-rail {
-		grid-column: 1;
-		grid-row: 1;
-	}
-
-	.play-console {
-		grid-column: 2;
-		grid-row: 1;
 	}
 
 	.play-console > .two-col {
