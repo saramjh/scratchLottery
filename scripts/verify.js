@@ -67,6 +67,27 @@ if (missingIds.length === 0) {
 
 
 
+// Action-local feedback is essential on phone screens: remote result panels alone
+// leave the initiating viewport unchanged and make working controls look broken.
+const mobileFeedbackIds = ["simBatchFeedback", "simExactFeedback", "simBudgetFeedback", "simRiskFeedback"]
+const mobileFeedbackContract =
+	mobileFeedbackIds.every((id) => html.includes(`id="${id}" class="sim-inline-feedback" role="status" hidden`)) &&
+	js.includes('const feedbackId = options.source === "budget" ? "simBudgetFeedback" : "simBatchFeedback"') &&
+	js.includes('showSimulationActionFeedback("simExactFeedback"') &&
+	js.includes('showSimulationActionFeedback("simRiskFeedback"') &&
+	css.includes(".sim-inline-feedback:not([hidden])") &&
+	css.includes("@media (max-width: 699px)") &&
+	js.includes('feedback.scrollIntoView({') &&
+	js.includes('block: "nearest"') &&
+	js.includes('document.activeElement?.closest("#simCard")') &&
+	js.includes('targetId = phone ? "simBatchFeedback" : "fastSimResult"') &&
+	js.includes('targetId = phone ? "simRiskFeedback" : "budgetRiskResult"')
+if (mobileFeedbackContract) {
+	ok("mobile simulation actions expose accessible inline results and Lab directs to visible output")
+} else {
+	fail("mobile action-local simulation feedback contract failed")
+}
+
 // 4) SEO winner cluster: proven Search Console terms must remain aligned in title/H1/description.
 const expectedTitle = "<title>Scratch Off Simulator — Free Scratch Card &amp; Ticket Simulator</title>"
 const expectedH1 = "<h1>Scratch Off Simulator</h1>"

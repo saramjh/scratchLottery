@@ -252,12 +252,14 @@
             <button id="sim10Btn" class="sim-btn">Simulate 10x</button>
             <button id="sim100Btn" class="sim-btn">Simulate 100x</button>
             <button id="sim1000Btn" class="sim-btn">Simulate 1,000x</button>
+            <div id="simBatchFeedback" class="sim-inline-feedback" role="status" hidden></div>
             <div class="sim-exact-odds-box">
               <label for="exactOddsTicketsInput">Exact odds for N tickets</label>
               <div class="sim-budget-row">
                 <input type="text" id="exactOddsTicketsInput" inputmode="numeric" autocomplete="off" value="10" aria-describedby="exactOddsHint">
                 <button id="exactOddsCalculateBtn" class="sim-btn" type="button">Calculate</button>
               </div>
+              <div id="simExactFeedback" class="sim-inline-feedback" role="status" hidden></div>
               <p id="exactOddsHint" class="sim-budget-hint">No Monte Carlo: chance of at least one result is calculated as 1 − (1 − p)<sup>n</sup>.</p>
             </div>
             <div class="sim-budget-box">
@@ -266,7 +268,9 @@
                 <input type="text" id="simBudgetInput" inputmode="decimal" autocomplete="off" placeholder="500">
                 <button id="simBudgetBtn" class="sim-btn" type="button">Run Budget</button>
               </div>
+              <div id="simBudgetFeedback" class="sim-inline-feedback" role="status" hidden></div>
               <button id="simBudgetRiskBtn" class="sim-btn sim-budget-risk-btn" type="button">Analyze 500 Budget Runs</button>
+              <div id="simRiskFeedback" class="sim-inline-feedback" role="status" hidden></div>
               <p id="simBudgetHint" class="sim-budget-hint"></p>
             </div>
           </div>

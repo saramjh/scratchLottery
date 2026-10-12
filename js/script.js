@@ -1935,6 +1935,33 @@ function updateOddsSummary() {
 	updateExactMultiTicketOdds(false)
 }
 
+// Mobile actions report their actual computed outcome where the user tapped;
+// detailed analysis remains in the existing output panel.
+function showSimulationActionFeedback(id, headline, outcome, targetId) {
+    const feedback = document.getElementById(id)
+    if (!feedback) return
+    feedback.replaceChildren()
+    const heading = document.createElement("strong")
+    heading.textContent = headline
+    const summary = document.createElement("span")
+    summary.textContent = outcome
+    feedback.append(heading, summary)
+    if (targetId) {
+        const link = document.createElement("a")
+        link.href = "#" + targetId
+        link.textContent = "View detailed results ↓"
+        feedback.append(link)
+    }
+    feedback.hidden = false
+    if (window.matchMedia("(max-width: 699px)").matches && document.activeElement?.closest("#simCard")) {
+        // Only move enough to reveal the acknowledgement; do not jump to offscreen charts.
+        feedback.scrollIntoView({
+            block: "nearest",
+            behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "instant" : "smooth"
+        })
+    }
+}
+
 const EXACT_ODDS_MAX_TICKETS = 1000000
 
 function formatChancePercent(probability) {
@@ -1993,6 +2020,7 @@ function updateExactMultiTicketOdds(track = true) {
 			summary: `${count.toLocaleString()} tickets · ≥1 any prize ${formatChancePercent(chanceAnyPrize)} · expected net ${expectedNet >= 0 ? "+" : "−"}${formatGameMoney(Math.abs(expectedNet), 2)}`,
 		})
 		setNextExperimentContext("exact")
+		showSimulationActionFeedback("simExactFeedback", `${count.toLocaleString()} ticket odds calculated`, `Any prize: ${formatChancePercent(chanceAnyPrize)} · Expected net: ${expectedNet >= 0 ? "+" : "−"}${formatGameMoney(Math.abs(expectedNet), 2)}`, "exactOddsResult")
 	}
 	return true
 }
@@ -2379,6 +2407,10 @@ function renderFastSimDetail(index) {
 
 // Fast Simulation Engine (Monte Carlo)
 function clearSimulationOutputs() {
+	for (const id of ["simBatchFeedback", "simExactFeedback", "simBudgetFeedback", "simRiskFeedback"]) {
+		const feedback = document.getElementById(id)
+		if (feedback) feedback.hidden = true
+	}
 	const fastResult = document.getElementById("fastSimResult")
 	const riskResult = document.getElementById("budgetRiskResult")
 	const chart = document.getElementById("fastSimChart")
@@ -2478,6 +2510,8 @@ function runFastSimulation(count, options = {}) {
 			summary: `${count.toLocaleString()} tickets · net ${netProfit >= 0 ? "+" : "−"}${currencySymbol}${Math.abs(netProfit).toLocaleString()} · observed ${observedReturnPercent.toFixed(1)}% vs ${theoreticalReturnPercent.toFixed(1)}% theoretical`,
 		})
 	}
+	const feedbackId = options.source === "budget" ? "simBudgetFeedback" : "simBatchFeedback"
+	showSimulationActionFeedback(feedbackId, `${count.toLocaleString()} tickets simulated`, `Net ${netProfit >= 0 ? "+" : "−"}${formatGameMoney(Math.abs(netProfit))} · Observed return ${observedReturnPercent.toFixed(1)}%`, "fastSimResult")
 	renderFastSimChart(tickets)
 	animateSimulationOutput()
 
@@ -2534,7 +2568,10 @@ function runBudgetSimulation() {
 	if (!input) return
 	const budget = parseNumericField(input, { min: 0.01 })
 	const count = getBudgetTicketCount(budget)
-	if (!count) return
+	if (!count) {
+		showSimulationActionFeedback("simBudgetFeedback", "Budget not simulated", "Enter an amount that covers at least one ticket and stays within the simulation limit.")
+		return
+	}
 	if (runFastSimulation(count, { source: "budget", requestedBudget: budget })) {
 		trackEvent("run_budget_simulation", {
 			requested_budget: budget,
@@ -2562,17 +2599,21 @@ function simulateBudgetNet(count) {
 function runBudgetRiskAnalysis() {
 	const input = document.getElementById("simBudgetInput")
 	const resultDiv = document.getElementById("budgetRiskResult")
-	if (!input || !resultDiv) return
+	if (!input || !resultDiv) return false
 	const budget = parseNumericField(input, { min: 0.01 })
 	const count = getBudgetTicketCount(budget)
-	if (!count) return
+	if (!count) {
+		showSimulationActionFeedback("simRiskFeedback", "Risk analysis not run", "Enter a valid budget to analyze.")
+		return false
+	}
 	trackToolStarted("budget_risk")
 
 	const runs = Math.min(BUDGET_RISK_RUNS, Math.floor(BUDGET_RISK_MAX_TOTAL_DRAWS / count))
 	if (runs < BUDGET_RISK_MIN_RUNS) {
 		const maxTickets = Math.floor(BUDGET_RISK_MAX_TOTAL_DRAWS / BUDGET_RISK_MIN_RUNS)
 		showToast(`Risk analysis supports up to ${maxTickets.toLocaleString()} tickets per budget so it can run at least ${BUDGET_RISK_MIN_RUNS} independent budgets.`)
-		return
+		showSimulationActionFeedback("simRiskFeedback", "Risk analysis not run", `Use a budget of at most ${formatGameMoney(maxTickets * ticketCost)} for at least ${BUDGET_RISK_MIN_RUNS} runs.`)
+		return false
 	}
 
 	const nets = new Array(runs)
@@ -2647,6 +2688,8 @@ function runBudgetRiskAnalysis() {
 		runs,
 	})
 	setNextExperimentContext("budget_risk")
+	showSimulationActionFeedback("simRiskFeedback", `${runs.toLocaleString()} budget runs analyzed`, `Profit frequency ${((profitable / runs) * 100).toFixed(1)}% · Median net ${formatMoney(percentileFromSorted(nets, 0.5))}`, "budgetRiskResult")
+	return true
 }
 
 const $sim10 = document.getElementById("sim10Btn")
@@ -2940,6 +2983,7 @@ function scrollExperimentTarget(id) {
 }
 
 function runExperimentSnapshot(snapshot, source = "lab") {
+	const phone = window.matchMedia("(max-width: 699px)").matches
 	if (!snapshot || !EXPERIMENT_LABELS[snapshot.type]) return false
 	if (!restoreExperimentPreset(snapshot)) return false
 
@@ -2951,20 +2995,19 @@ function runExperimentSnapshot(snapshot, source = "lab") {
 		const count = Number(snapshot.params.count)
 		if (input && Number.isInteger(count) && count > 0) input.value = String(count)
 		ran = updateExactMultiTicketOdds(true)
-		targetId = "simCard"
+		targetId = phone ? "simExactFeedback" : "exactOddsResult"
 	} else if (snapshot.type === "fast_simulation") {
 		const count = Number(snapshot.params.count)
 		ran = Number.isInteger(count) ? runFastSimulation(count) : false
-		targetId = "simCard"
+		targetId = phone ? "simBatchFeedback" : "fastSimResult"
 	} else if (snapshot.type === "budget_risk") {
 		const input = document.getElementById("simBudgetInput")
 		const budget = Number(snapshot.params.budget)
 		if (input && Number.isFinite(budget) && budget > 0) input.value = String(budget)
 		if (Number.isFinite(budget) && budget > 0) {
-			runBudgetRiskAnalysis()
-			ran = true
+			ran = runBudgetRiskAnalysis()
 		}
-		targetId = "simCard"
+		targetId = phone ? "simRiskFeedback" : "budgetRiskResult"
 	} else if (snapshot.type === "long_run") {
 		const perWeekInput = document.getElementById("longRunPerWeek")
 		const yearsInput = document.getElementById("longRunYears")
@@ -2976,7 +3019,7 @@ function runExperimentSnapshot(snapshot, source = "lab") {
 			updateLongRunProjection({ track: true })
 			ran = true
 		}
-		targetId = "longRunCard"
+		targetId = "longRunResult"
 	}
 
 	if (!ran) return false
