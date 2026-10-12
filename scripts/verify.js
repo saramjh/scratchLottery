@@ -88,6 +88,20 @@ if (mobileFeedbackContract) {
 	fail("mobile action-local simulation feedback contract failed")
 }
 
+// Mobile controls must not touch their feedback, and budget risk is a separate action.
+// Browser geometry is checked during UX QA; this guards the authored spacing contract.
+const mobileSimulationSpacing =
+	/\.sim-inline-feedback:not\(\[hidden\]\)\s*\{[^}]*margin-top:\s*var\(--space-3\);/.test(css) &&
+	css.includes("#simBatchFeedback:not([hidden]) { margin-top: var(--space-2); }") &&
+	css.includes(".sim-budget-box .sim-budget-risk-btn { margin-top: var(--space-3); }") &&
+	css.includes(".sim-exact-odds-box > .sim-budget-hint,") &&
+	css.includes(".sim-budget-box > .sim-budget-hint { margin-top: var(--space-3); }")
+if (mobileSimulationSpacing) {
+	ok("mobile action/result and budget risk spacing retain the shared spacing scale")
+} else {
+	fail("mobile simulation spacing contract failed")
+}
+
 // 4) SEO winner cluster: proven Search Console terms must remain aligned in title/H1/description.
 const expectedTitle = "<title>Scratch Off Simulator — Free Scratch Card &amp; Ticket Simulator</title>"
 const expectedH1 = "<h1>Scratch Off Simulator</h1>"
