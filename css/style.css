@@ -2164,6 +2164,16 @@ footer a:hover {
 	min-height: 150px;
 }
 
+/* Short direct answers in the existing model explanation, not a new FAQ block. */
+.engine-answer-title {
+	margin-top: 16px;
+	margin-bottom: 5px;
+	font-size: 0.92rem;
+	font-weight: 600;
+	line-height: 1.4;
+	color: var(--text);
+}
+
 .analysis-stack {
 	display: flex;
 	flex-direction: column;

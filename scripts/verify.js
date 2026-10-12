@@ -120,6 +120,25 @@ if (seoGeoCoherent) {
 	fail("SEO/GEO pre-deploy coherence contract failed")
 }
 
+// Search/answer grounding: primary landing's tested winner keywords stay intact.
+// Direct answers remain visible in first-response HTML, not hidden in JS or
+// accompanied by unsupported FAQ/AI-specific schema.
+const mainSearchAnswersGrounded =
+	html.indexOf('<meta charset="UTF-8">') < 150 &&
+	html.indexOf('<meta name="viewport"') < 250 &&
+	html.includes('<h3 class="engine-answer-title">How does this simulator calculate scratch-off odds and RTP?</h3>') &&
+	html.includes('<h3 class="engine-answer-title">Are these the current odds for unsold real tickets?</h3>') &&
+	html.includes('Official-issue presets describe the published print-run distribution, not live unsold inventory.') &&
+	html.includes('href="math/#independenceLesson"') &&
+	!html.includes('"@type": "FAQPage"') &&
+	!html.includes('llms.txt') &&
+	sitemap.includes('<lastmod>2026-10-12</lastmod>')
+if (mainSearchAnswersGrounded) {
+	ok("HTML crawl metadata and visible source-bound answers preserve the search winner")
+} else {
+	fail("main SEO/AEO questions or static source/canonical grounding regressed")
+}
+
 // AdSense/search-quality contract: the product owns exactly two manual ads,
 // both inside static reading breaks and away from controls. Auto ads remain
 // excluded for this product path so they cannot re-inject around the app.
@@ -564,6 +583,7 @@ const trackerMarkupValid =
 	html.includes("Azulejos · Game 2751") &&
 	html.includes("50X The Cash · Game 2712") &&
 	html.includes("<strong>Not current ticket odds.</strong>") &&
+	html.includes("not live odds among unsold physical tickets.") &&
 	!html.includes("best scratch ticket") &&
 	!html.includes("hot ticket")
 

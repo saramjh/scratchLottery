@@ -187,6 +187,23 @@
 	line-height: 1.55;
 }
 
+/* Answer a concrete probability question alongside its interactive model. */
+.math-brief-question {
+	margin-top: 22px;
+	margin-bottom: 7px;
+	font-size: 1rem;
+	font-weight: 600;
+	line-height: 1.45;
+	color: var(--text);
+}
+
+.math-brief-answer {
+	max-width: 76ch;
+	color: var(--text-dim);
+	font-size: 0.9rem;
+	line-height: 1.65;
+}
+
 .math-bridge {
 	margin-top: 20px;
 	font-size: 0.88rem;

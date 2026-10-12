@@ -75,6 +75,17 @@ if (
 		"math page links concepts back to product tools and sourced model"
 	)
 	expect(
+		html.indexOf('<meta charset="UTF-8">') < 150 &&
+			html.includes('<h3 class="math-brief-question">Does winning any prize mean a scratch ticket is profitable on average?</h3>') &&
+			html.includes('RTP weights each prize amount by how often it occurs.') &&
+			html.includes('about 26.52% of tickets have a prize') &&
+			html.includes('$3.23 for each $5 spent (64.6% RTP)') &&
+			!html.includes('FAQPage') &&
+			sitemap.includes('<loc>https://saramjh.github.io/scratchLottery/math/</loc>') &&
+			(sitemap.match(/<lastmod>2026-10-12<\/lastmod>/g) || []).length === 2,
+		"math learning page exposes a verifiable direct RTP-versus-winning-odds answer without special AI schema"
+	)
+	expect(
 		html.includes('aria-live="polite"') &&
 			html.includes('aria-label="Running return chart"') &&
 			html.includes('aria-label="Independent trial sequence"'),

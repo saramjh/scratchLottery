@@ -2,6 +2,8 @@
 <html lang="en">
 
 <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4410729598083068"
     crossorigin="anonymous"></script>
   <!-- Google tag (gtag.js) -->
@@ -21,8 +23,6 @@
     })(window, document, "clarity", "script", "yiij6vbnl0");
   </script>
   <!-- End Microsoft Clarity -->
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="robots" content="max-image-preview:large">
   <meta name="description"
     content="Free scratch off simulator, scratch card simulator and scratch ticket simulator with fast simulations, odds, RTP and custom probability tools. No real money.">
@@ -206,6 +206,7 @@
 
         <section class="panel">
           <h2>Current Odds</h2>
+          <p class="panel-sub">These are probabilities from the selected game's published issue distribution or clearly labeled simulation model, not live odds among unsold physical tickets.</p>
           <div class="odds-summary-strip">
             <div class="odds-summary-item">
               <span class="stat-label">Top Prize</span>
@@ -433,12 +434,19 @@
             outcome: one prize tier or no win. Presets with a published full prize structure use the operator's published
             winning-ticket counts. Other presets are explicitly labeled as simulator models rather than official distributions.
           </p>
+          <h3 class="engine-answer-title">How does this simulator calculate scratch-off odds and RTP?</h3>
           <p class="panel-sub">
-            For a published distribution, tier probability = winning tickets ÷ issued tickets, and RTP =
-            Σ(tier probability × prize) ÷ ticket price.
+            For a published distribution, each prize-tier probability is winning tickets ÷ issued tickets.
+            Return to Player (RTP) is Σ(tier probability × prize) ÷ ticket price.
             <a href="https://www.dhlottery.co.kr/st/st10Intro" target="_blank" rel="noopener">Speetto 1000</a> and
             <a href="https://www.dhlottery.co.kr/st/st20Intro" target="_blank" rel="noopener">Speetto 2000</a>
-            use Donghaeng Lottery's official issue tables; the displayed odds and return are calculated from those counts.
+            use Donghaeng Lottery's published issue counts; the simulator calculates the displayed odds and return from those counts.
+          </p>
+          <h3 class="engine-answer-title">Are these the current odds for unsold real tickets?</h3>
+          <p class="panel-sub">
+            No. Official-issue presets describe the published print-run distribution, not live unsold inventory.
+            The simulator makes independent draws from that distribution; it cannot infer the current chance on a real
+            unsold ticket from claimed-prize counts. <a href="math/#independenceLesson">Compare independent draws with a finite ticket issue</a>.
           </p>
         </section>
 
