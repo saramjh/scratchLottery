@@ -607,7 +607,16 @@ function paintCellFoil(ctx, w, h) {
    "지금 실제로 어디 위에 있는지"(elementFromPoint)를 계속 찾아서 그 칸을 긁는다 — 실제 손톱으로
    긁듯 칸 경계를 신경 안 써도 되게.
    또한 mousedown에서 preventDefault를 해야 드래그 중 주변 텍스트가 같이 선택되는 것을 막는다. */
-const cellScratchRegistry = new Map() // canvas element -> { erase(clientX, clientY), revealNow() }
+const cellScratchRegistry = new Map() // canvas element -> { erase(clientX, clientY), revealNow(), resize() }
+const cellScratchResizeObserver = typeof ResizeObserver === "function"
+	? new ResizeObserver((entries) => {
+		for (const entry of entries) cellScratchRegistry.get(entry.target)?.resize()
+	})
+	: null
+// ResizeObserver handles cell geometry changes; this also catches DPR-only changes.
+window.addEventListener("resize", () => {
+	for (const controller of cellScratchRegistry.values()) controller.resize()
+})
 let scratchPointerActive = false
 
 function scratchAtClientPoint(clientX, clientY) {
@@ -659,22 +668,57 @@ document.addEventListener("touchend", () => {
 })
 
 function setupCellScratch(canvas, onRevealed) {
-	const dpr = window.devicePixelRatio || 1
-	const w = canvas.clientWidth
-	const h = canvas.clientHeight
-	canvas.width = w * dpr
-	canvas.height = h * dpr
 	const ctx = canvas.getContext("2d")
-	ctx.scale(dpr, dpr)
-	paintCellFoil(ctx, w, h)
-
+	let w = 0
+	let h = 0
 	let erasedArea = 0
 	let done = false
-	const totalArea = w * h
 	const singleErase = Math.PI * CELL_ERASE_RADIUS * CELL_ERASE_RADIUS * 0.6 // 겹침을 감안한 대략치
+
+	function resize() {
+		if (done) return
+		const { width: nextW, height: nextH } = canvas.getBoundingClientRect()
+		if (!nextW || !nextH) return
+		const dpr = window.devicePixelRatio || 1
+		const pixelW = Math.max(1, Math.round(nextW * dpr))
+		const pixelH = Math.max(1, Math.round(nextH * dpr))
+		if (canvas.width === pixelW && canvas.height === pixelH && w === nextW && h === nextH) return
+
+		// Keep the erased alpha mask, not the old foil pixels: rescaling the
+		// old image stretches the $ mark when the cell aspect ratio changes.
+		let oldMask = null
+		if (w && h) {
+			oldMask = document.createElement("canvas")
+			oldMask.width = canvas.width
+			oldMask.height = canvas.height
+			oldMask.getContext("2d").drawImage(canvas, 0, 0)
+			erasedArea *= (nextW * nextH) / (w * h)
+		}
+		w = nextW
+		h = nextH
+		canvas.width = pixelW
+		canvas.height = pixelH
+		ctx.setTransform(pixelW / w, 0, 0, pixelH / h, 0, 0)
+		paintCellFoil(ctx, w, h)
+		if (oldMask) {
+			ctx.save()
+			ctx.globalCompositeOperation = "destination-in"
+			ctx.drawImage(oldMask, 0, 0, w, h)
+			ctx.restore()
+		}
+	}
+
+	function finish() {
+		done = true
+		ctx.clearRect(0, 0, w, h)
+		cellScratchRegistry.delete(canvas)
+		cellScratchResizeObserver?.unobserve(canvas)
+		onRevealed()
+	}
 
 	function erase(clientX, clientY) {
 		if (done) return
+		resize()
 		const rect = canvas.getBoundingClientRect()
 		const x = clientX - rect.left
 		const y = clientY - rect.top
@@ -686,25 +730,18 @@ function setupCellScratch(canvas, onRevealed) {
 		ctx.restore()
 		erasedArea += singleErase
 		playScratchTick()
-		if (erasedArea / totalArea > CELL_REVEAL_RATIO) {
-			done = true
-			ctx.clearRect(0, 0, w, h)
-			cellScratchRegistry.delete(canvas)
-			onRevealed()
-		}
+		if (erasedArea / (w * h) > CELL_REVEAL_RATIO) finish()
 	}
 
 	function revealNow() {
-		if (!done) {
-			done = true
-			ctx.clearRect(0, 0, w, h)
-			cellScratchRegistry.delete(canvas)
-			onRevealed()
-		}
+		if (!done) finish()
 	}
 
-	cellScratchRegistry.set(canvas, { erase, revealNow })
-	return { revealNow }
+	resize()
+	const controller = { erase, revealNow, resize }
+	cellScratchRegistry.set(canvas, controller)
+	cellScratchResizeObserver?.observe(canvas)
+	return controller
 }
 
 /* 스크래치 커버 만들기 끝 */
@@ -1086,6 +1123,8 @@ function renderTicket(ticket) {
 		winningNumbersList.textContent = ticket.winningNumbers.join("   •   ")
 	}
 
+	for (const canvas of cellScratchRegistry.keys()) cellScratchResizeObserver?.unobserve(canvas)
+	cellScratchRegistry.clear()
 	grid.innerHTML = ""
 	cellControllers = []
 

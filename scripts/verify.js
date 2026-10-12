@@ -102,6 +102,25 @@ if (mobileSimulationSpacing) {
 	fail("mobile simulation spacing contract failed")
 }
 
+// Scratch foil must be re-rendered at its current CSS size and DPR when a cell changes
+// dimensions; already-erased alpha and completed reveals must survive that resize.
+const responsiveScratchContract =
+	js.includes('const cellScratchResizeObserver = typeof ResizeObserver === "function"') &&
+	js.includes('cellScratchRegistry.get(entry.target)?.resize()') &&
+	js.includes('window.addEventListener("resize", () => {') &&
+	js.includes('const { width: nextW, height: nextH } = canvas.getBoundingClientRect()') &&
+	js.includes('ctx.setTransform(pixelW / w, 0, 0, pixelH / h, 0, 0)') &&
+	js.includes('paintCellFoil(ctx, w, h)') &&
+	js.includes('ctx.globalCompositeOperation = "destination-in"') &&
+	js.includes('ctx.drawImage(oldMask, 0, 0, w, h)') &&
+	js.includes('cellScratchResizeObserver?.unobserve(canvas)') &&
+	js.includes('cellScratchRegistry.clear()')
+if (responsiveScratchContract) {
+	ok("responsive scratch foil re-renders without stretched symbols or lost erasures")
+} else {
+	fail("responsive scratch resize contract failed")
+}
+
 // 4) SEO winner cluster: proven Search Console terms must remain aligned in title/H1/description.
 const expectedTitle = "<title>Scratch Off Simulator — Free Scratch Card &amp; Ticket Simulator</title>"
 const expectedH1 = "<h1>Scratch Off Simulator</h1>"
