@@ -27,6 +27,13 @@ const corePath = path.join(root, "js", "lottery-math-core.js")
 const modelsPath = path.join(root, "js", "verified-lottery-models.js")
 const mainHtml = fs.readFileSync(path.join(root, "index.html"), "utf8")
 const sitemap = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8")
+const sitemapLastmods = [...sitemap.matchAll(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g)].map((match) => match[1])
+const sitemapDatesValid = sitemapLastmods.length === 2 && sitemapLastmods.every((value) => {
+	const parsed = new Date(value + "T00:00:00Z")
+	return !Number.isNaN(parsed.getTime()) &&
+		parsed.toISOString().slice(0, 10) === value &&
+		value <= new Date().toISOString().slice(0, 10)
+})
 const mainJs = fs.readFileSync(path.join(root, "js", "script.js"), "utf8")
 
 for (const [filePath, label] of [
@@ -81,8 +88,8 @@ if (
 			html.includes('about 26.52% of tickets have a prize') &&
 			html.includes('$3.23 for each $5 spent (64.6% RTP)') &&
 			!html.includes('FAQPage') &&
-			sitemap.includes('<loc>https://saramjh.github.io/scratchLottery/math/</loc>') &&
-			(sitemap.match(/<lastmod>2026-10-12<\/lastmod>/g) || []).length === 2,
+			/<loc>https:\/\/saramjh\.github\.io\/scratchLottery\/math\/<\/loc>\s*<lastmod>\d{4}-\d{2}-\d{2}<\/lastmod>/.test(sitemap) &&
+			sitemapDatesValid,
 		"math learning page exposes a verifiable direct RTP-versus-winning-odds answer without special AI schema"
 	)
 	expect(

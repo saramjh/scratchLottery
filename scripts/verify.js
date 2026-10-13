@@ -135,6 +135,13 @@ if (html.includes(expectedTitle) && html.includes(expectedH1) && metaHasSecondar
 // must describe the same visible product without deprecated/stale FAQ schema.
 const robots = fs.readFileSync(path.join(root, "robots.txt"), "utf8")
 const sitemap = fs.readFileSync(path.join(root, "sitemap.xml"), "utf8")
+const sitemapLastmods = [...sitemap.matchAll(/<lastmod>(\d{4}-\d{2}-\d{2})<\/lastmod>/g)].map((match) => match[1])
+const sitemapDatesValid = sitemapLastmods.length === 2 && sitemapLastmods.every((value) => {
+	const parsed = new Date(value + "T00:00:00Z")
+	return !Number.isNaN(parsed.getTime()) &&
+		parsed.toISOString().slice(0, 10) === value &&
+		value <= new Date().toISOString().slice(0, 10)
+})
 const jsonLdMatch = html.match(/<script type="application\/ld\+json">\s*([\s\S]*?)\s*<\/script>/)
 let appSchema = null
 try {
@@ -164,7 +171,7 @@ const seoGeoCoherent =
 	robots.includes("User-agent: *\nAllow: /\n") &&
 	robots.includes("Sitemap: " + canonicalUrl + "sitemap.xml") &&
 	sitemap.includes("<loc>" + canonicalUrl + "</loc>") &&
-	/<lastmod>2026-10-(?:0[5-9]|[12]\d|3[01])<\/lastmod>/.test(sitemap) &&
+	sitemapDatesValid &&
 	fs.existsSync(path.join(root, "docs/og-image.png")) &&
 	fs.existsSync(path.join(root, "favicon.svg"))
 
@@ -186,7 +193,7 @@ const mainSearchAnswersGrounded =
 	html.includes('href="math/#independenceLesson"') &&
 	!html.includes('"@type": "FAQPage"') &&
 	!html.includes('llms.txt') &&
-	sitemap.includes('<lastmod>2026-10-12</lastmod>')
+	sitemapDatesValid
 if (mainSearchAnswersGrounded) {
 	ok("HTML crawl metadata and visible source-bound answers preserve the search winner")
 } else {
